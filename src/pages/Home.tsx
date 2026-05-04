@@ -78,8 +78,8 @@ export function Home() {
       </div>
 
       {/* Stacked Discipline Selection */}
-      <div className="relative h-[400px] mb-12 flex items-center justify-center">
-        <div className="relative w-full max-w-[280px] h-[360px] preserve-3d">
+      <div className="relative h-[320px] mb-8 flex items-center justify-center">
+        <div className="relative w-full max-w-[240px] h-[280px] preserve-3d">
           {disciplines.map((item, index) => {
             const isActive = discipline === item.id;
             const disciplineIndex = disciplines.findIndex(d => d.id === discipline);
@@ -101,7 +101,7 @@ export function Home() {
                 whileTap={{ scale: isActive ? 1.05 : 0.95 }}
                 transition={{ type: "spring", stiffness: 300, damping: 25 }}
                 className={cn(
-                  "absolute inset-0 rounded-[3rem] p-10 flex flex-col justify-between transition-shadow group",
+                  "absolute inset-0 rounded-[2.5rem] p-8 flex flex-col justify-between transition-shadow group",
                   "bg-white dark:bg-neutral-900 border-2",
                   isActive ? "border-transparent" : "border-neutral-100 dark:border-neutral-800"
                 )}
@@ -116,33 +116,33 @@ export function Home() {
               >
                 <div 
                   className={cn(
-                    "w-20 h-20 rounded-[2rem] flex items-center justify-center text-white shadow-xl transition-transform duration-500 group-hover:rotate-12",
+                    "w-16 h-16 rounded-[1.5rem] flex items-center justify-center text-white shadow-xl transition-transform duration-500 group-hover:rotate-12",
                     item.accent
                   )}
                   style={{ backgroundColor: isActive ? 'var(--discipline-accent)' : undefined }}
                 >
-                  <item.icon className="w-10 h-10" strokeWidth={1.5} />
+                  <item.icon className="w-8 h-8" strokeWidth={1.5} />
                 </div>
                 
                 <div className="text-left">
-                  <span className="text-[10px] font-black uppercase tracking-[0.3em] text-neutral-300 dark:text-neutral-600 mb-2 block">
+                  <span className="text-[9px] font-black uppercase tracking-[0.3em] text-neutral-300 dark:text-neutral-600 mb-1 block">
                     {language === 'es' ? 'DISCIPLINA' : 'DISCIPLINE'}
                   </span>
                   <h3 className={cn(
-                    "text-3xl font-display font-black leading-tight",
+                    "text-2xl font-display font-black leading-tight",
                     isActive ? "text-neutral-900 dark:text-white" : "text-neutral-400 dark:text-neutral-600"
                   )}>
                     {item.label}
                   </h3>
                 </div>
 
-                <div className="flex items-center justify-between mt-4">
+                <div className="flex items-center justify-between mt-2">
                   <div className="flex gap-1">
                     {[1, 2, 3].map(i => (
-                      <div key={i} className={cn("w-1.5 h-1.5 rounded-full", isActive ? "bg-neutral-200" : "bg-neutral-100")} />
+                      <div key={i} className={cn("w-1 h-1 rounded-full", isActive ? "bg-neutral-200" : "bg-neutral-100")} />
                     ))}
                   </div>
-                  <ChevronRight className={cn("w-6 h-6", isActive ? "text-neutral-300" : "text-neutral-100")} />
+                  <ChevronRight className={cn("w-5 h-5", isActive ? "text-neutral-300" : "text-neutral-100")} />
                 </div>
               </motion.button>
             );
