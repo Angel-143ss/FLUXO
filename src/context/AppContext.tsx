@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { onAuthStateChanged, User } from 'firebase/auth';
+import { auth } from '../lib/firebase';
 
-export type Discipline = 'Music' | 'Sculpture' | 'Drawing' | 'Writing' | 'Photography' | 'General';
+export type Discipline = 'Drawing' | 'Writing' | 'Photography';
 export type CreativeMode = 'Unlock' | 'Practice' | 'Challenge';
 export type Theme = 'light' | 'dark';
 export type Language = 'es' | 'en';
@@ -15,6 +17,8 @@ export interface ChallengeData {
 }
 
 interface AppContextType {
+  user: User | null;
+  loading: boolean;
   discipline: Discipline;
   setDiscipline: (d: Discipline) => void;
   creativeMode: CreativeMode;
@@ -25,6 +29,14 @@ interface AppContextType {
   toggleTheme: () => void;
   language: Language;
   setLanguage: (l: Language) => void;
+  hasSeenOnboarding: boolean;
+  completeOnboarding: () => void;
+  userName: string;
+  setUserName: (name: string) => void;
+  userPhoto: string;
+  setUserPhoto: (photo: string) => void;
+  userBio: string;
+  setUserBio: (bio: string) => void;
 }
 
 export interface ProgressNote {
@@ -38,9 +50,24 @@ export interface ProgressNote {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+      setLoading(false);
+      if (user) {
+        setHasSeenOnboarding(false); // Reset onboarding on every login detection
+        if (user.displayName) setUserNameState(user.displayName);
+        if (user.photoURL) setUserPhotoState(user.photoURL);
+      }
+    });
+    return unsubscribe;
+  }, []);
   const [discipline, setDisciplineState] = useState<Discipline>(() => {
     const saved = localStorage.getItem('creative_discipline');
-    return (saved as Discipline) || 'General';
+    return (saved as Discipline) || 'Drawing';
   });
 
   const [creativeMode, setCreativeModeState] = useState<CreativeMode>(() => {
@@ -63,6 +90,38 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const saved = localStorage.getItem('creative_language');
     return (saved as Language) || 'es';
   });
+
+  const [hasSeenOnboarding, setHasSeenOnboarding] = useState<boolean>(() => {
+    const saved = localStorage.getItem('creative_onboarding');
+    return saved === 'true';
+  });
+
+  const [userName, setUserNameState] = useState(() => {
+    return localStorage.getItem('creative_user_name') || 'Creative';
+  });
+
+  const [userPhoto, setUserPhotoState] = useState(() => {
+    return localStorage.getItem('creative_user_photo') || 'https://images.unsplash.com/photo-1554151228-14d9def656e4?q=80&w=200&auto=format&fit=crop';
+  });
+
+  const [userBio, setUserBioState] = useState(() => {
+    return localStorage.getItem('creative_user_bio') || '';
+  });
+
+  const setUserName = (name: string) => {
+    setUserNameState(name);
+    localStorage.setItem('creative_user_name', name);
+  };
+
+  const setUserPhoto = (photo: string) => {
+    setUserPhotoState(photo);
+    localStorage.setItem('creative_user_photo', photo);
+  };
+
+  const setUserBio = (bio: string) => {
+    setUserBioState(bio);
+    localStorage.setItem('creative_user_bio', bio);
+  };
 
   useEffect(() => {
     if (theme === 'dark') {
@@ -93,6 +152,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem('creative_language', l);
   };
 
+  const completeOnboarding = () => {
+    setHasSeenOnboarding(true);
+    localStorage.setItem('creative_onboarding', 'true');
+  };
+
   const addProgressNote = (note: Omit<ProgressNote, 'id' | 'date'>) => {
     const id = typeof crypto.randomUUID === 'function' 
       ? crypto.randomUUID() 
@@ -108,8 +172,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem('creative_progress', JSON.stringify(updated));
   };
 
+  useEffect(() => {
+    const accentColors: Record<Discipline, string> = {
+      Drawing: '#FFAE7A', // Orange
+      Writing: '#A78BFA', // Purple
+      Photography: '#22D3EE' // Cyan
+    };
+    document.documentElement.style.setProperty('--discipline-accent', accentColors[discipline]);
+  }, [discipline]);
+
   return (
     <AppContext.Provider value={{ 
+      user,
+      loading,
       discipline, 
       setDiscipline, 
       creativeMode, 
@@ -119,7 +194,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       theme, 
       toggleTheme, 
       language, 
-      setLanguage 
+      setLanguage,
+      hasSeenOnboarding,
+      completeOnboarding,
+      userName,
+      setUserName,
+      userPhoto,
+      setUserPhoto,
+      userBio,
+      setUserBio
     }}>
       {children}
     </AppContext.Provider>

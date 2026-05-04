@@ -93,36 +93,36 @@ export function Community() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="max-w-3xl mx-auto mt-8"
+      className="max-w-3xl mx-auto px-4 sm:px-6"
     >
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-stone-900 dark:text-white mb-3">{t.communityTitle}</h1>
-        <p className="text-stone-600 dark:text-stone-400">
+      <div className="mb-12">
+        <h1 className="text-3xl font-display font-semibold tracking-tight text-neutral-900 dark:text-white mb-3">{t.communityTitle}</h1>
+        <p className="text-neutral-500 dark:text-neutral-400">
           {t.communitySubtitle}
         </p>
       </div>
 
-      <div className="bg-white dark:bg-stone-900 rounded-2xl p-6 shadow-sm border border-stone-200 dark:border-stone-800 mb-8">
+      <div className="minimal-card p-6 mb-12">
         <div className="flex gap-4">
-          <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-700 dark:text-indigo-300 font-bold shrink-0">
-            {t.you}
+          <div className="w-10 h-10 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-neutral-900 dark:text-neutral-100 font-bold text-[10px] uppercase tracking-widest shrink-0 border border-neutral-200 dark:border-neutral-700">
+            {t.you.substring(0, 2).toUpperCase()}
           </div>
           <div className="flex-1">
             <textarea
               value={newPost}
               onChange={(e) => setNewPost(e.target.value)}
               placeholder={t.shareUpdate}
-              className="w-full h-24 p-4 rounded-xl border border-stone-200 dark:border-stone-700 bg-transparent focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-500/30 outline-none resize-none transition-all mb-3 text-stone-800 dark:text-stone-100"
+              className="w-full h-24 p-4 rounded-xl border border-neutral-100 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-800/50 focus:border-neutral-900 dark:focus:border-neutral-100 outline-none resize-none transition-all mb-4 text-neutral-800 dark:text-neutral-100 text-sm"
             />
             
             {selectedImage && (
-              <div className="relative inline-block mb-4">
-                <img src={selectedImage} alt="Preview" className="h-32 rounded-lg object-cover border border-stone-200 dark:border-stone-700" />
+              <div className="relative inline-block mb-6">
+                <img src={selectedImage} alt="Preview" className="h-32 rounded-xl object-cover border border-neutral-200 dark:border-neutral-700 grayscale hover:grayscale-0 transition-all" />
                 <button
                   onClick={() => setSelectedImage(null)}
-                  className="absolute -top-2 -right-2 bg-stone-800 text-white rounded-full p-1 hover:bg-stone-900 transition-colors shadow-sm"
+                  className="absolute -top-2 -right-2 bg-neutral-900 text-white rounded-full p-1 hover:bg-neutral-800 transition-colors shadow-sm"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -130,17 +130,17 @@ export function Community() {
             )}
 
             {attachedChallenge && (
-              <div className="mb-4 p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800/50 flex justify-between items-start">
+              <div className="mb-6 p-4 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl border border-neutral-100 dark:border-neutral-800 flex justify-between items-start">
                 <div>
-                  <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold text-xs uppercase tracking-wider mb-1">
-                    <Target className="w-4 h-4" />
+                  <div className="flex items-center gap-2 text-neutral-400 font-bold text-[10px] uppercase tracking-widest mb-1">
+                    <Target className="w-4 h-4" strokeWidth={1.5} />
                     {t.attachedChallenge}
                   </div>
-                  <p className="text-stone-800 dark:text-stone-200 text-sm font-medium">{attachedChallenge.title}</p>
+                  <p className="text-neutral-900 dark:text-neutral-100 text-sm font-medium">{attachedChallenge.title}</p>
                 </div>
                 <button
                   onClick={() => setAttachedChallenge(null)}
-                  className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 p-1"
+                  className="text-neutral-400 hover:text-neutral-900 p-1"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -148,10 +148,10 @@ export function Community() {
             )}
 
             <div className="flex justify-between items-center">
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="p-2 text-stone-500 hover:text-indigo-600 dark:text-stone-400 dark:hover:text-indigo-400 transition-colors rounded-full hover:bg-stone-100 dark:hover:bg-stone-800"
+                  className="p-2.5 text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors rounded-xl border border-transparent hover:border-neutral-200 dark:hover:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/50"
                   title={t.attachImage}
                 >
                   <ImagePlus className="w-5 h-5" />
@@ -166,12 +166,12 @@ export function Community() {
               </div>
               <button
                 disabled={!newPost.trim() && !selectedImage && !attachedChallenge}
-                className="bg-indigo-600 hover:bg-indigo-700 disabled:bg-stone-300 dark:disabled:bg-stone-700 text-white px-6 py-2 rounded-full font-medium transition-colors"
+                className="minimal-button-primary px-8"
                 onClick={() => {
                   const newPostObj: Post = {
                     id: Date.now(),
                     author: t.you,
-                    avatar: t.you,
+                    avatar: t.you.substring(0, 2).toUpperCase(),
                     discipline: discipline,
                     content: newPost,
                     image: selectedImage || undefined,
@@ -193,45 +193,45 @@ export function Community() {
         </div>
       </div>
 
-      <div className="flex gap-4 mb-6 border-b border-stone-200 dark:border-stone-800 pb-2">
+      <div className="flex gap-8 mb-8 border-b border-neutral-100 dark:border-neutral-800">
         <button
           onClick={() => setActiveTab('all')}
-          className={`pb-2 font-medium transition-colors relative ${activeTab === 'all' ? 'text-indigo-600 dark:text-indigo-400' : 'text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200'}`}
+          className={`pb-4 text-[10px] uppercase font-bold tracking-[0.2em] transition-colors relative ${activeTab === 'all' ? 'text-neutral-900 dark:text-neutral-100' : 'text-neutral-400 dark:text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100'}`}
         >
           {t.allArtists}
           {activeTab === 'all' && (
-            <motion.div layoutId="activeTab" className="absolute bottom-[-9px] left-0 right-0 h-0.5 bg-indigo-600" />
+            <motion.div layoutId="activeTab" className="absolute bottom-[-1px] left-0 right-0 h-px bg-neutral-900 dark:bg-neutral-100" />
           )}
         </button>
         <button
           onClick={() => setActiveTab('discipline')}
-          className={`pb-2 font-medium transition-colors relative ${activeTab === 'discipline' ? 'text-indigo-600 dark:text-indigo-400' : 'text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200'}`}
+          className={`pb-4 text-[10px] uppercase font-bold tracking-[0.2em] transition-colors relative ${activeTab === 'discipline' ? 'text-neutral-900 dark:text-neutral-100' : 'text-neutral-400 dark:text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100'}`}
         >
           {t.onlyDiscipline} {discipline}
           {activeTab === 'discipline' && (
-            <motion.div layoutId="activeTab" className="absolute bottom-[-9px] left-0 right-0 h-0.5 bg-indigo-600" />
+            <motion.div layoutId="activeTab" className="absolute bottom-[-1px] left-0 right-0 h-px bg-neutral-900 dark:bg-neutral-100" />
           )}
         </button>
       </div>
 
       <div className="space-y-6">
         {filteredPosts.map((post) => (
-          <div key={post.id} className="bg-white dark:bg-stone-900 rounded-2xl p-6 shadow-sm border border-stone-200 dark:border-stone-800">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-600 dark:text-stone-300 font-bold">
+          <div key={post.id} className="minimal-card p-6">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-10 h-10 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-neutral-900 dark:text-neutral-100 font-bold text-[10px] uppercase tracking-widest border border-neutral-200 dark:border-neutral-700">
                 {post.avatar}
               </div>
               <div>
-                <h3 className="font-bold text-stone-800 dark:text-stone-100">{post.author}</h3>
-                <div className="flex items-center gap-2 text-xs text-stone-500 dark:text-stone-400">
+                <h3 className="text-sm font-display font-semibold text-neutral-900 dark:text-white">{post.author}</h3>
+                <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
                   <span>{post.time}</span>
-                  <span>•</span>
-                  <span className="bg-stone-100 dark:bg-stone-800 px-2 py-0.5 rounded-md">{post.discipline}</span>
+                  <span className="opacity-30">•</span>
+                  <span className="bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded text-neutral-600 dark:text-neutral-300">{post.discipline}</span>
                 </div>
               </div>
             </div>
             
-            <p className="text-stone-700 dark:text-stone-300 mb-4 leading-relaxed">
+            <p className="text-neutral-800 dark:text-neutral-200 text-sm md:text-base leading-relaxed mb-6">
               {post.content}
             </p>
 
@@ -239,39 +239,39 @@ export function Community() {
               <img 
                 src={post.image} 
                 alt="Post attachment" 
-                className="w-full max-h-96 object-cover rounded-xl mb-4 border border-stone-100 dark:border-stone-800" 
+                className="w-full max-h-[500px] object-cover rounded-xl mb-6 border border-neutral-100 dark:border-neutral-800 grayscale hover:grayscale-0 transition-all duration-700" 
                 referrerPolicy="no-referrer"
               />
             )}
 
             {post.challenge && (
-              <details className="mb-4 group bg-stone-50 dark:bg-stone-800/50 rounded-xl border border-stone-200 dark:border-stone-700 overflow-hidden">
-                <summary className="cursor-pointer p-4 font-medium text-stone-800 dark:text-stone-200 flex items-center justify-between select-none hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
-                  <div className="flex items-center gap-2">
-                    <Target className="w-4 h-4 text-indigo-500" />
-                    <span>{t.challengePrefix} {post.challenge.title}</span>
+              <details className="mb-6 group bg-neutral-50/50 dark:bg-neutral-800/30 rounded-xl border border-neutral-100 dark:border-neutral-800 overflow-hidden">
+                <summary className="cursor-pointer p-4 font-medium text-neutral-900 dark:text-neutral-100 flex items-center justify-between select-none hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors">
+                  <div className="flex items-center gap-2.5">
+                    <Target className="w-4 h-4 text-neutral-400" />
+                    <span className="text-sm">{t.challengePrefix} {post.challenge.title}</span>
                   </div>
-                  <ChevronDown className="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform" />
+                  <ChevronDown className="w-4 h-4 text-neutral-400 group-open:rotate-180 transition-transform" />
                 </summary>
-                <div className="p-4 pt-0 border-t border-stone-200 dark:border-stone-700 mt-2">
-                  <div className="mt-4 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-500 mb-2">
+                <div className="p-6 pt-0 border-t border-neutral-100 dark:border-neutral-800 mt-2">
+                  <div className="mt-4 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-neutral-400 mb-3">
                     {post.challenge.type === 'visual' ? t.visualChallenge : t.conceptualChallenge}
                     {post.challenge.time && (
                       <>
-                        <span className="text-stone-300 dark:text-stone-600">•</span>
-                        <span className="text-stone-500 dark:text-stone-400">{post.challenge.time}</span>
+                        <span className="opacity-30">•</span>
+                        <span>{post.challenge.time}</span>
                       </>
                     )}
                   </div>
-                  <p className="text-stone-600 dark:text-stone-300 text-sm mb-4">{post.challenge.description}</p>
+                  <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed mb-6">{post.challenge.description}</p>
                   
                   {post.challenge.steps && post.challenge.steps.length > 0 && (
-                    <div className="mb-4">
-                      <h4 className="text-sm font-semibold text-stone-800 dark:text-stone-200 mb-2">{t.steps}</h4>
-                      <ul className="space-y-2">
+                    <div className="mb-6">
+                      <h4 className="text-[10px] font-bold uppercase tracking-widest text-neutral-900 dark:text-neutral-100 mb-3">{t.steps}</h4>
+                      <ul className="space-y-3">
                         {post.challenge.steps.map((step: string, idx: number) => (
-                          <li key={idx} className="flex gap-2 text-sm text-stone-600 dark:text-stone-400">
-                            <span className="flex-shrink-0 w-5 h-5 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs font-bold">{idx + 1}</span>
+                          <li key={idx} className="flex gap-3 text-sm text-neutral-600 dark:text-neutral-400">
+                            <span className="flex-shrink-0 w-5 h-5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 flex items-center justify-center text-[10px] font-bold">{idx + 1}</span>
                             <span>{step}</span>
                           </li>
                         ))}
@@ -280,31 +280,31 @@ export function Community() {
                   )}
                   
                   {post.challenge.imageUrl && (
-                    <img src={post.challenge.imageUrl} alt={t.challengeReference} className="w-full max-w-sm rounded-lg border border-stone-200 dark:border-stone-700 mt-4" />
+                    <img src={post.challenge.imageUrl} alt={t.challengeReference} className="w-full max-w-sm rounded-xl border border-neutral-100 dark:border-neutral-800 mt-4 grayscale" />
                   )}
                 </div>
               </details>
             )}
             
-            <div className="flex items-center gap-6 border-t border-stone-100 dark:border-stone-800 pt-4">
-              <button className="flex items-center gap-2 text-stone-500 dark:text-stone-400 hover:text-pink-600 dark:hover:text-pink-400 transition-colors">
-                <Heart className="w-5 h-5" />
-                <span className="text-sm font-medium">{post.likes}</span>
+            <div className="flex items-center gap-8 border-t border-neutral-50 dark:border-neutral-800/50 pt-6">
+              <button className="flex items-center gap-2 text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors group">
+                <Heart className="w-4 h-4 group-hover:fill-current transition-all" />
+                <span className="text-[10px] font-bold uppercase tracking-widest transition-colors">{post.likes}</span>
               </button>
-              <button className="flex items-center gap-2 text-stone-500 dark:text-stone-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
-                <MessageSquare className="w-5 h-5" />
-                <span className="text-sm font-medium">{post.comments}</span>
+              <button className="flex items-center gap-2 text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors">
+                <MessageSquare className="w-4 h-4" />
+                <span className="text-[10px] font-bold uppercase tracking-widest transition-colors">{post.comments}</span>
               </button>
-              <button className="flex items-center gap-2 text-stone-500 dark:text-stone-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors ml-auto">
-                <Share2 className="w-5 h-5" />
+              <button className="flex items-center gap-2 text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors ml-auto">
+                <Share2 className="w-4 h-4" />
               </button>
             </div>
           </div>
         ))}
         
         {filteredPosts.length === 0 && (
-          <div className="text-center py-12 bg-stone-50 dark:bg-stone-900/50 rounded-2xl border border-dashed border-stone-300 dark:border-stone-700">
-            <p className="text-stone-500 dark:text-stone-400">{t.noPostsYet}</p>
+          <div className="text-center py-16 bg-neutral-50/50 dark:bg-neutral-900/50 rounded-2xl border border-dashed border-neutral-200 dark:border-neutral-800">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 dark:text-neutral-600">{t.noPostsYet}</p>
           </div>
         )}
       </div>

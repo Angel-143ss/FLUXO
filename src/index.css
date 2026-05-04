@@ -1,2 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600&display=swap');
 @import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit", var(--font-sans);
+
+  --color-brand-primary: #648EEA;
+  --color-brand-secondary: #FFAE7A;
+  --color-brand-accent: #A78BFA;
+  --color-brand-cyan: #22D3EE;
+  
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2rem;
+}
+
 @custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  body {
+    @apply antialiased text-[#2d2d2d] bg-[#fcfcfd] selection:bg-brand-primary selection:text-white;
+  }
+
+  .dark body {
+    @apply text-neutral-100 bg-[#0a0a0a] selection:bg-brand-primary;
+  }
+}
+
+@layer components {
+  .minimal-card {
+    @apply bg-white dark:bg-neutral-900 border border-neutral-100 dark:border-neutral-800 rounded-3xl shadow-lg shadow-neutral-200/50 dark:shadow-none transition-all;
+  }
+
+  .minimal-card:hover {
+    border-color: rgb(from var(--discipline-accent, #648EEA) r g b / 0.3);
+  }
+
+  .minimal-button-primary {
+    @apply px-6 py-3 rounded-2xl font-semibold transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none text-white shadow-lg;
+    background-color: var(--discipline-accent, #648EEA);
+    box-shadow: 0 10px 15px -3px rgb(from var(--discipline-accent, #648EEA) r g b / 0.2);
+  }
+
+  .minimal-button-primary:hover {
+    filter: brightness(0.95);
+  }
+
+  .minimal-button-secondary {
+    @apply px-6 py-3 rounded-2xl font-semibold transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none bg-white border-2 dark:bg-neutral-800 dark:text-neutral-100 dark:border-neutral-700;
+    color: var(--discipline-accent, #648EEA);
+    border-color: rgb(from var(--discipline-accent, #648EEA) r g b / 0.1);
+  }
+
+  .minimal-button-secondary:hover {
+    background-color: rgb(from var(--discipline-accent, #648EEA) r g b / 0.05);
+  }
+}

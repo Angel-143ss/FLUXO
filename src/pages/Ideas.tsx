@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Sparkles, RefreshCw, Loader2, Image as ImageIcon, ListChecks, Share2, Save, Zap, Edit3, Trophy } from 'lucide-react';
+import { Sparkles, RefreshCw, Loader2, Image as ImageIcon, ListChecks, Share2, Save, Zap, Edit3, Trophy, Wind } from 'lucide-react';
 import { useAppContext, CreativeMode } from '../context/AppContext';
 import { GoogleGenAI, Type } from '@google/genai';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { translations } from '../lib/i18n';
+
+
+import { cn } from '../lib/utils';
 
 
 interface IdeaData {
@@ -20,14 +23,15 @@ export function Ideas() {
   const { discipline, language, creativeMode, setCreativeMode } = useAppContext();
   const t = translations[language];
   const navigate = useNavigate();
+  const location = useLocation();
   const [idea, setIdea] = useState<IdeaData | null>(null);
   const [loading, setLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState('');
 
-  const modes: { id: CreativeMode; label: string; desc: string; icon: React.ElementType; color: string; bgColor: string }[] = [
-    { id: 'Unlock', label: t.modeUnlock, desc: t.modeUnlockDesc, icon: Zap, color: 'text-amber-500', bgColor: 'bg-amber-50 dark:bg-amber-900/20' },
-    { id: 'Practice', label: t.modePractice, desc: t.modePracticeDesc, icon: Edit3, color: 'text-indigo-500', bgColor: 'bg-indigo-50 dark:bg-indigo-900/20' },
-    { id: 'Challenge', label: t.modeChallenge, desc: t.modeChallengeDesc, icon: Trophy, color: 'text-emerald-500', bgColor: 'bg-emerald-50 dark:bg-emerald-900/20' },
+  const modes: { id: CreativeMode; label: string; desc: string; icon: React.ElementType }[] = [
+    { id: 'Unlock', label: t.modeUnlock, desc: t.modeUnlockDesc, icon: Zap },
+    { id: 'Practice', label: t.modePractice, desc: t.modePracticeDesc, icon: Edit3 },
+    { id: 'Challenge', label: t.modeChallenge, desc: t.modeChallengeDesc, icon: Trophy },
   ];
 
   const generateIdea = async () => {
@@ -167,86 +171,100 @@ export function Ideas() {
     }
   };
 
+  useEffect(() => {
+    const shouldGenerate = location.state?.generateTrigger || (!idea && !loading);
+    
+    if (shouldGenerate) {
+      generateIdea();
+      // Clear navigation state to avoid re-triggering on manual navigation/refresh
+      if (location.state?.generateTrigger) {
+        window.history.replaceState({}, document.title);
+      }
+    }
+  }, []);
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="max-w-4xl mx-auto mt-12"
+      className="max-w-4xl mx-auto"
     >
-      <div className="text-center mb-10">
-        <h1 className="text-3xl font-bold text-stone-900 dark:text-white mb-3">{t.ideasTitle}</h1>
-        <p className="text-stone-600 dark:text-stone-400 mb-8">
+      <div className="mb-12">
+        <h1 className="text-3xl font-display font-semibold tracking-tight text-neutral-900 dark:text-white mb-3">{t.ideasTitle}</h1>
+        <p className="text-neutral-500 dark:text-neutral-400">
           {t.ideasSubtitle} {discipline.toLowerCase()}.
         </p>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
-          {modes.map((mode) => {
-            const isSelected = creativeMode === mode.id;
-            const Icon = mode.icon;
-            return (
-              <button
-                key={mode.id}
-                onClick={() => setCreativeMode(mode.id)}
-                className={`
-                  flex flex-col items-center p-4 rounded-2xl border-2 transition-all text-left
-                  ${isSelected 
-                    ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-500/10 ring-2 ring-indigo-500/20' 
-                    : 'border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 hover:border-stone-300 dark:hover:border-stone-700'}
-                `}
-              >
-                <div className={`p-2 rounded-lg ${mode.bgColor} ${mode.color} mb-2`}>
-                  <Icon className="w-5 h-5" />
-                </div>
-                <span className="font-bold text-stone-900 dark:text-white text-sm mb-1">{mode.label}</span>
-                <span className="text-xs text-stone-500 dark:text-stone-400 text-center">{mode.desc}</span>
-              </button>
-            );
-          })}
-        </div>
       </div>
 
-      <div className="bg-white dark:bg-stone-900 rounded-3xl p-8 shadow-sm border border-stone-200 dark:border-stone-800 min-h-[300px] flex flex-col items-center justify-center relative overflow-hidden">
-        {/* Decorative background element */}
-        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-indigo-50 dark:bg-indigo-500/10 rounded-full blur-3xl opacity-50 pointer-events-none" />
-        <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-amber-50 dark:bg-amber-500/10 rounded-full blur-3xl opacity-50 pointer-events-none" />
+      <div className="flex flex-wrap gap-2 mb-10">
+        {modes.map((mode) => {
+          const isSelected = creativeMode === mode.id;
+          return (
+            <button
+              key={mode.id}
+              onClick={() => setCreativeMode(mode.id)}
+              className={cn(
+                "px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-[0.2em] transition-all border shadow-sm active:scale-95",
+                isSelected 
+                  ? "bg-white dark:bg-neutral-800 border-transparent shadow-lg scale-105" 
+                  : "bg-white dark:bg-neutral-900 border-neutral-100 dark:border-neutral-800 text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
+              )}
+              style={isSelected ? { 
+                color: 'var(--discipline-accent)',
+                boxShadow: '0 10px 20px -5px rgb(from var(--discipline-accent) r g b / 0.2)'
+              } : {}}
+            >
+              {mode.label}
+            </button>
+          );
+        })}
+      </div>
 
+      <div className="minimal-card p-6 md:p-8 min-h-[400px] flex flex-col items-center justify-center relative overflow-hidden mb-8">
         {loading ? (
-          <div className="flex flex-col items-center text-indigo-600 dark:text-indigo-400 py-12">
-            <Loader2 className="w-10 h-10 animate-spin mb-4" />
-            <p className="font-medium">{loadingStep}</p>
+          <div className="flex flex-col items-center text-neutral-500 py-12 animate-in fade-in zoom-in duration-500">
+            <div className="relative mb-6">
+              <Loader2 className="w-12 h-12 animate-spin text-brand-primary" style={{ color: 'var(--discipline-accent)' }} />
+              <motion.div 
+                animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="absolute inset-0 rounded-full blur-xl"
+                style={{ backgroundColor: 'var(--discipline-accent)' }}
+              />
+            </div>
+            <motion.p 
+              animate={{ opacity: [0.4, 1, 0.4] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+              className="font-bold text-xs tracking-[0.2em] uppercase text-neutral-400 dark:text-neutral-500"
+            >
+              {loadingStep}
+            </motion.p>
           </div>
         ) : idea ? (
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             className="z-10 w-full"
           >
             {idea.type === 'visual' ? (
-              <div className="grid md:grid-cols-2 gap-8 items-start text-left">
-                <div>
-                  <div className="flex items-center gap-2 text-amber-500 mb-4">
-                    <ImageIcon className="w-6 h-6" />
-                    <span className="font-bold uppercase tracking-wider text-sm">{t.visualChallenge}</span>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center text-left">
+                <div className="order-2 md:order-1">
+                  <div className="flex items-center gap-2 mb-6">
+                    <span className="px-2 py-1 bg-neutral-100 dark:bg-neutral-800 rounded text-[10px] uppercase font-bold tracking-widest text-neutral-500 dark:text-neutral-400">{t.visualChallenge}</span>
                     {idea.time && (
-                      <>
-                        <span className="text-stone-300 dark:text-stone-600">•</span>
-                        <span className="text-sm font-medium text-stone-500 dark:text-stone-400">{idea.time}</span>
-                      </>
+                      <span className="text-[10px] uppercase font-bold tracking-widest text-neutral-400 dark:text-neutral-500">{idea.time}</span>
                     )}
                   </div>
-                  <h2 className="text-2xl font-bold text-stone-900 dark:text-white mb-3">{idea.title}</h2>
-                  <p className="text-stone-600 dark:text-stone-300 mb-6">{idea.description}</p>
+                  <h2 className="text-2xl md:text-3xl font-display font-semibold text-neutral-900 dark:text-white mb-4 leading-tight">{idea.title}</h2>
+                  <p className="text-neutral-600 dark:text-neutral-300 mb-8 leading-relaxed text-sm md:text-base">{idea.description}</p>
                   
                   {idea.steps && idea.steps.length > 0 && (
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-2 text-stone-800 dark:text-stone-200 font-semibold mb-2">
-                        <ListChecks className="w-5 h-5 text-indigo-500" />
-                        <h3>{t.stepsToFollow}</h3>
-                      </div>
-                      <ul className="space-y-3">
+                    <div className="space-y-4">
+                      <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-900 dark:text-neutral-100">{t.stepsToFollow}</h3>
+                      <ul className="space-y-4">
                         {idea.steps.map((step, i) => (
-                          <li key={i} className="flex gap-3 text-stone-600 dark:text-stone-400">
-                            <span className="flex-shrink-0 w-6 h-6 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-sm font-bold">{i + 1}</span>
+                          <li key={i} className="flex gap-4 text-neutral-600 dark:text-neutral-400 text-sm">
+                            <span className="flex-shrink-0 w-6 h-6 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 flex items-center justify-center text-[10px] font-bold">{i + 1}</span>
                             <span className="pt-0.5">{step}</span>
                           </li>
                         ))}
@@ -254,63 +272,67 @@ export function Ideas() {
                     </div>
                   )}
                 </div>
-                <div className="relative rounded-2xl overflow-hidden shadow-lg border border-stone-200 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 aspect-square flex items-center justify-center">
+                <div className="order-1 md:order-2 relative rounded-2xl overflow-hidden bg-neutral-50 dark:bg-neutral-800/50 aspect-square flex items-center justify-center grayscale hover:grayscale-0 transition-all duration-700">
                   {idea.imageUrl ? (
                     <img src={idea.imageUrl} alt={idea.title} className="w-full h-full object-cover" />
                   ) : (
-                    <div className="text-stone-400 flex flex-col items-center">
-                      <ImageIcon className="w-12 h-12 mb-2 opacity-50" />
-                      <span>{t.imageNotAvailable}</span>
+                    <div className="text-neutral-300 dark:text-neutral-700 flex flex-col items-center">
+                      <ImageIcon className="w-12 h-12 mb-2 opacity-20" />
+                      <span className="text-[10px] uppercase tracking-widest font-bold">{t.imageNotAvailable}</span>
                     </div>
                   )}
                 </div>
               </div>
             ) : (
-              <div className="text-center py-8">
-                <div className="flex justify-center items-center gap-2 mb-6">
-                  <Sparkles className="w-8 h-8 text-amber-500" />
+              <div className="text-center py-8 md:py-12 max-w-2xl mx-auto">
+                <div className="flex justify-center items-center gap-2 mb-6 md:mb-8">
                   {idea.time && (
-                    <span className="bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 px-3 py-1 rounded-full text-sm font-medium">
+                    <span className="border border-neutral-200 dark:border-neutral-800 text-neutral-500 dark:text-neutral-400 px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-widest">
                       {idea.time}
                     </span>
                   )}
                 </div>
-                <h2 className="text-2xl font-bold text-stone-900 dark:text-white mb-4">{idea.title}</h2>
-                <p className="text-xl font-medium text-stone-700 dark:text-stone-300 leading-relaxed italic">
+                <h2 className="text-3xl md:text-4xl font-display font-semibold text-neutral-900 dark:text-white mb-6 leading-tight">{idea.title}</h2>
+                <p className="text-lg md:text-xl font-medium text-neutral-500 dark:text-neutral-400 leading-relaxed italic px-4">
                   "{idea.description}"
                 </p>
               </div>
             )}
           </motion.div>
         ) : (
-          <div className="z-10 text-stone-400 dark:text-stone-500 flex flex-col items-center py-12">
-            <LightbulbIcon className="w-16 h-16 mb-4 opacity-50" />
-            <p>{t.clickToGenerate}</p>
+          <div className="z-10 text-neutral-300 dark:text-neutral-600 flex flex-col items-center py-12">
+            <Wind className="w-12 h-12 md:w-16 md:h-16 mb-4 opacity-20" />
+            <p className="text-xs uppercase tracking-widest font-bold">{t.clickToGenerate}</p>
           </div>
         )}
       </div>
 
-      <div className="mt-8 flex flex-col sm:flex-row justify-center gap-4">
+      <div className="flex flex-col sm:flex-row justify-center gap-3 mt-8">
         <button
           onClick={generateIdea}
           disabled={loading}
-          className="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-full font-medium text-lg transition-transform active:scale-95 disabled:opacity-70 disabled:pointer-events-none shadow-md shadow-indigo-200 dark:shadow-indigo-900/20"
+          className="minimal-button-primary rounded-full flex items-center justify-center gap-3 px-10 py-5 h-16 w-full sm:w-auto relative text-lg"
         >
-          {idea ? (
+          {loading ? (
             <>
-              <RefreshCw className="w-5 h-5" />
+              <Loader2 className="w-6 h-6 animate-spin" />
+              <span className="opacity-70">{t.thinkingIdea}...</span>
+            </>
+          ) : idea ? (
+            <>
+              <RefreshCw className="w-6 h-6" />
               {t.generateAnother}
             </>
           ) : (
             <>
-              <Sparkles className="w-5 h-5" />
+              <Sparkles className="w-6 h-6" />
               {t.inspireMeNow}
             </>
           )}
         </button>
 
         {idea && (
-          <>
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
             <button
               onClick={() => {
                 navigate('/community', { 
@@ -320,7 +342,7 @@ export function Ideas() {
                   } 
                 });
               }}
-              className="flex items-center justify-center gap-2 bg-white dark:bg-stone-800 text-indigo-600 dark:text-indigo-400 border-2 border-indigo-100 dark:border-stone-700 hover:border-indigo-200 dark:hover:border-stone-600 px-6 py-4 rounded-full font-medium text-lg transition-transform active:scale-95 shadow-sm"
+              className="minimal-button-secondary rounded-full flex items-center justify-center gap-3 px-8 py-5 h-16 w-full sm:w-auto text-sm font-bold"
             >
               <Share2 className="w-5 h-5" />
               {t.shareProgress}
@@ -334,12 +356,12 @@ export function Ideas() {
                   } 
                 });
               }}
-              className="flex items-center justify-center gap-2 bg-white dark:bg-stone-800 text-emerald-600 dark:text-emerald-400 border-2 border-emerald-100 dark:border-stone-700 hover:border-emerald-200 dark:hover:border-stone-600 px-6 py-4 rounded-full font-medium text-lg transition-transform active:scale-95 shadow-sm"
+              className="minimal-button-secondary rounded-full flex items-center justify-center gap-3 px-8 py-5 h-16 w-full sm:w-auto text-sm font-bold"
             >
               <Save className="w-5 h-5" />
               {t.saveToProgress}
             </button>
-          </>
+          </div>
         )}
       </div>
     </motion.div>

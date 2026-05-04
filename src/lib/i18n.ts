@@ -87,6 +87,54 @@ export const translations = {
     // Resources
     resourcesTitle: 'Recursos Recomendados',
     resourcesSubtitle: 'Herramientas, lecturas y enlaces seleccionados para potenciar tu creatividad en {discipline}.',
+    
+    // Onboarding
+    onboardingSlide1: 'Bienvenido a FLUXO',
+    onboardingSlide2: '¿Qué es FLUXO?',
+    onboardingSlide3: 'Tu Camino Creativo',
+    onboardingDesc: 'Una herramienta diseñada para romper bloqueos, encontrar inspiración y registrar tu evolución artística.',
+    onboardingIntro: 'Explora nuevas dimensiones de tu talento con ejercicios guiados y una comunidad que impulsa tu crecimiento.',
+    swipeLeft: 'Desliza para continuar',
+    getStarted: 'Empezar ahora',
+
+    // Profile
+    profileTitle: 'Tu Perfil',
+    profileSubtitle: 'Personaliza tu identidad creativa.',
+    editProfile: 'Tu Perfil',
+    saveProfile: 'Guardar Cambios',
+    userNameLabel: 'Nombre',
+    userBioLabel: 'Biografía / Info Básica',
+    userPhotoLabel: 'Foto de Perfil',
+    profileUpdated: 'Perfil actualizado con éxito',
+    notificationPrefs: 'Preferencias de notificación',
+    logoutLabel: 'Cerrar Sesión',
+    guestUser: 'Invitado',
+
+    // Notifications
+    notifReminders: 'Recordatorios',
+    notifDaily: 'Mensajes diarios',
+    notifCommunity: 'Actividad de comunidad',
+    notifChallenges: 'Nuevos desafíos',
+    notifUpdates: 'Actualizaciones de la app',
+    notifAchievements: 'Logros alcanzados',
+    
+    // Auth
+    welcomeBack: 'Bienvenido de nuevo',
+    authSubtitle: 'Elige cómo quieres continuar tu viaje creativo.',
+    signInWithGoogle: 'Continuar con Google',
+    signInWithFacebook: 'Continuar con Facebook',
+    signInWithApple: 'Continuar con iCloud',
+    signInGuest: 'Entrar como invitado',
+    createAccount: 'Crear cuenta',
+    or: 'o',
+    logout: 'Cerrar sesión',
+    emailLabel: 'Correo electrónico',
+    passwordLabel: 'Contraseña',
+    signIn: 'Iniciar Sesión',
+    signUp: 'Registrarse',
+    backToLogin: 'Volver a opciones',
+    authConfigError: 'Este método requiere configuración en la Consola de Firebase. Por favor, actívalo en la sección de Autenticación.',
+    authGuestDisabled: 'El acceso como invitado está desactivado. Activa "Anónimo" en tu Consola de Firebase.',
   },
   en: {
     settings: 'Settings',
@@ -176,5 +224,53 @@ export const translations = {
     // Resources
     resourcesTitle: 'Recommended Resources',
     resourcesSubtitle: 'Selected tools, readings, and links to boost your creativity in {discipline}.',
+
+    // Onboarding
+    onboardingSlide1: 'Welcome to FLUXO',
+    onboardingSlide2: 'What is FLUXO?',
+    onboardingSlide3: 'Your Creative Journey',
+    onboardingDesc: 'A tool designed to break blocks, find inspiration, and record your artistic evolution.',
+    onboardingIntro: 'Explore new dimensions of your talent with guided exercises and a community that fuels your growth.',
+    swipeLeft: 'Swipe to continue',
+    getStarted: 'Get started',
+
+    // Profile
+    profileTitle: 'Your Profile',
+    profileSubtitle: 'Personalize your creative identity.',
+    editProfile: 'Your Profile',
+    saveProfile: 'Save Changes',
+    userNameLabel: 'Name',
+    userBioLabel: 'Bio / Basic Info',
+    userPhotoLabel: 'Profile Photo',
+    profileUpdated: 'Profile updated successfully',
+    notificationPrefs: 'Notification preferences',
+    logoutLabel: 'Log out',
+    guestUser: 'Guest',
+
+    // Notifications
+    notifReminders: 'Reminders',
+    notifDaily: 'Daily messages',
+    notifCommunity: 'Community activity',
+    notifChallenges: 'New challenges',
+    notifUpdates: 'App updates',
+    notifAchievements: 'Achievements reached',
+
+    // Auth
+    welcomeBack: 'Welcome Back',
+    authSubtitle: 'Choose how you want to continue your creative journey.',
+    signInWithGoogle: 'Continue with Google',
+    signInWithFacebook: 'Continue with Facebook',
+    signInWithApple: 'Continue with iCloud',
+    signInGuest: 'Enter as Guest',
+    createAccount: 'Create account',
+    or: 'or',
+    logout: 'Log out',
+    emailLabel: 'Email address',
+    passwordLabel: 'Password',
+    signIn: 'Sign In',
+    signUp: 'Sign Up',
+    backToLogin: 'Back to options',
+    authConfigError: 'This method requires configuration in the Firebase Console. Please enable it in the Authentication section.',
+    authGuestDisabled: 'Guest access is disabled. Enable "Anonymous" in your Firebase Console.',
   }
 };

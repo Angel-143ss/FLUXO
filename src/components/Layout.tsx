@@ -1,60 +1,88 @@
 import React, { useState } from 'react';
-import { NavLink, Outlet } from 'react-router-dom';
-import { Lightbulb, Dumbbell, LineChart, Users, Wrench, Wind, Settings } from 'lucide-react';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { Sparkles, Dumbbell, LineChart, Users, Wrench, Wind, Settings, Home as HomeIcon, User } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { SettingsModal } from './SettingsModal';
 import { useAppContext } from '../context/AppContext';
 import { translations } from '../lib/i18n';
 
 export function Layout() {
+  const navigate = useNavigate();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const { language } = useAppContext();
+  const { language, userName, userPhoto } = useAppContext();
   const t = translations[language];
 
   const navItems = [
-    { to: '/ideas', icon: Lightbulb, label: t.ideas },
+    { to: '/', icon: HomeIcon, label: t.homeTitle?.split(' ')[0] || 'Home' },
     { to: '/exercises', icon: Dumbbell, label: t.exercises },
     { to: '/progress', icon: LineChart, label: t.progress },
     { to: '/community', icon: Users, label: t.community },
-    { to: '/resources', icon: Wrench, label: t.resources },
-    { to: '/mindfulness', icon: Wind, label: t.mindfulness },
   ];
 
   return (
-    <div className="flex h-screen bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 font-sans transition-colors duration-200">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white dark:bg-stone-900 border-r border-stone-200 dark:border-stone-800 flex flex-col transition-colors duration-200">
-        <div className="p-6">
-          <NavLink to="/" className="flex items-center gap-2 text-xl font-bold text-indigo-600 dark:text-indigo-400">
-            <Lightbulb className="w-6 h-6" />
-            <span>Unblocker</span>
-          </NavLink>
-        </div>
+    <div className="flex flex-col md:flex-row h-screen bg-[#fcfcfd] dark:bg-[#0a0a0a] text-[#2d2d2d] dark:text-neutral-100 font-sans transition-colors duration-200">
+      {/* Mobile Top Header */}
+      <header className="md:hidden flex items-center justify-between px-6 py-4 bg-white dark:bg-neutral-900 border-b border-neutral-100 dark:border-neutral-800 shrink-0">
+        <button 
+          onClick={() => navigate('/profile')}
+          className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+        >
+          <div className="w-10 h-10 rounded-2xl overflow-hidden border-2 border-brand-primary/10 shadow-lg shadow-brand-primary/10">
+            <img src={userPhoto} alt={userName} className="w-full h-full object-cover" />
+          </div>
+          <span className="font-display font-bold text-neutral-900 dark:text-white tracking-tight">{userName}</span>
+        </button>
+        <button
+          onClick={() => setIsSettingsOpen(true)}
+          className="p-2.5 text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 rounded-xl transition-all"
+        >
+          <Settings className="w-5 h-5" />
+        </button>
+      </header>
+
+      {/* Sidebar - Desktop Only */}
+      <aside className="hidden md:flex w-64 bg-white dark:bg-neutral-900 border-r border-neutral-100 dark:border-neutral-800 flex-col transition-colors duration-200 px-4">
+        <button 
+          onClick={() => navigate('/profile')}
+          className="py-10 px-4 flex items-center gap-4 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 rounded-3xl transition-all text-left"
+        >
+          <div className="w-12 h-12 rounded-[1.25rem] overflow-hidden border-2 border-brand-primary/10 shadow-xl shadow-brand-primary/10">
+            <img src={userPhoto} alt={userName} className="w-full h-full object-cover" />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-xs font-bold uppercase tracking-widest text-neutral-400">Welcome</span>
+            <span className="font-display font-bold text-neutral-900 dark:text-white tracking-tight leading-none">{userName}</span>
+          </div>
+        </button>
         
-        <nav className="flex-1 px-4 space-y-1">
+        <nav className="flex-1 space-y-1">
           {navItems.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               className={({ isActive }) =>
                 cn(
-                  "flex items-center gap-3 px-3 py-2 rounded-xl transition-colors",
+                  "flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300",
                   isActive 
-                    ? "bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 font-medium" 
-                    : "text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-900 dark:hover:text-stone-200"
+                    ? "font-bold" 
+                    : "text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 hover:text-neutral-700 dark:hover:text-neutral-200"
                 )
               }
+              style={({ isActive }) => isActive ? { 
+                backgroundColor: 'rgb(from var(--discipline-accent) r g b / 0.1)',
+                color: 'var(--discipline-accent)'
+              } : {}}
             >
               <item.icon className="w-5 h-5" />
-              {item.label}
+              <span className="text-[15px]">{item.label}</span>
             </NavLink>
           ))}
         </nav>
 
-        <div className="p-4 border-t border-stone-200 dark:border-stone-800">
+        <div className="py-8 px-2">
           <button
             onClick={() => setIsSettingsOpen(true)}
-            className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-all font-semibold text-[15px]"
           >
             <Settings className="w-5 h-5" />
             {t.settings}
@@ -63,11 +91,83 @@ export function Layout() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto">
-        <div className="max-w-5xl mx-auto p-8">
+      <main className="flex-1 overflow-y-auto pb-32 md:pb-0">
+        <div className="max-w-4xl mx-auto px-6 md:px-12 py-8 md:py-16">
           <Outlet />
         </div>
       </main>
+
+      {/* Mobile Bottom Navigation */}
+      <nav className="md:hidden fixed bottom-6 left-6 right-6 z-50">
+        {/* Background Notch SVG */}
+        <div className="absolute inset-0 -top-6 pointer-events-none">
+          <svg className="w-full h-full" preserveAspectRatio="none" viewBox="0 0 400 100">
+            <path 
+              d="M0,40 Q0,0 40,0 L140,0 Q160,0 170,20 A30,30 0 0,0 230,20 Q240,0 260,0 L360,0 Q400,0 400,40 L400,100 L0,100 Z" 
+              fill="currentColor"
+              className="text-white/95 dark:text-neutral-900/95 backdrop-blur-xl"
+            />
+          </svg>
+        </div>
+
+        {/* Navigation Content */}
+        <div className="relative flex items-center justify-between px-2 h-[72px] bg-white/95 dark:bg-neutral-900/95 backdrop-blur-xl rounded-[2.5rem] shadow-2xl shadow-neutral-200/50 dark:shadow-none border border-white/20 dark:border-neutral-800/50 overflow-hidden">
+          {/* Left Group (2) */}
+          <div className="flex flex-1 justify-around items-center">
+            <NavLink
+              to="/"
+              className={({ isActive }) => cn("flex flex-col items-center gap-1 transition-all", isActive ? "" : "text-neutral-400")}
+              style={({ isActive }) => isActive ? { color: 'var(--discipline-accent)' } : {}}
+            >
+              <HomeIcon className="w-5 h-5" />
+              <span className="text-[9px] font-black uppercase tracking-tighter">{t.homeTitle?.split(' ')[0] || 'Home'}</span>
+            </NavLink>
+            <NavLink
+              to="/progress"
+              className={({ isActive }) => cn("flex flex-col items-center gap-1 transition-all", isActive ? "" : "text-neutral-400")}
+              style={({ isActive }) => isActive ? { color: 'var(--discipline-accent)' } : {}}
+            >
+              <LineChart className="w-5 h-5" />
+              <span className="text-[9px] font-black uppercase tracking-tighter">{t.progress}</span>
+            </NavLink>
+          </div>
+
+          {/* Center Space for Floating Button */}
+          <div className="w-20" />
+
+          {/* Right Group (2) */}
+          <div className="flex flex-1 justify-around items-center">
+            <NavLink
+              to="/community"
+              className={({ isActive }) => cn("flex flex-col items-center gap-1 transition-all", isActive ? "" : "text-neutral-400")}
+              style={({ isActive }) => isActive ? { color: 'var(--discipline-accent)' } : {}}
+            >
+              <Users className="w-5 h-5" />
+              <span className="text-[9px] font-black uppercase tracking-tighter">{t.community}</span>
+            </NavLink>
+            <NavLink
+              to="/profile"
+              className={({ isActive }) => cn("flex flex-col items-center gap-1 transition-all", isActive ? "" : "text-neutral-400")}
+              style={({ isActive }) => isActive ? { color: 'var(--discipline-accent)' } : {}}
+            >
+              <User className="w-5 h-5" />
+              <span className="text-[9px] font-black uppercase tracking-tighter">{t.profileTitle}</span>
+            </NavLink>
+          </div>
+        </div>
+
+        {/* Central Floating Button */}
+        <button
+          onClick={() => navigate('/ideas')}
+          className="absolute -top-10 left-1/2 -translate-x-1/2 w-16 h-16 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 flex items-center justify-center shadow-2xl shadow-neutral-400/50 dark:shadow-none hover:scale-110 active:scale-95 transition-all z-10 border-4 border-white dark:border-neutral-900"
+          style={{ 
+            backgroundColor: 'var(--discipline-accent)',
+            boxShadow: '0 15px 30px -5px rgb(from var(--discipline-accent) r g b / 0.4)'
+          }}
+        >
+          <Sparkles className="w-8 h-8" />
+        </button>
+      </nav>
 
       <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
     </div>

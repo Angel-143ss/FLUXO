@@ -8,7 +8,7 @@ const getExercisesByDiscipline = (lang: Language): Record<Discipline, { title: s
   Writing: [
     { 
       title: lang === 'es' ? 'Escritura Automática' : 'Automatic Writing', 
-      description: lang === 'es' ? 'Escribe sin parar durante 5 minutos. No corrijas, no pienses, solo deja que las palabras fluyan.' : 'Write non-stop for 5 minutes. Do not correct, do not think, just let the words flow.', 
+      description: lang === 'es' ? 'Escribe sin parar durante 5 minutes. No corrijas, no pienses, solo deja que las palabras fluyan.' : 'Write non-stop for 5 minutes. Do not correct, do not think, just let the words flow.', 
       duration: 5 
     },
     { 
@@ -29,30 +29,6 @@ const getExercisesByDiscipline = (lang: Language): Record<Discipline, { title: s
       duration: 5 
     },
   ],
-  Music: [
-    { 
-      title: lang === 'es' ? 'Limitación de Notas' : 'Note Limitation', 
-      description: lang === 'es' ? 'Compón una melodía corta usando solo 3 notas específicas.' : 'Compose a short melody using only 3 specific notes.', 
-      duration: 10 
-    },
-    { 
-      title: lang === 'es' ? 'Ritmo Encontrado' : 'Found Rhythm', 
-      description: lang === 'es' ? 'Graba un sonido ambiental (tráfico, electrodoméstico) y úsalo como base rítmica.' : 'Record an ambient sound (traffic, appliance) and use it as a rhythmic base.', 
-      duration: 15 
-    },
-  ],
-  Sculpture: [
-    { 
-      title: lang === 'es' ? 'Material Inusual' : 'Unusual Material', 
-      description: lang === 'es' ? 'Crea una forma pequeña usando solo materiales de oficina (clips, papel, cinta).' : 'Create a small shape using only office supplies (paperclips, paper, tape).', 
-      duration: 10 
-    },
-    { 
-      title: lang === 'es' ? 'Ojos Vendados' : 'Blindfolded', 
-      description: lang === 'es' ? 'Modela arcilla o plastilina con los ojos cerrados, enfocándote en la textura.' : 'Model clay or playdough with your eyes closed, focusing on the texture.', 
-      duration: 5 
-    },
-  ],
   Photography: [
     { 
       title: lang === 'es' ? 'Un Solo Color' : 'Single Color', 
@@ -65,25 +41,13 @@ const getExercisesByDiscipline = (lang: Language): Record<Discipline, { title: s
       duration: 10 
     },
   ],
-  General: [
-    { 
-      title: lang === 'es' ? 'Asociación Libre' : 'Free Association', 
-      description: lang === 'es' ? 'Toma una palabra al azar y escribe/dibuja/toca lo primero que te venga a la mente.' : 'Take a random word and write/draw/play the first thing that comes to mind.', 
-      duration: 5 
-    },
-    { 
-      title: lang === 'es' ? 'Destrucción Creativa' : 'Creative Destruction', 
-      description: lang === 'es' ? 'Toma una obra vieja que no te guste y destrúyela para crear algo nuevo con sus partes.' : 'Take an old piece you don\'t like and destroy it to create something new with its parts.', 
-      duration: 15 
-    },
-  ],
 });
 
 export function Exercises() {
   const { discipline, language } = useAppContext();
   const t = translations[language];
   const exercisesByDiscipline = getExercisesByDiscipline(language);
-  const exercises = exercisesByDiscipline[discipline] || exercisesByDiscipline.General;
+  const exercises = exercisesByDiscipline[discipline];
   
   const [activeExercise, setActiveExercise] = useState<number | null>(null);
   const [timeLeft, setTimeLeft] = useState(0);
@@ -121,63 +85,63 @@ export function Exercises() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="max-w-4xl mx-auto mt-8"
+      className="max-w-4xl mx-auto"
     >
-      <div className="mb-10">
-        <h1 className="text-3xl font-bold text-stone-900 dark:text-white mb-3">{t.exercisesTitle}</h1>
-        <p className="text-stone-600 dark:text-stone-400">
+      <div className="mb-12">
+        <h1 className="text-3xl font-display font-semibold tracking-tight text-neutral-900 dark:text-white mb-3">{t.exercisesTitle}</h1>
+        <p className="text-neutral-500 dark:text-neutral-400">
           {t.exercisesSubtitle.replace('{discipline}', discipline.toLowerCase())}
         </p>
       </div>
 
       {activeExercise !== null ? (
-        <div className="bg-white dark:bg-stone-900 rounded-3xl p-10 shadow-sm border border-indigo-100 dark:border-stone-800 text-center">
-          <h2 className="text-2xl font-bold text-stone-800 dark:text-stone-100 mb-4">{exercises[activeExercise].title}</h2>
-          <p className="text-lg text-stone-600 dark:text-stone-400 mb-12 max-w-2xl mx-auto">
+        <div className="minimal-card p-6 md:p-12 text-center">
+          <h2 className="text-xl md:text-2xl font-display font-semibold text-neutral-900 dark:text-neutral-100 mb-4">{exercises[activeExercise].title}</h2>
+          <p className="text-sm md:text-lg text-neutral-500 dark:text-neutral-400 mb-8 md:mb-12 max-w-2xl mx-auto">
             {exercises[activeExercise].description}
           </p>
           
-          <div className="text-7xl font-mono font-light text-indigo-600 dark:text-indigo-400 mb-12 tracking-tighter">
+          <div className="text-6xl md:text-8xl font-mono font-light text-neutral-900 dark:text-neutral-100 mb-10 md:mb-16 tracking-tighter">
             {formatTime(timeLeft)}
           </div>
-
-          <div className="flex justify-center gap-4">
+ 
+          <div className="flex flex-col sm:flex-row justify-center gap-3">
             <button
               onClick={() => setIsRunning(!isRunning)}
-              className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-full font-medium transition-colors"
+              className="minimal-button-primary flex items-center justify-center gap-2 px-8 py-3 w-full sm:w-auto"
             >
-              {isRunning ? <Square className="w-5 h-5" fill="currentColor" /> : <Play className="w-5 h-5" fill="currentColor" />}
+              {isRunning ? <Square className="w-4 h-4" /> : <Play className="w-4 h-4" />}
               {isRunning ? t.pause : t.resume}
             </button>
             <button
               onClick={stopExercise}
-              className="flex items-center gap-2 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 px-8 py-3 rounded-full font-medium transition-colors"
+              className="minimal-button-secondary flex items-center justify-center gap-2 px-8 py-3 w-full sm:w-auto"
             >
               {t.finish}
             </button>
           </div>
         </div>
       ) : (
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {exercises.map((ex, idx) => (
-            <div key={idx} className="bg-white dark:bg-stone-900 rounded-2xl p-6 shadow-sm border border-stone-200 dark:border-stone-800 hover:border-indigo-300 dark:hover:border-indigo-500/50 transition-colors group">
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="text-xl font-bold text-stone-800 dark:text-stone-100">{ex.title}</h3>
-                <span className="flex items-center gap-1 text-sm font-medium text-stone-500 dark:text-stone-400 bg-stone-100 dark:bg-stone-800 px-2 py-1 rounded-md">
-                  <Clock className="w-4 h-4" />
+            <div key={idx} className="minimal-card p-6 md:p-8 flex flex-col group hover:border-neutral-400 dark:hover:border-neutral-600">
+               <div className="flex justify-between items-start mb-4 md:mb-6">
+                <h3 className="text-lg font-display font-semibold text-neutral-900 dark:text-neutral-100">{ex.title}</h3>
+                <span className="flex items-center gap-1.5 text-[10px] uppercase font-bold tracking-widest text-neutral-400 dark:text-neutral-500 bg-neutral-50 dark:bg-neutral-800/50 px-2 py-1 rounded shrink-0 ml-4">
+                  <Clock className="w-3 h-3" />
                   {ex.duration} {t.min}
                 </span>
               </div>
-              <p className="text-stone-600 dark:text-stone-400 mb-6 min-h-[3rem]">
+              <p className="text-neutral-500 dark:text-neutral-400 mb-8 text-sm leading-relaxed flex-1">
                 {ex.description}
               </p>
               <button
                 onClick={() => startExercise(idx)}
-                className="w-full flex items-center justify-center gap-2 bg-stone-50 dark:bg-stone-800 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-stone-200 dark:border-stone-700 hover:border-indigo-200 dark:hover:border-indigo-500/30 px-4 py-2.5 rounded-xl font-medium transition-colors"
+                className="minimal-button-secondary w-full flex items-center justify-center gap-2 bg-neutral-50 dark:bg-neutral-800/50 hover:bg-neutral-900 dark:hover:bg-neutral-100 hover:text-white dark:hover:text-neutral-900 border-transparent"
               >
-                <Play className="w-4 h-4" fill="currentColor" />
+                <Play className="w-4 h-4" />
                 {t.startExercise}
               </button>
             </div>

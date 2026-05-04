@@ -1,0 +1,46 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Stores user identity and preferences.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "photo": { "type": "string", "format": "uri" },
+        "bio": { "type": "string" },
+        "language": { "type": "string", "enum": ["es", "en"] },
+        "theme": { "type": "string", "enum": ["light", "dark"] },
+        "discipline": { "type": "string" }
+      },
+      "required": ["name"]
+    },
+    "ProgressNote": {
+      "title": "Progress Note",
+      "description": "A creative entry into the user's progress log.",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string", "format": "date-time" },
+        "content": { "type": "string" },
+        "discipline": { "type": "string" },
+        "challenge": { 
+          "type": "object",
+          "properties": {
+            "title": { "type": "string" },
+            "type": { "type": "string" }
+          }
+        }
+      },
+      "required": ["date", "content", "discipline"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User preferences and profile data."
+    },
+    "/users/{userId}/progress": {
+      "schema": "ProgressNote",
+      "description": "Collection of progress entries for a specific user."
+    }
+  }
+}
