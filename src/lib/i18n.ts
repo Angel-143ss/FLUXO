@@ -41,29 +41,33 @@ export const translations = {
     
     // Community
     communityTitle: 'Comunidad Creativa',
-    communitySubtitle: 'Conecta con otros artistas, comparte tus victorias y encuentra apoyo en los momentos difíciles.',
-    you: 'TÚ',
-    shareUpdate: 'Comparte un avance, una duda o una reflexión...',
-    attachImage: 'Adjuntar imagen',
-    demoNote: 'Nota: Versión de demostración.',
-    post: 'Publicar',
-    allArtists: 'Todos los artistas',
-    onlyDiscipline: 'Solo',
+    communitySubtitle: 'Comparte tus avances, reflexiones e inspírate con otros creadores.',
+    allDisciplines: 'Todas las disciplinas',
+    shareWithCommunity: '¿Qué hay en tu mente hoy?',
+    postPlaceholder: 'Comparte un momento de flujo, un avance o una duda...',
+    publish: 'Publicar en el feed',
+    justNow: 'hace un momento',
+    inspiring: 'Inspirador',
+    disciplineFilter: 'Filtrar por foco',
     noPostsYet: 'Aún no hay publicaciones en esta categoría.',
     attachedChallenge: 'Reto adjunto',
     challengePrefix: 'Reto:',
     steps: 'Pasos:',
     challengeReference: 'Referencia del reto',
-    justNow: 'justo ahora',
     
-    // Progress
-    progressTitle: 'Tu Progreso',
+    // Progress Dashboard
+    progressTitle: 'Bitácora de Viaje',
     progressSubtitle: 'Registra tus reflexiones, victorias y los obstáculos que has superado.',
-    newReflection: 'Nueva Reflexión',
-    whatDidYouDiscover: '¿Qué descubriste hoy sobre tu proceso creativo?',
-    saveNote: 'Guardar Nota',
-    history: 'Historial',
-    noNotesYet: 'Aún no hay notas. ¡Escribe tu primera reflexión arriba!',
+    totalChallenges: 'Retos Totales',
+    currentStreak: 'Racha Actual',
+    confidenceEvolution: 'Evolución de Confianza',
+    consistency: 'Consistencia',
+    recentMilestones: 'Hitos Recientes',
+    newReflection: 'Nueva Entrada',
+    whatDidYouDiscover: '¿Qué descubriste hoy en tu proceso creativo?',
+    saveNote: 'Guardar en Bitácora',
+    history: 'Bitácora Histórica',
+    noNotesYet: 'Aún no hay entradas en tu bitácora. ¡Empieza hoy!',
     
     // Exercises
     exercisesTitle: 'Ejercicios Guiados',
@@ -117,6 +121,14 @@ export const translations = {
     notifChallenges: 'Nuevos desafíos',
     notifUpdates: 'Actualizaciones de la app',
     notifAchievements: 'Logros alcanzados',
+    
+    // Espejo IA
+    aiMirrorTitle: 'Espejo IA',
+    aiMirrorSubtitle: 'Critica constructiva y opiniones creativas impulsadas por IA.',
+    aiMirrorPlaceholder: 'Pregunta sobre tu obra (colores, ángulos, composición...)',
+    aiMirrorSystemPrompt: 'Eres un tutor creativo experto. Tu misión es dar crítica constructiva, opciones y opiniones sobre arte y diseño. Sé extremadamente conciso y directo. Evita párrafos largos; usa frases cortas o viñetas. Ve al grano, sé profesional e inspirador.',
+    aiMirrorThinking: 'Reflejando...',
+    aiMirrorIntro: '¿Qué estás creando? Cuéntame para darte una opinión profesional.',
     
     // Auth
     welcomeBack: 'Bienvenido de nuevo',
@@ -178,29 +190,33 @@ export const translations = {
     
     // Community
     communityTitle: 'Creative Community',
-    communitySubtitle: 'Connect with other artists, share your victories and find support in difficult times.',
-    you: 'YOU',
-    shareUpdate: 'Share an update, a question, or a thought...',
-    attachImage: 'Attach image',
-    demoNote: 'Note: Demo version.',
-    post: 'Post',
-    allArtists: 'All artists',
-    onlyDiscipline: 'Only',
+    communitySubtitle: 'Share your progress, reflections and get inspired by other creators.',
+    allDisciplines: 'All disciplines',
+    shareWithCommunity: 'What is on your mind today?',
+    postPlaceholder: 'Share a flow moment, a progress or a question...',
+    publish: 'Publish to feed',
+    justNow: 'just now',
+    inspiring: 'Inspiring',
+    disciplineFilter: 'Filter by focus',
     noPostsYet: 'No posts in this category yet.',
     attachedChallenge: 'Attached challenge',
     challengePrefix: 'Challenge:',
     steps: 'Steps:',
     challengeReference: 'Challenge reference',
-    justNow: 'just now',
     
-    // Progress
-    progressTitle: 'Your Progress',
+    // Progress Dashboard
+    progressTitle: 'Journey Log',
     progressSubtitle: 'Log your reflections, victories, and the obstacles you have overcome.',
-    newReflection: 'New Reflection',
-    whatDidYouDiscover: 'What did you discover today about your creative process?',
-    saveNote: 'Save Note',
-    history: 'History',
-    noNotesYet: 'No notes yet. Write your first reflection above!',
+    totalChallenges: 'Total Challenges',
+    currentStreak: 'Current Streak',
+    confidenceEvolution: 'Confidence Evolution',
+    consistency: 'Consistency',
+    recentMilestones: 'Recent Milestones',
+    newReflection: 'New Entry',
+    whatDidYouDiscover: 'What did you discover today in your creative process?',
+    saveNote: 'Save to Log',
+    history: 'Historical Log',
+    noNotesYet: 'No entries in your log yet. Start today!',
     
     // Exercises
     exercisesTitle: 'Guided Exercises',
@@ -254,6 +270,14 @@ export const translations = {
     notifChallenges: 'New challenges',
     notifUpdates: 'App updates',
     notifAchievements: 'Achievements reached',
+
+    // AI Mirror
+    aiMirrorTitle: 'AI Mirror',
+    aiMirrorSubtitle: 'Constructive criticism and creative opinions powered by AI.',
+    aiMirrorPlaceholder: 'Ask about your work (colors, angles, composition...)',
+    aiMirrorSystemPrompt: 'You are an expert creative tutor. Your mission is to provide constructive criticism, options, and professional opinions on art and design. Be extremely concise and direct. Avoid long paragraphs; use short sentences or bullet points. Get straight to the point, be professional and inspiring.',
+    aiMirrorThinking: 'Reflecting...',
+    aiMirrorIntro: 'What are you creating? Tell me so I can give you a professional opinion.',
 
     // Auth
     welcomeBack: 'Welcome Back',

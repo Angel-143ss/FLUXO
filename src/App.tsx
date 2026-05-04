@@ -12,6 +12,7 @@ import { Exercises } from './pages/Exercises';
 import { Progress } from './pages/Progress';
 import { Community } from './pages/Community';
 import { Profile } from './pages/Profile';
+import { AiMirror } from './pages/AiMirror';
 import { WelcomeOnboarding } from './pages/WelcomeOnboarding';
 import { Auth } from './pages/Auth';
 
@@ -43,6 +44,7 @@ function AppRoutes() {
             <Route path="exercises" element={<Exercises />} />
             <Route path="progress" element={<Progress />} />
             <Route path="community" element={<Community />} />
+            <Route path="ai-mirror" element={<AiMirror />} />
             <Route path="profile" element={<Profile />} />
           </Route>
         </Routes>

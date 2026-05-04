@@ -14,6 +14,7 @@ export function Layout() {
 
   const navItems = [
     { to: '/', icon: HomeIcon, label: t.homeTitle?.split(' ')[0] || 'Home' },
+    { to: '/ai-mirror', icon: Sparkles, label: t.aiMirrorTitle },
     { to: '/exercises', icon: Dumbbell, label: t.exercises },
     { to: '/progress', icon: LineChart, label: t.progress },
     { to: '/community', icon: Users, label: t.community },
@@ -158,7 +159,7 @@ export function Layout() {
 
         {/* Central Floating Button */}
         <button
-          onClick={() => navigate('/ideas')}
+          onClick={() => navigate('/ai-mirror')}
           className="absolute -top-10 left-1/2 -translate-x-1/2 w-16 h-16 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 flex items-center justify-center shadow-2xl shadow-neutral-400/50 dark:shadow-none hover:scale-110 active:scale-95 transition-all z-10 border-4 border-white dark:border-neutral-900"
           style={{ 
             backgroundColor: 'var(--discipline-accent)',

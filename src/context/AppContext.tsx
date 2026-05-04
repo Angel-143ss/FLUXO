@@ -16,6 +16,40 @@ export interface ChallengeData {
   imageUrl?: string;
 }
 
+export interface Reflection {
+  id: string;
+  date: string; // ISO format
+  discipline: Discipline;
+  challengeTitle: string;
+  content: string; // La reflexión escrita
+  moodLevel: number; // 1-5 para medir el bloqueo
+  challenge?: ChallengeData;
+}
+
+export interface UserStats {
+  totalChallenges: number;
+  currentStreak: number;
+  lastActiveDate: string | null;
+}
+
+export interface Post {
+  id: string;
+  user: {
+    name: string;
+    avatar?: string;
+    discipline: Discipline;
+  };
+  discipline: Discipline;
+  content: string;
+  imageUrl?: string;
+  timestamp: string;
+  reactions: {
+    emoji: string;
+    count: number;
+    userReacted: boolean;
+  }[];
+}
+
 interface AppContextType {
   user: User | null;
   loading: boolean;
@@ -23,8 +57,9 @@ interface AppContextType {
   setDiscipline: (d: Discipline) => void;
   creativeMode: CreativeMode;
   setCreativeMode: (m: CreativeMode) => void;
-  progressNotes: ProgressNote[];
-  addProgressNote: (note: Omit<ProgressNote, 'id' | 'date'>) => void;
+  progressNotes: Reflection[];
+  addProgressNote: (note: Omit<Reflection, 'id' | 'date'>) => void;
+  userStats: UserStats;
   theme: Theme;
   toggleTheme: () => void;
   language: Language;
@@ -37,14 +72,6 @@ interface AppContextType {
   setUserPhoto: (photo: string) => void;
   userBio: string;
   setUserBio: (bio: string) => void;
-}
-
-export interface ProgressNote {
-  id: string;
-  date: string;
-  content: string;
-  discipline: Discipline;
-  challenge?: ChallengeData;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -75,9 +102,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return (saved as CreativeMode) || 'Unlock';
   });
 
-  const [progressNotes, setProgressNotes] = useState<ProgressNote[]>(() => {
+  const [progressNotes, setProgressNotes] = useState<Reflection[]>(() => {
     const saved = localStorage.getItem('creative_progress');
     return saved ? JSON.parse(saved) : [];
+  });
+
+  const [userStats, setUserStats] = useState<UserStats>(() => {
+    const saved = localStorage.getItem('creative_user_stats');
+    return saved ? JSON.parse(saved) : {
+      totalChallenges: 0,
+      currentStreak: 0,
+      lastActiveDate: null
+    };
   });
 
   const [theme, setThemeState] = useState<Theme>(() => {
@@ -157,19 +193,29 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem('creative_onboarding', 'true');
   };
 
-  const addProgressNote = (note: Omit<ProgressNote, 'id' | 'date'>) => {
+  const addProgressNote = (note: Omit<Reflection, 'id' | 'date'>) => {
     const id = typeof crypto.randomUUID === 'function' 
       ? crypto.randomUUID() 
       : Math.random().toString(36).substring(2) + Date.now().toString(36);
       
-    const newNote: ProgressNote = {
+    const today = new Date().toISOString();
+    const newNote: Reflection = {
       ...note,
       id,
-      date: new Date().toISOString(),
+      date: today,
     };
     const updated = [newNote, ...progressNotes];
     setProgressNotes(updated);
     localStorage.setItem('creative_progress', JSON.stringify(updated));
+
+    // Update stats
+    const newStats: UserStats = {
+      ...userStats,
+      totalChallenges: userStats.totalChallenges + 1,
+      lastActiveDate: today
+    };
+    setUserStats(newStats);
+    localStorage.setItem('creative_user_stats', JSON.stringify(newStats));
   };
 
   useEffect(() => {
@@ -190,7 +236,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       creativeMode, 
       setCreativeMode, 
       progressNotes, 
-      addProgressNote, 
+      addProgressNote,
+      userStats,
       theme, 
       toggleTheme, 
       language, 
