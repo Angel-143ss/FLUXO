@@ -28,6 +28,15 @@ export function Profile() {
   const [isSaved, setIsSaved] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [notifications, setNotifications] = useState<Record<string, boolean>>({
+    reminders: true,
+    daily: true,
+    community: true,
+    challenges: true,
+    updates: true,
+    achievements: true
+  });
+
   const t = translations[language];
   const isGuest = auth.currentUser?.isAnonymous;
   const displayEmail = isGuest ? t.guestUser : (userEmail || '...');
@@ -245,13 +254,18 @@ export function Profile() {
                 { label: t.notifUpdates, key: 'updates' },
                 { label: t.notifAchievements, key: 'achievements' }
               ].map((item) => (
-                <div key={item.key} className="flex items-center justify-between p-6 bg-neutral-50 dark:bg-neutral-800/50 rounded-[2rem] border border-transparent hover:border-neutral-100 dark:hover:border-neutral-800 transition-colors">
+                <label key={item.key} className="flex items-center justify-between p-6 bg-neutral-50 dark:bg-neutral-800/50 rounded-[2rem] border border-transparent hover:border-neutral-100 dark:hover:border-neutral-800 transition-colors cursor-pointer select-none">
                   <span className="text-base font-bold text-neutral-900 dark:text-white text-left">{item.label}</span>
-                  <div className="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" className="sr-only peer" defaultChecked />
+                  <div className="relative inline-flex items-center">
+                    <input 
+                      type="checkbox" 
+                      className="sr-only peer" 
+                      checked={notifications[item.key]} 
+                      onChange={() => setNotifications(prev => ({...prev, [item.key]: !prev[item.key]}))} 
+                    />
                     <div className="w-11 h-6 bg-neutral-200 peer-focus:outline-none dark:bg-neutral-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-neutral-900 dark:peer-checked:bg-brand-primary"></div>
                   </div>
-                </div>
+                </label>
               ))}
             </div>
           </motion.div>

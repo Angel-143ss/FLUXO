@@ -17,6 +17,7 @@ interface IdeaData {
   time?: string;
   steps?: string[];
   imageUrl?: string;
+  whyItWorks?: string;
 }
 
 export function Ideas() {
@@ -46,56 +47,35 @@ export function Ideas() {
       
       const modeConfig = {
         Unlock: {
-          goal: "Romper el bloqueo creativo rápidamente.",
-          duration: "1 a 5 minutos",
-          complexity: "Muy simple y sin presión.",
-          elements: "Máximo 1-2 objetos o conceptos.",
-          focus: "Explorar, jugar y producir algo rápido, no en la perfección.",
-          examples: "Dibuja un objeto cotidiano usando una sola línea continua. Escribe 3 palabras que describan tu estado de ánimo. Crea un ritmo simple golpeando la mesa durante 30 segundos."
+          instructions: "Desactivación del Juicio (Modo Desbloqueo): Cero expectativas de calidad. No pidas objetos figurativos. Enfócate en el movimiento, el ritmo y la restricción. Usa técnicas como:\n- Restricciones de tiempo extremas (15-60 segundos).\n- Privación sensorial o motora (mano no dominante, ojos cerrados, un solo trazo).\n- Abstracción pura (traducir sonidos o emociones a líneas)."
         },
         Practice: {
-          goal: "Activar la creatividad y practicar habilidades básicas.",
-          duration: "10 a 20 minutos",
-          complexity: "Dificultad moderada.",
-          elements: "2-4 elementos o conceptos.",
-          focus: "Experimentar con técnicas o combinaciones creativas.",
-          examples: "Dibuja un animal usando solo formas geométricas. Escribe un microcuento de 5 frases inspirado en la lluvia. Crea una melodía corta inspirada en la palabra 'noche'."
+          instructions: "Reducción de Carga Cognitiva (Modo Práctica): Elimina la fatiga de decisión. Da el 70% de las variables. Define: 1 Técnica + 1 Material + 1 Concepto Abstracto. No permitas que el usuario elija, dale la orden directa para que solo tenga que ejecutar."
         },
         Challenge: {
-          goal: "Profundizar en la creatividad cuando el bloqueo ya fue superado.",
-          duration: "30 minutos o más",
-          complexity: "Más complejo y elaborado.",
-          elements: "Puede incluir escenas, combinaciones de conceptos o técnicas específicas.",
-          focus: "Producir una obra más detallada y profunda.",
-          examples: "Dibuja una escena donde un objeto cotidiano tenga vida. Escribe una historia corta donde el protagonista encuentre algo inesperado. Compón una melodía que transmita nostalgia."
+          instructions: "Desafío Narrativo (Modo Desafío): Usa el pensamiento lateral. Mezcla conceptos que no tengan relación lógica (ej: 'Arquitectura líquida' o 'Anatomía de un suspiro')."
         }
       };
 
       const currentConfig = modeConfig[creativeMode];
 
-      const prompt = `Actúa como un coach de creatividad para un artista de la disciplina: ${discipline}.
-      Genera un reto creativo para el MODO: ${creativeMode}.
-      
-      OBJETIVO: ${currentConfig.goal}
-      DURACIÓN: ${currentConfig.duration}
-      COMPLEJIDAD: ${currentConfig.complexity}
-      ELEMENTOS: ${currentConfig.elements}
-      ENFOQUE: ${currentConfig.focus}
-      
-      EJEMPLOS DE REFERENCIA: ${currentConfig.examples}
-      
-      REGLAS CRÍTICAS:
-      - Instrucciones claras, simples y directas.
-      - Si es visual, la imagen debe ser coherente con la complejidad del modo.
-      - Prioriza la exploración y el juego.
-      
-      Tienes dos opciones (elige aleatoriamente):
-      1. 'text': Un reto conceptual breve y muy inspirador.
-      2. 'visual': Un reto concreto paso a paso basado en una imagen.
-      
-      IMPORTANTE PARA EL IMAGE PROMPT: Si eliges 'visual', el 'imagePrompt' (en inglés) debe describir una imagen coherente con el modo. Para 'Unlock' debe ser extremadamente minimalista. Para 'Challenge' puede ser más detallada.
+      const prompt = `Contexto del Sistema:
+Actúa como un experto en neurociencia de la creatividad y psicología del arte. Tu misión es generar retos para la app FLUXO, diseñados específicamente para desactivar el córtex prefrontal (juicio crítico) y reducir la parálisis por análisis en la disciplina de ${discipline}.
 
-      Devuelve un JSON con la estructura solicitada.`;
+Instrucciones de Metodología para el MODO actual (${creativeMode}):
+${currentConfig.instructions}
+
+Reglas de Contenido (Evitar Bucles):
+PROHIBIDO: Usar clichés como 'garabatos con ojos', 'fusionar naturaleza con metal', 'dibujar tu mano', 'elementos demasiado comunes y literales'.
+VARIABLE ALEATORIA: Para cada respuesta, elige un 'disparador' distinto: Textura, Sonido, Gravedad, Escala, Tiempo o Azar.
+
+Reglas de Formato Visual:
+- Tienes dos opciones (elige aleatoriamente dependiendo de qué tan bien se adapte al reto):
+  1. 'text': Un reto conceptual breve y directo.
+  2. 'visual': Un reto concreto basado en una imagen abstracta o de referencia.
+IMPORTANTE PARA EL IMAGE PROMPT: Si eliges 'visual', el 'imagePrompt' (en inglés) debe describir una imagen coherente con el modo, pero NUNCA cosas literales o clichés. Sorpréndeme con abstracción.
+
+Devuelve SIEMPRE la respuesta en el formato JSON especificado.`;
 
       const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
@@ -114,9 +94,10 @@ export function Ideas() {
                 items: { type: Type.STRING },
                 description: "Pasos a seguir (opcional, útil para retos visuales)"
               },
-              imagePrompt: { type: Type.STRING, description: "Prompt detallado en inglés para generar una imagen minimalista por IA que acompañe el reto (solo si type es 'visual')" }
+              whyItWorks: { type: Type.STRING, description: "Breve explicación neurocientífica/psicológica de por qué ayuda" },
+              imagePrompt: { type: Type.STRING, description: "Prompt detallado en inglés para generar una imagen minimalista o abstracta (solo si type es 'visual')" }
             },
-            required: ["type", "title", "description", "time"]
+            required: ["type", "title", "description", "time", "whyItWorks"]
           }
         }
       });
@@ -259,7 +240,7 @@ export function Ideas() {
                   <p className="text-neutral-600 dark:text-neutral-300 mb-8 leading-relaxed text-sm md:text-base">{idea.description}</p>
                   
                   {idea.steps && idea.steps.length > 0 && (
-                    <div className="space-y-4">
+                    <div className="space-y-4 mb-8">
                       <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-900 dark:text-neutral-100">{t.stepsToFollow}</h3>
                       <ul className="space-y-4">
                         {idea.steps.map((step, i) => (
@@ -269,6 +250,13 @@ export function Ideas() {
                           </li>
                         ))}
                       </ul>
+                    </div>
+                  )}
+
+                  {idea.whyItWorks && (
+                    <div className="bg-neutral-50 dark:bg-neutral-800/50 p-4 rounded-xl border border-neutral-100 dark:border-neutral-800/50">
+                      <h4 className="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-2">{language === 'es' ? 'Por qué funciona' : 'Why it works'}</h4>
+                      <p className="text-xs text-neutral-600 dark:text-neutral-400">{idea.whyItWorks}</p>
                     </div>
                   )}
                 </div>
@@ -284,7 +272,7 @@ export function Ideas() {
                 </div>
               </div>
             ) : (
-              <div className="text-center py-8 md:py-12 max-w-2xl mx-auto">
+              <div className="text-center py-8 md:py-12 max-w-2xl mx-auto flex flex-col items-center">
                 <div className="flex justify-center items-center gap-2 mb-6 md:mb-8">
                   {idea.time && (
                     <span className="border border-neutral-200 dark:border-neutral-800 text-neutral-500 dark:text-neutral-400 px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-widest">
@@ -293,9 +281,15 @@ export function Ideas() {
                   )}
                 </div>
                 <h2 className="text-3xl md:text-4xl font-display font-semibold text-neutral-900 dark:text-white mb-6 leading-tight">{idea.title}</h2>
-                <p className="text-lg md:text-xl font-medium text-neutral-500 dark:text-neutral-400 leading-relaxed italic px-4">
+                <p className="text-lg md:text-xl font-medium text-neutral-500 dark:text-neutral-400 leading-relaxed italic px-4 mb-8">
                   "{idea.description}"
                 </p>
+                {idea.whyItWorks && (
+                  <div className="bg-neutral-50 dark:bg-neutral-800/50 p-4 rounded-xl border border-neutral-100 dark:border-neutral-800/50 text-left max-w-md w-full">
+                    <h4 className="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-2">{language === 'es' ? 'Por qué funciona' : 'Why it works'}</h4>
+                    <p className="text-xs text-neutral-600 dark:text-neutral-400">{idea.whyItWorks}</p>
+                  </div>
+                )}
               </div>
             )}
           </motion.div>
