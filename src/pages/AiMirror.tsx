@@ -14,7 +14,7 @@ interface Message {
 }
 
 export function AiMirror() {
-  const { language, discipline } = useAppContext();
+  const { language, discipline, artistPreferences } = useAppContext();
   const t = translations[language];
   const navigate = useNavigate();
   const [messages, setMessages] = useState<Message[]>([]);
@@ -46,6 +46,25 @@ export function AiMirror() {
         parts: [{ text: m.text }]
       }));
 
+      let personalizationContext = "";
+      if (artistPreferences && (artistPreferences.spark || artistPreferences.saboteur)) {
+        const sparkMap: Record<string, string> = {
+          silence: "El usuario prefiere un ambiente de silencio y reflexión profunda. Ofrécele perspectivas muy centradas, directas y zen.",
+          chaos: "El usuario se alimenta de caos dinámico y alta energía. Ofrécele respuestas audaces, ideas rápidas y vibrantes.",
+          pressure: "El usuario se motiva por límites de tiempo y urgencia. Proponle retos breves o cronometrados para salir de las dudas.",
+          chance: "El usuario se inspira con experimentos aleatorios libres. Invítalo a resolver dilemas integrando elementos o materiales imprevistos al azar."
+        };
+        const saboteurMap: Record<string, string> = {
+          perfectionism: "Su saboteador principal es el perfeccionismo agudo. Recuérdale frecuentemente que la fealdad en las fases iniciales es vital, y evítalo sobre-complicar con detalles técnicos excesivos.",
+          scatter: "Su saboteador es la dispersión mental (exceso de ideas). No le des listas largas de ideas; ordénale amablemente elegir UN solo elemento simple hoy para ejecutar.",
+          criticism: "Padece autocrítica y miedo al juicio ajeno. Sé incondicionalmente alentador, consolida su confianza artística interna y ensalza el valor de experimentar en privado.",
+          fatigue: "Su saboteador es la fatiga de rutina. Atráelo con giros de pensamiento sumamente abstractos, metáforas locas y analogías divertidas."
+        };
+        const sparkText = artistPreferences.spark ? (sparkMap[artistPreferences.spark] || "") : "";
+        const saboteurText = artistPreferences.saboteur ? (saboteurMap[artistPreferences.saboteur] || "") : "";
+        personalizationContext = `\nPERFIL DEL ARTISTA RECEPTOR (Adáptate silenciosamente en tus explicaciones):\n- Estilo De Enfoque/Catalizador: ${sparkText}\n- Saboteador Creativo Principal: ${saboteurText}`;
+      }
+
       const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
         contents: [
@@ -53,7 +72,7 @@ export function AiMirror() {
           { role: 'user', parts: [{ text: userMessage }] }
         ],
         config: {
-          systemInstruction: `${t.aiMirrorSystemPrompt} La disciplina actual es ${discipline}. Si necesitas mostrar un ejemplo visual o el usuario pide una referencia de imagen, usa exactamente este formato: [GENERATE_IMAGE: descripción detallada del prompt en inglés] y luego continúa con tu explicación.`,
+          systemInstruction: `${t.aiMirrorSystemPrompt} La disciplina actual es ${discipline}.${personalizationContext} Si necesitas mostrar un ejemplo visual o el usuario pide una referencia de imagen, usa exactamente este formato: [GENERATE_IMAGE: descripción detallada del prompt en inglés] y luego continúa con tu explicación.`,
         },
       });
 

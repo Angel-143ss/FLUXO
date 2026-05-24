@@ -6,13 +6,89 @@ import { translations } from '../lib/i18n';
 import { Mascot } from '../components/Mascot';
 
 export function WelcomeOnboarding() {
-  const { language, completeOnboarding } = useAppContext();
+  const { language, completeOnboarding, setArtistPreferences } = useAppContext();
   const t = translations[language];
   const [step, setStep] = useState(0);
+  const [selectedSpark, setSelectedSpark] = useState<string | null>(null);
+  const [selectedSaboteur, setSelectedSaboteur] = useState<string | null>(null);
 
   const nextStep = () => {
-    if (step < 2) setStep(prev => prev + 1);
-    else completeOnboarding();
+    if (step < 4) setStep(prev => prev + 1);
+    else finishOnboarding();
+  };
+
+  const finishOnboarding = (finalSaboteur?: string) => {
+    const spark = selectedSpark || 'silence';
+    const saboteur = finalSaboteur || selectedSaboteur || 'perfectionism';
+    setArtistPreferences({ spark, saboteur });
+    completeOnboarding();
+  };
+
+  const questions = {
+    es: [
+      {
+        id: 'spark',
+        title: 'Tu Catalizador',
+        question: '¿Qué circunstancia enciende tu chispa creativa con mayor intensidad?',
+        options: [
+          { value: 'silence', label: 'Silencio contemplativo', desc: 'El silencio absoluto y la introspección profunda o meditación.', icon: '🧘' },
+          { value: 'chaos', label: 'Caos dinámico', desc: 'Ruido blanco, música enérgica o desorden lúdico y vibrante.', icon: '⚡' },
+          { value: 'pressure', label: 'Presión y límites', desc: 'Límites de tiempo estrictos y objetivos fijos con urgencia.', icon: '⏳' },
+          { value: 'chance', label: 'Azar divertido', desc: 'Jugar con materiales al azar de manera espontánea sin metas.', icon: '🎲' }
+        ]
+      },
+      {
+        id: 'saboteur',
+        title: 'Tu Saboteador',
+        question: 'Al enfrentarte al lienzo o página, ¿cuál suele ser tu mayor saboteador silencioso?',
+        options: [
+          { value: 'perfectionism', label: 'Perfeccionismo agudo', desc: 'Querer que todo quede impecable desde el primer trazo.', icon: '🔍' },
+          { value: 'scatter', label: 'Dispersión mental', desc: 'Navegar en un mar de ideas simultáneas sin saber cuál concretar.', icon: '🌊' },
+          { value: 'criticism', label: 'Autocrítica temerosa', desc: 'El miedo latente a no estar a la altura o al juicio externo.', icon: '👥' },
+          { value: 'fatigue', label: 'Fatiga de rutina', desc: 'Aburrirte rápido al repetir los mismos caminos de siempre.', icon: '🥱' }
+        ]
+      }
+    ],
+    en: [
+      {
+        id: 'spark',
+        title: 'Your Catalyst',
+        question: 'What environment or situation sparks your creative flow at its highest intensity?',
+        options: [
+          { value: 'silence', label: 'Contemplative silence', desc: 'Absolute silence and deep introspection or mindfulness.', icon: '🧘' },
+          { value: 'chaos', label: 'Dynamic chaos', desc: 'White noise, upbeat music, or playful and vibrant disorder.', icon: '⚡' },
+          { value: 'pressure', label: 'Time constraints', desc: 'Strict deadlines and fixed objectives under creative urgency.', icon: '⏳' },
+          { value: 'chance', label: 'Playful chance', desc: 'Spontaneous play with random ingredients without specific targets.', icon: '🎲' }
+        ]
+      },
+      {
+        id: 'saboteur',
+        title: 'Your Saboteur',
+        question: 'When starting a new piece, what is your most frequent silent enemy?',
+        options: [
+          { value: 'perfectionism', label: 'Acute perfectionism', desc: 'Wanting every detail to be flawless from the very first stroke.', icon: '🔍' },
+          { value: 'scatter', label: 'Mental scatter', desc: 'Having so many ideas run wild that it is hard to materialize any.', icon: '🌊' },
+          { value: 'criticism', label: 'Vocal self-criticism', desc: 'Subconscious fear of not being good enough or of external judgment.', icon: '👥' },
+          { value: 'fatigue', label: 'Routine fatigue', desc: 'Getting bored easily with repetitive exercises or safe paths.', icon: '🥱' }
+        ]
+      }
+    ]
+  };
+
+  const currentQuestions = questions[language] || questions.es;
+
+  const handleSparkSelect = (val: string) => {
+    setSelectedSpark(val);
+    setTimeout(() => {
+      setStep(4);
+    }, 300);
+  };
+
+  const handleSaboteurSelect = (val: string) => {
+    setSelectedSaboteur(val);
+    setTimeout(() => {
+      finishOnboarding(val);
+    }, 300);
   };
 
   const variants = {
@@ -231,7 +307,7 @@ export function WelcomeOnboarding() {
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={completeOnboarding}
+                  onClick={() => setStep(3)}
                   className="bg-brand-primary text-white rounded-full px-12 py-3.5 text-base font-semibold drop-shadow-xl hover:shadow-2xl transition-all w-full md:w-auto"
                 >
                   {t.getStarted}
@@ -241,6 +317,134 @@ export function WelcomeOnboarding() {
                   <div className="w-1.5 h-1.5 rounded-full bg-neutral-200 dark:bg-neutral-800" />
                   <div className="w-1.5 h-1.5 rounded-full bg-neutral-900 dark:bg-white" />
                 </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {step === 3 && (
+          <motion.div
+            key="question-spark"
+            variants={variants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{
+              x: { type: "spring", stiffness: 300, damping: 35 },
+              opacity: { duration: 0.2 }
+            }}
+            className="absolute inset-0 flex flex-col items-center justify-center p-6 md:p-8 bg-[#FDFCFD] dark:bg-[#0a0a0a] overflow-y-auto"
+          >
+            <div className="w-full max-w-2xl flex flex-col space-y-8 my-auto">
+              <div className="space-y-3 text-center md:text-left">
+                <span className="text-[10px] md:text-xs font-black uppercase tracking-[0.25em] text-brand-primary block">
+                  {currentQuestions[0].title}
+                </span>
+                <h2 className="text-2xl md:text-4xl font-display font-black text-neutral-900 dark:text-white tracking-tight leading-tight">
+                  {currentQuestions[0].question}
+                </h2>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {currentQuestions[0].options.map((opt) => (
+                  <motion.button
+                    key={opt.value}
+                    whileHover={{ scale: 1.01, y: -2 }}
+                    whileTap={{ scale: 0.99 }}
+                    onClick={() => handleSparkSelect(opt.value)}
+                    className={`flex items-start gap-4 p-5 rounded-[2rem] border text-left transition-all ${
+                      selectedSpark === opt.value
+                        ? 'bg-neutral-900 border-neutral-900 dark:bg-white dark:border-white text-white dark:text-neutral-950 shadow-lg'
+                        : 'bg-white dark:bg-neutral-900 border-neutral-200/60 dark:border-neutral-800 hover:border-neutral-400 dark:hover:border-neutral-600 text-neutral-850 dark:text-neutral-200'
+                    }`}
+                  >
+                    <span className="text-3xl mt-1 shrink-0">{opt.icon}</span>
+                    <div className="space-y-1">
+                      <p className={`font-bold text-sm ${
+                        selectedSpark === opt.value ? 'text-white dark:text-neutral-950 font-black' : 'text-neutral-900 dark:text-white'
+                      }`}>
+                        {opt.label}
+                      </p>
+                      <p className={`text-xs leading-relaxed ${
+                        selectedSpark === opt.value ? 'text-white/80 dark:text-neutral-600' : 'text-neutral-500 dark:text-neutral-400'
+                      }`}>
+                        {opt.desc}
+                      </p>
+                    </div>
+                  </motion.button>
+                ))}
+              </div>
+
+              <div className="flex justify-center items-center gap-2 pt-4">
+                <div className="w-1.5 h-1.5 rounded-full bg-neutral-200 dark:bg-neutral-800" />
+                <div className="w-1.5 h-1.5 rounded-full bg-neutral-200 dark:bg-neutral-800" />
+                <div className="w-1.5 h-1.5 rounded-full bg-neutral-200 dark:bg-neutral-800" />
+                <div className="w-6 h-1.5 rounded-full bg-brand-primary" />
+                <div className="w-1.5 h-1.5 rounded-full bg-neutral-200 dark:bg-neutral-800" />
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {step === 4 && (
+          <motion.div
+            key="question-saboteur"
+            variants={variants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{
+              x: { type: "spring", stiffness: 300, damping: 35 },
+              opacity: { duration: 0.2 }
+            }}
+            className="absolute inset-0 flex flex-col items-center justify-center p-6 md:p-8 bg-[#FDFCFD] dark:bg-[#0a0a0a] overflow-y-auto"
+          >
+            <div className="w-full max-w-2xl flex flex-col space-y-8 my-auto">
+              <div className="space-y-3 text-center md:text-left">
+                <span className="text-[10px] md:text-xs font-black uppercase tracking-[0.25em] text-brand-primary block">
+                  {currentQuestions[1].title}
+                </span>
+                <h2 className="text-2xl md:text-4xl font-display font-black text-neutral-900 dark:text-white tracking-tight leading-tight">
+                  {currentQuestions[1].question}
+                </h2>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {currentQuestions[1].options.map((opt) => (
+                  <motion.button
+                    key={opt.value}
+                    whileHover={{ scale: 1.01, y: -2 }}
+                    whileTap={{ scale: 0.99 }}
+                    onClick={() => handleSaboteurSelect(opt.value)}
+                    className={`flex items-start gap-4 p-5 rounded-[2rem] border text-left transition-all ${
+                      selectedSaboteur === opt.value
+                        ? 'bg-neutral-900 border-neutral-900 dark:bg-white dark:border-white text-white dark:text-neutral-950 shadow-lg'
+                        : 'bg-white dark:bg-neutral-900 border-neutral-200/60 dark:border-neutral-800 hover:border-neutral-400 dark:hover:border-neutral-600 text-neutral-850 dark:text-neutral-200'
+                    }`}
+                  >
+                    <span className="text-3xl mt-1 shrink-0">{opt.icon}</span>
+                    <div className="space-y-1">
+                      <p className={`font-bold text-sm ${
+                        selectedSaboteur === opt.value ? 'text-white dark:text-neutral-950 font-black' : 'text-neutral-900 dark:text-white'
+                      }`}>
+                        {opt.label}
+                      </p>
+                      <p className={`text-xs leading-relaxed ${
+                        selectedSaboteur === opt.value ? 'text-white/80 dark:text-neutral-600' : 'text-neutral-500 dark:text-neutral-400'
+                      }`}>
+                        {opt.desc}
+                      </p>
+                    </div>
+                  </motion.button>
+                ))}
+              </div>
+
+              <div className="flex justify-center items-center gap-2 pt-4">
+                <div className="w-1.5 h-1.5 rounded-full bg-neutral-200 dark:bg-neutral-800" />
+                <div className="w-1.5 h-1.5 rounded-full bg-neutral-200 dark:bg-neutral-800" />
+                <div className="w-1.5 h-1.5 rounded-full bg-neutral-200 dark:bg-neutral-800" />
+                <div className="w-1.5 h-1.5 rounded-full bg-neutral-200 dark:bg-neutral-800" />
+                <div className="w-6 h-1.5 rounded-full bg-brand-primary" />
               </div>
             </div>
           </motion.div>

@@ -72,6 +72,8 @@ interface AppContextType {
   setUserPhoto: (photo: string) => void;
   userBio: string;
   setUserBio: (bio: string) => void;
+  artistPreferences: { spark?: string; saboteur?: string };
+  setArtistPreferences: (prefs: { spark?: string; saboteur?: string }) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -144,6 +146,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return localStorage.getItem('creative_user_bio') || '';
   });
 
+  const [artistPreferences, setArtistPreferencesState] = useState<{ spark?: string; saboteur?: string }>(() => {
+    const saved = localStorage.getItem('creative_artist_preferences');
+    return saved ? JSON.parse(saved) : {};
+  });
+
   const setUserName = (name: string) => {
     setUserNameState(name);
     localStorage.setItem('creative_user_name', name);
@@ -157,6 +164,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const setUserBio = (bio: string) => {
     setUserBioState(bio);
     localStorage.setItem('creative_user_bio', bio);
+  };
+
+  const setArtistPreferences = (prefs: { spark?: string; saboteur?: string }) => {
+    setArtistPreferencesState(prefs);
+    localStorage.setItem('creative_artist_preferences', JSON.stringify(prefs));
   };
 
   useEffect(() => {
@@ -249,7 +261,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       userPhoto,
       setUserPhoto,
       userBio,
-      setUserBio
+      setUserBio,
+      artistPreferences,
+      setArtistPreferences
     }}>
       {children}
     </AppContext.Provider>

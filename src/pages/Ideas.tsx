@@ -21,7 +21,7 @@ interface IdeaData {
 }
 
 export function Ideas() {
-  const { discipline, language, creativeMode, setCreativeMode } = useAppContext();
+  const { discipline, language, creativeMode, setCreativeMode, artistPreferences } = useAppContext();
   const t = translations[language];
   const navigate = useNavigate();
   const location = useLocation();
@@ -59,8 +59,34 @@ export function Ideas() {
 
       const currentConfig = modeConfig[creativeMode];
 
+      let personalizationPrompt = "";
+      if (artistPreferences && (artistPreferences.spark || artistPreferences.saboteur)) {
+        const sparkMap: Record<string, string> = {
+          silence: "silence and deep contemplation/reflection (silencio contemplativo e introspección)",
+          chaos: "dynamic chaos, high energy, and loose ambient triggers (caos dinámico y alta energía)",
+          pressure: "strict constraints, time limits, and sudden pressure (límites estrictos de tiempo y presión)",
+          chance: "complete random play, coincidences, and aimless fun (azar puro y juego sin rumbo)"
+        };
+        const saboteurMap: Record<string, string> = {
+          perfectionism: "acute perfectionism and editing before finalizing (perfeccionismo agudo y auto-corrección)",
+          scatter: "mental scattering, having too many ideas at once (dispersión mental y exceso de ruidos)",
+          criticism: "inner critic and fear of external opinion/failure (autocrítica temerosa y miedo al juicio)",
+          fatigue: "routine fatigue and feeling generic/safe (aburrimiento de temas predecibles)"
+        };
+
+        const sparkVal = artistPreferences.spark ? (sparkMap[artistPreferences.spark] || "") : "";
+        const saboteurVal = artistPreferences.saboteur ? (saboteurMap[artistPreferences.saboteur] || "") : "";
+
+        personalizationPrompt = `
+DATOS PERSONALIZADOS DEL USUARIO (Entorno y Obstáculos):
+- Entorno de flujo preferido: ${sparkVal}
+- Mayor saboteador creativo: ${saboteurVal}
+INSTRUCCIÓN: Adapta este reto para acelerar su conexión de flujo preferido o para mitigar explícitamente su mayor saboteador (por ejemplo, ideando un reto que anule la capacidad de corregir o que concentre mil ideas en una sola acción). Justifica brevemente esta adaptación en la explicación 'whyItWorks'.`;
+      }
+
       const prompt = `Contexto del Sistema:
 Actúa como un experto en neurociencia de la creatividad y psicología del arte. Tu misión es generar retos para la app FLUXO, diseñados específicamente para desactivar el córtex prefrontal (juicio crítico) y reducir la parálisis por análisis en la disciplina de ${discipline}.
+${personalizationPrompt}
 
 Instrucciones de Metodología para el MODO actual (${creativeMode}):
 ${currentConfig.instructions}
