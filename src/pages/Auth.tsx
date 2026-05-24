@@ -1,21 +1,31 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Wind, Chrome, User, Loader2 } from 'lucide-react';
+import { Chrome, User, Loader2, Wind } from 'lucide-react';
 import { 
   signInWithPopup, 
   signInAnonymously
 } from 'firebase/auth';
 import { auth, googleProvider } from '../lib/firebase';
 import { useAppContext } from '../context/AppContext';
-import { translations } from '../lib/i18n';
 
 export function Auth() {
   const { language } = useAppContext();
-  const t = translations[language];
   
   const [loading, setLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showPopupTip, setShowPopupTip] = useState(false);
+
+  // Check if we have a saved name from a previous session
+  const lastUserName = localStorage.getItem('creative_last_user_name');
+  const hasSavedSession = !!lastUserName && lastUserName !== 'Creative' && lastUserName !== 'Invitado' && lastUserName !== 'Guest';
+
+  const titleText = hasSavedSession
+    ? (language === 'es' ? `De vuelta, ${lastUserName}.` : `Welcome back, ${lastUserName}.`)
+    : (language === 'es' ? 'Empieza a fluir.' : 'Start flowing.');
+
+  const subtitleText = language === 'es'
+    ? 'Tu espacio para desbloquear la creatividad.'
+    : 'Your space to unlock creativity.';
 
   const handleGoogleSignIn = async () => {
     setLoading('google');
@@ -26,7 +36,9 @@ export function Auth() {
     } catch (err: any) {
       console.error('Google Auth Error:', err);
       if (err.code === 'auth/popup-blocked') {
-        setError(language === 'es' ? 'El navegador bloqueó la ventana emergente. Por favor, actívalas o abre la app en una nueva pestaña.' : 'Browser blocked the popup. Please allow popups or open the app in a new tab.');
+        setError(language === 'es' 
+          ? 'El navegador bloqueó la ventana emergente. Por favor, actívalas o abre la app en una nueva pestaña (icono superior derecho).' 
+          : 'Browser blocked the popup. Please allow popups or open the app in a new tab.');
       } else {
         setError(err.message);
       }
@@ -42,68 +54,74 @@ export function Auth() {
       await signInAnonymously(auth);
     } catch (err: any) {
       console.error('Guest Auth Error:', err);
-      if (err.code === 'auth/operation-not-allowed' || err.code === 'auth/admin-restricted-operation') {
-        setError(t.authGuestDisabled);
-      } else {
-        setError(err.message);
-      }
+      setError(err.message);
     } finally {
       setLoading(null);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-[110] bg-white dark:bg-[#0a0a0a] flex flex-col items-center justify-center p-6 bg-[radial-gradient(circle_at_top_right,rgba(var(--brand-primary-rgb),0.05),transparent)]">
+    <div className="fixed inset-0 z-[110] bg-[#f5f5f5] dark:bg-[#0e0e0e] flex flex-col items-center justify-center p-6 transition-colors duration-300">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-sm space-y-12"
+        className="w-full max-w-sm rounded-[2.5rem] bg-white dark:bg-[#161616] border border-neutral-200 dark:border-[#252525] p-8 md:p-10 shadow-xl space-y-8"
       >
         <div className="flex flex-col items-center gap-6">
-          <div className="w-20 h-20 bg-brand-primary rounded-3xl flex items-center justify-center text-white shadow-2xl shadow-brand-primary/30">
-            <Wind className="w-10 h-10" />
+          <div className="w-16 h-16 bg-[#E8834A] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-[#E8834A]/20">
+            <Wind className="w-8 h-8" />
           </div>
           <div className="text-center space-y-2">
-            <h1 className="text-3xl font-display font-bold text-neutral-900 dark:text-neutral-100 tracking-tight">
-              {t.welcomeBack}
+            <h1 className="text-2xl font-display font-bold text-[#111] dark:text-white tracking-tight leading-tight">
+              {titleText}
             </h1>
-            <p className="text-neutral-500 dark:text-neutral-400 font-medium">
-              {t.authSubtitle}
+            <p className="text-sm text-[#888] dark:text-[#555] font-medium leading-relaxed">
+              {subtitleText}
             </p>
           </div>
         </div>
 
         <div className="space-y-4">
-          <AuthButton 
+          {/* Primary Button: Continuar con Google */}
+          <button
             onClick={handleGoogleSignIn}
-            icon={<Chrome className="w-5 h-5 text-[#4285F4]" />}
-            label={t.signInWithGoogle}
-            loading={loading === 'google'}
-          />
+            disabled={loading !== null}
+            className="w-full flex items-center justify-center gap-3 px-6 py-4 rounded-full font-black text-xs uppercase tracking-widest bg-[#E8834A] text-white hover:bg-[#d6723b] shadow-lg shadow-[#E8834A]/20 transition-all duration-300 active:scale-[0.98] disabled:opacity-50 cursor-pointer"
+          >
+            <div className="w-5 h-5 flex items-center justify-center shrink-0">
+              {loading === 'google' ? <Loader2 className="w-5 h-5 animate-spin" /> : <Chrome className="w-5 h-5 text-current" />}
+            </div>
+            <span>{language === 'es' ? 'Continuar con Google' : 'Continue with Google'}</span>
+          </button>
 
-          <div className="py-2 flex items-center gap-4 text-neutral-200 dark:text-neutral-800">
+          {/* Separator line with "o" */}
+          <div className="py-2 flex items-center gap-4 text-neutral-300 dark:text-[#252525]">
             <div className="flex-1 h-px bg-current" />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">{t.or}</span>
+            <span className="text-xs text-[#888] dark:text-[#555] font-semibold lowercase">o</span>
             <div className="flex-1 h-px bg-current" />
           </div>
 
-          <AuthButton 
+          {/* Secondary Button: Explorar sin cuenta */}
+          <button
             onClick={handleGuestSignIn}
-            icon={<User className="w-5 h-5" />}
-            label={t.signInGuest}
-            loading={loading === 'guest'}
-            secondary
-          />
+            disabled={loading !== null}
+            className="w-full flex items-center justify-center gap-3 px-6 py-4 rounded-full font-black text-xs uppercase tracking-widest bg-transparent border border-neutral-200 dark:border-[#252525] text-[#111] dark:text-white hover:bg-neutral-100/50 dark:hover:bg-neutral-800/20 transition-all duration-300 active:scale-[0.98] disabled:opacity-50 cursor-pointer"
+          >
+            <div className="w-5 h-5 flex items-center justify-center shrink-0">
+              {loading === 'guest' ? <Loader2 className="w-5 h-5 animate-spin" /> : <User className="w-5 h-5 text-current" />}
+            </div>
+            <span>{language === 'es' ? 'Explorar sin cuenta' : 'Explore as guest'}</span>
+          </button>
 
           {showPopupTip && !error && (
             <motion.div 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-[10px] text-center text-neutral-400 bg-neutral-50/50 dark:bg-neutral-800/20 p-4 rounded-xl border border-neutral-100 dark:border-neutral-800 italic"
+              className="text-[10px] text-center text-[#888] dark:text-[#555] bg-neutral-50/50 dark:bg-neutral-800/10 p-3 rounded-xl border border-neutral-150 dark:border-[#252525] italic leading-tight"
             >
               {language === 'es' 
-                ? '💡 Si las ventanas no aparecen, asegúrate de permitir ventanas emergentes o abre la app en una nueva pestaña (ícono superior derecho).' 
-                : '💡 If windows don\'t appear, make sure to allow popups or open the app in a new tab (icon at the top right).'}
+                ? '💡 Si el login no se abre, asegúrate de permitir ventanas emergentes o abre la app en una nueva pestaña (icono de arriba a la derecha).' 
+                : '💡 If login does not open, make sure to allow popups or open the app in a new tab (icon at top-right).'}
             </motion.div>
           )}
         </div>
@@ -112,43 +130,12 @@ export function Auth() {
           <motion.p 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-xs text-red-500 text-center font-medium bg-red-50 dark:bg-red-500/10 p-4 rounded-xl border border-red-100 dark:border-red-500/20"
+            className="text-xs text-red-500 text-center font-medium bg-red-50 dark:bg-red-500/10 p-4 rounded-xl border border-red-150 dark:border-red-500/20"
           >
             {error}
           </motion.p>
         )}
       </motion.div>
     </div>
-  );
-}
-
-function AuthButton({ 
-  onClick, 
-  icon, 
-  label, 
-  loading, 
-  secondary = false 
-}: { 
-  onClick: () => void; 
-  icon: React.ReactNode; 
-  label: string; 
-  loading?: boolean;
-  secondary?: boolean;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      disabled={loading}
-      className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all ${
-        secondary 
-          ? 'bg-neutral-50 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 border-2 border-transparent' 
-          : 'bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 border-2 border-neutral-100 dark:border-neutral-800 hover:border-brand-primary/30 hover:shadow-lg hover:shadow-brand-primary/5'
-      }`}
-    >
-      <div className="w-5 h-5 flex items-center justify-center shrink-0">
-        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : icon}
-      </div>
-      <span className="flex-1 text-left">{label}</span>
-    </button>
   );
 }

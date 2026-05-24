@@ -2,7 +2,7 @@ import React from 'react';
 import { Sparkles } from 'lucide-react';
 
 export type MascotShape = 'pentagon' | 'circle' | 'cloud' | 'square' | 'diamond' | 'pill' | 'star';
-export type MascotEyes = 'normal' | 'stars' | 'closed' | 'winking' | 'heart';
+export type MascotEyes = 'normal' | 'stars' | 'closed' | 'winking' | 'heart' | 'semiclosed';
 
 interface MascotProps {
   shape?: MascotShape;
@@ -48,6 +48,13 @@ export const Mascot = ({
         );
       case 'closed':
         return <path d={`M${x-8} 45 Q${x} 55 ${x+8} 45`} stroke="black" strokeWidth="4" fill="none" strokeLinecap="round" />;
+      case 'semiclosed':
+        return (
+          <g>
+            <path d={`M${x-7} 50 A 7 7 0 0 0 ${x+7} 50 Z`} fill="black" opacity="0.65" />
+            <path d={`M${x-8} 47 H${x+8}`} stroke="black" strokeWidth="4" strokeLinecap="round" />
+          </g>
+        );
       case 'normal':
       default:
         return (

@@ -27,12 +27,12 @@ function AppRoutes() {
     );
   }
 
-  if (!user) {
-    return <Auth />;
-  }
-
   if (!hasSeenOnboarding) {
     return <WelcomeOnboarding />;
+  }
+
+  if (!user) {
+    return <Auth />;
   }
 
   return (

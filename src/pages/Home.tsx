@@ -1,163 +1,179 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { Palette, Edit3, Camera, Search, ChevronRight } from 'lucide-react';
-import { useAppContext, Discipline, Language, CreativeMode } from '../context/AppContext';
-import { translations } from '../lib/i18n';
+import { Snowflake, Flame, Moon, ChevronRight } from 'lucide-react';
+import { useAppContext } from '../context/AppContext';
 import { cn } from '../lib/utils';
 
-const getDisciplines = (lang: Language): { id: Discipline; label: string; icon: React.ElementType; accent: string }[] => [
-  { id: 'Drawing', label: lang === 'es' ? 'Dibujo/Pintura' : 'Drawing/Painting', icon: Palette, accent: 'bg-brand-secondary' },
-  { id: 'Writing', label: lang === 'es' ? 'Escritura' : 'Writing', icon: Edit3, accent: 'bg-brand-accent' },
-  { id: 'Photography', label: lang === 'es' ? 'Fotografía' : 'Photography', icon: Camera, accent: 'bg-brand-cyan' },
-];
+interface StateOption {
+  id: string;
+  title: string;
+  desc: string;
+  icon: React.ElementType;
+  iconBg: string;
+  iconColor: string;
+}
 
 export function Home() {
-  const { discipline, setDiscipline, creativeMode, setCreativeMode, language, userName } = useAppContext();
-  const t = translations[language];
-  const disciplines = getDisciplines(language);
+  const { theme, userName, language } = useAppContext();
   const navigate = useNavigate();
 
-  const accentColors: Record<Discipline, string> = {
-    Drawing: '#FFAE7A', // Orange
-    Writing: '#A78BFA', // Purple
-    Photography: '#22D3EE' // Cyan
+  // Load last used state from localStorage or default to null
+  const [selectedState, setSelectedState] = useState<string | null>(() => {
+    return localStorage.getItem('creative_selected_block_state');
+  });
+
+  // Dynamically set background color to match light/dark theme perfectly
+  useEffect(() => {
+    const mainEl = document.querySelector('main');
+    const bgColor = theme === 'dark' ? '#0e0e0e' : '#fcfcfd';
+    if (mainEl) {
+      mainEl.style.backgroundColor = bgColor;
+    }
+    document.body.style.backgroundColor = bgColor;
+    return () => {
+      if (mainEl) {
+        mainEl.style.backgroundColor = '';
+      }
+      document.body.style.backgroundColor = '';
+    };
+  }, [theme]);
+
+  const handleSelectState = (stateId: string) => {
+    setSelectedState(stateId);
+    localStorage.setItem('creative_selected_block_state', stateId);
   };
 
-  const modeMapping: Record<string, CreativeMode> = {
-    'unlock': 'Unlock',
-    'practice': 'Practice',
-    'quick': 'Challenge'
+  const handleStartExercise = () => {
+    if (!selectedState) return;
+    // Navigate directly to Exercises, triggering Fluxo generation instantly
+    navigate('/exercises', {
+      state: {
+        startWithState: selectedState,
+        autoStart: true
+      }
+    });
   };
+
+  const firstName = userName?.split(' ')[0] || (language === 'es' ? 'Creador' : 'Creator');
+
+  const states: StateOption[] = [
+    {
+      id: 'Paralizado',
+      title: language === 'es' ? 'Paralizado' : 'Paralyzed',
+      desc: language === 'es' ? 'No sé por dónde empezar' : 'I don\'t know where to start',
+      icon: Snowflake,
+      iconBg: 'bg-blue-50 dark:bg-[#1e293b]',
+      iconColor: 'text-blue-500 dark:text-blue-400'
+    },
+    {
+      id: 'En loop',
+      title: language === 'es' ? 'En loop' : 'In a loop',
+      desc: language === 'es' ? 'Empiezo y borro todo' : 'I start and erase everything',
+      icon: Flame,
+      iconBg: 'bg-orange-50 dark:bg-[#2d1610]',
+      iconColor: 'text-orange-500'
+    },
+    {
+      id: 'Sin ideas',
+      title: language === 'es' ? 'Sin ideas' : 'No ideas',
+      desc: language === 'es' ? 'Me siento vacío' : 'I feel empty',
+      icon: Moon,
+      iconBg: 'bg-indigo-50 dark:bg-[#172554]',
+      iconColor: 'text-indigo-500 dark:text-indigo-400'
+    }
+  ];
+
+  const labelEstoy = language === 'es' ? 'ESTOY...' : 'I AM FEELING...';
+  const labelButton = language === 'es' ? 'Empezar ejercicio →' : 'Start exercise →';
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="max-w-4xl mx-auto"
-    >
-      {/* Greeting Section */}
-      <div className="mb-10 pt-4">
-        <div className="flex flex-col gap-6">
-          <motion.h1 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="text-4xl md:text-6xl font-display font-black tracking-tight text-neutral-900 dark:text-white leading-[1.1]"
-          >
-            {t.homeTitle} <span style={{ color: 'var(--discipline-accent)' }}>{userName?.split(' ')[0] || 'Maria'}</span>
-          </motion.h1>
-
-          <div className="flex flex-wrap gap-3">
-            {[
-              { id: 'unlock', label: language === 'es' ? 'Modo Desbloqueo' : 'Unlock Mode' },
-              { id: 'practice', label: language === 'es' ? 'Modo Práctica' : 'Practice Mode' },
-              { id: 'quick', label: language === 'es' ? 'Reto Rápido' : 'Quick Challenge' }
-            ].map((mode) => {
-              const isSelected = creativeMode === modeMapping[mode.id];
-              return (
-                <button
-                  key={mode.id}
-                  onClick={() => setCreativeMode(modeMapping[mode.id])}
-                  className={cn(
-                    "px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-[0.2em] transition-all border shadow-sm active:scale-95",
-                    isSelected 
-                      ? "bg-white dark:bg-neutral-800 border-transparent shadow-lg" 
-                      : "bg-white dark:bg-neutral-900 border-neutral-100 dark:border-neutral-800 text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
-                  )}
-                  style={isSelected ? { 
-                    color: 'var(--discipline-accent)',
-                    boxShadow: '0 10px 20px -5px rgb(from var(--discipline-accent) r g b / 0.2)'
-                  } : {}}
-                >
-                  {mode.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+    <div className="min-h-full flex flex-col justify-between max-w-md mx-auto pt-4 text-neutral-900 dark:text-white">
+      {/* Title block */}
+      <div className="space-y-4 mb-8">
+        <motion.h1
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="text-4xl md:text-5xl font-display font-black leading-tight tracking-tight select-none text-neutral-900 dark:text-white"
+        >
+          {language === 'es' ? 'Hola, ' : 'Hello, '}
+          <span className="text-[#E8834A]">{firstName}</span>.
+          <br />
+          {language === 'es' ? '¿Cómo estás hoy?' : 'How are you today?'}
+        </motion.h1>
+        
+        <p className="text-[#555555] font-medium text-sm md:text-base leading-relaxed">
+          {language === 'es' 
+            ? 'Elige tu estado y te doy el ejercicio exacto.' 
+            : 'Select your state and I will give you the exact exercise.'}
+        </p>
       </div>
 
-      {/* Stacked Discipline Selection */}
-      <div className="relative h-[320px] mb-8 flex items-center justify-center">
-        <div className="relative w-full max-w-[240px] h-[280px] preserve-3d">
-          {disciplines.map((item, index) => {
-            const isActive = discipline === item.id;
-            const disciplineIndex = disciplines.findIndex(d => d.id === discipline);
-            const relativePos = index - disciplineIndex;
-            
+      {/* Selectable Options block */}
+      <div className="space-y-4 flex-1">
+        <p className="text-[11px] font-black uppercase tracking-[0.25em] text-[#555555] select-none">
+          {labelEstoy}
+        </p>
+
+        <div className="space-y-3">
+          {states.map((st, idx) => {
+            const isActive = selectedState === st.id;
             return (
               <motion.button
-                key={item.id}
-                onClick={() => setDiscipline(item.id)}
-                initial={false}
-                animate={{
-                  x: isActive ? 0 : relativePos * 50,
-                  y: isActive ? 0 : Math.abs(relativePos) * 10,
-                  rotateZ: isActive ? 0 : relativePos * 8,
-                  scale: isActive ? 1.1 : 0.9,
-                  opacity: isActive ? 1 : 0.4,
-                  zIndex: isActive ? 50 : 50 - Math.abs(relativePos)
-                }}
-                whileTap={{ scale: isActive ? 1.05 : 0.95 }}
-                transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                key={st.id}
+                onClick={() => handleSelectState(st.id)}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.1, duration: 0.3 }}
                 className={cn(
-                  "absolute inset-0 rounded-[2.5rem] p-8 flex flex-col justify-between transition-shadow group",
-                  "bg-white dark:bg-neutral-900 border-2",
-                  isActive ? "border-transparent" : "border-neutral-100 dark:border-neutral-800"
+                  "w-full text-left p-5 rounded-3xl transition-all duration-300 flex items-center justify-between cursor-pointer border select-none",
+                  isActive
+                    ? "bg-[#fdf8f5] dark:bg-[#1c1208] border-[#E8834A]"
+                    : "bg-white dark:bg-[#161616] border-neutral-200 dark:border-neutral-900 hover:border-neutral-300 dark:hover:border-neutral-800"
                 )}
-                style={{ 
-                  boxShadow: isActive 
-                    ? `0 40px 80px -20px rgb(from var(--discipline-accent) r g b / 0.4)`
-                    : `0 10px 30px -10px rgb(from ${accentColors[item.id]} r g b / 0.1)`,
-                  borderColor: isActive 
-                    ? 'rgb(from var(--discipline-accent) r g b / 0.2)'
-                    : `rgb(from ${accentColors[item.id]} r g b / 0.15)`
-                }}
               >
-                <div 
-                  className={cn(
-                    "w-16 h-16 rounded-[1.5rem] flex items-center justify-center text-white shadow-xl transition-transform duration-500 group-hover:rotate-12",
-                    item.accent
-                  )}
-                  style={{ backgroundColor: isActive ? 'var(--discipline-accent)' : undefined }}
-                >
-                  <item.icon className="w-8 h-8" strokeWidth={1.5} />
-                </div>
-                
-                <div className="text-left">
-                  <span className="text-[9px] font-black uppercase tracking-[0.3em] text-neutral-300 dark:text-neutral-600 mb-1 block">
-                    {language === 'es' ? 'DISCIPLINA' : 'DISCIPLINE'}
-                  </span>
-                  <h3 className={cn(
-                    "text-2xl font-display font-black leading-tight",
-                    isActive ? "text-neutral-900 dark:text-white" : "text-neutral-400 dark:text-neutral-600"
-                  )}>
-                    {item.label}
-                  </h3>
+                <div className="flex items-center gap-4">
+                  <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center shrink-0", st.iconBg)}>
+                    <st.icon className={cn("w-6 h-6", st.iconColor)} strokeWidth={1.5} />
+                  </div>
+                  <div>
+                    <h3 className="font-display font-black text-lg text-neutral-900 dark:text-white leading-tight">
+                      {st.title}
+                    </h3>
+                    <p className="text-[#555555] text-xs font-semibold mt-0.5 leading-snug">
+                      {st.desc}
+                    </p>
+                  </div>
                 </div>
 
-                <div className="flex items-center justify-between mt-2">
-                  <div className="flex gap-1">
-                    {[1, 2, 3].map(i => (
-                      <div key={i} className={cn("w-1 h-1 rounded-full", isActive ? "bg-neutral-200" : "bg-neutral-100")} />
-                    ))}
-                  </div>
-                  <ChevronRight className={cn("w-5 h-5", isActive ? "text-neutral-300" : "text-neutral-100")} />
-                </div>
+                <ChevronRight 
+                  className={cn(
+                    "w-5 h-5 transition-transform duration-200", 
+                    isActive ? "text-[#E8834A] translate-x-0.5" : "text-neutral-400 dark:text-neutral-700"
+                  )} 
+                />
               </motion.button>
             );
           })}
         </div>
       </div>
 
-      <div className="flex justify-center pt-8">
-        <button 
-          onClick={() => navigate('/ideas', { state: { generateTrigger: true } })}
-          className="minimal-button-primary px-12 py-5 rounded-full text-xl font-black shadow-2xl hover:scale-105 active:scale-95 transition-all"
+      {/* Campaign Button CTA at the bottom */}
+      <div className="pt-8">
+        <button
+          onClick={handleStartExercise}
+          disabled={!selectedState}
+          className={cn(
+            "w-full py-4.5 rounded-3xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-2 transition-all cursor-pointer select-none border border-transparent",
+            selectedState 
+              ? "bg-[#E8834A] text-white hover:bg-orange-500 active:scale-[0.99]" 
+              : "bg-neutral-100 dark:bg-[#222222] text-neutral-400 dark:text-neutral-600 cursor-not-allowed border-neutral-200 dark:border-transparent"
+          )}
         >
-          {t.inspireMeNow || "Continuar"}
+          {labelButton}
         </button>
       </div>
-    </motion.div>
+    </div>
   );
 }

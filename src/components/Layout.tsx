@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { Sparkles, Dumbbell, LineChart, Users, Wrench, Wind, Settings, Home as HomeIcon, User } from 'lucide-react';
+import { Sparkles, Dumbbell, LineChart, Zap, Wrench, Wind, Settings, Home as HomeIcon, User, X, AlertCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
 import { SettingsModal } from './SettingsModal';
 import { useAppContext } from '../context/AppContext';
@@ -9,7 +10,15 @@ import { translations } from '../lib/i18n';
 export function Layout() {
   const navigate = useNavigate();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const { language, userName, userPhoto } = useAppContext();
+  const { 
+    language, 
+    userName, 
+    userPhoto, 
+    showGuestWarning, 
+    setShowGuestWarning, 
+    writeError, 
+    setWriteError 
+  } = useAppContext();
   const t = translations[language];
 
   const navItems = [
@@ -17,30 +26,11 @@ export function Layout() {
     { to: '/ai-mirror', icon: Sparkles, label: t.aiMirrorTitle },
     { to: '/exercises', icon: Dumbbell, label: t.exercises },
     { to: '/progress', icon: LineChart, label: t.progress },
-    { to: '/community', icon: Users, label: t.community },
+    { to: '/community', icon: Zap, label: t.community },
   ];
 
   return (
     <div className="flex flex-col md:flex-row h-screen bg-[#fcfcfd] dark:bg-[#0a0a0a] text-[#2d2d2d] dark:text-neutral-100 font-sans transition-colors duration-200">
-      {/* Mobile Top Header */}
-      <header className="md:hidden flex items-center justify-between px-6 py-4 bg-white dark:bg-neutral-900 border-b border-neutral-100 dark:border-neutral-800 shrink-0">
-        <button 
-          onClick={() => navigate('/profile')}
-          className="flex items-center gap-3 hover:opacity-80 transition-opacity"
-        >
-          <div className="w-10 h-10 rounded-2xl overflow-hidden border-2 border-brand-primary/10 shadow-lg shadow-brand-primary/10">
-            <img src={userPhoto} alt={userName} className="w-full h-full object-cover" />
-          </div>
-          <span className="font-display font-bold text-neutral-900 dark:text-white tracking-tight">{userName}</span>
-        </button>
-        <button
-          onClick={() => setIsSettingsOpen(true)}
-          className="p-2.5 text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 rounded-xl transition-all"
-        >
-          <Settings className="w-5 h-5" />
-        </button>
-      </header>
-
       {/* Sidebar - Desktop Only */}
       <aside className="hidden md:flex w-64 bg-white dark:bg-neutral-900 border-r border-neutral-100 dark:border-neutral-800 flex-col transition-colors duration-200 px-4">
         <button 
@@ -143,7 +133,7 @@ export function Layout() {
               className={({ isActive }) => cn("flex flex-col items-center gap-1 transition-all", isActive ? "" : "text-neutral-400")}
               style={({ isActive }) => isActive ? { color: 'var(--discipline-accent)' } : {}}
             >
-              <Users className="w-5 h-5" />
+              <Zap className="w-5 h-5" />
               <span className="text-[9px] font-black uppercase tracking-tighter">{t.community}</span>
             </NavLink>
             <NavLink
@@ -171,6 +161,57 @@ export function Layout() {
       </nav>
 
       <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+
+      {/* Floating Notifications / Warnings Banners */}
+      <div className="fixed bottom-24 left-1/2 -translate-x-1/2 space-y-3 z-[110] w-full max-w-sm px-4 pointer-events-auto">
+        <AnimatePresence>
+          {showGuestWarning && (
+            <motion.div
+              initial={{ opacity: 0, y: 30, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.95 }}
+              className="bg-[#E8834A] text-white p-4 rounded-3xl shadow-xl border border-orange-400/30 flex items-center justify-between gap-3"
+            >
+              <div className="flex items-center gap-3">
+                <AlertCircle className="w-5 h-5 shrink-0" />
+                <span className="text-xs font-black tracking-wide leading-tight">
+                  {language === 'es' 
+                    ? 'Crea una cuenta para guardar tu progreso.' 
+                    : 'Create an account to save your progress.'}
+                </span>
+              </div>
+              <button 
+                onClick={() => setShowGuestWarning(false)}
+                className="p-1 hover:bg-white/10 active:scale-95 rounded-full transition-all text-white shrink-0 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </motion.div>
+          )}
+
+          {writeError && (
+            <motion.div
+              initial={{ opacity: 0, y: 30, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.95 }}
+              className="bg-red-500 text-white p-4 rounded-3xl shadow-xl border border-red-400/30 flex items-center justify-between gap-3"
+            >
+              <div className="flex items-center gap-3">
+                <AlertCircle className="w-5 h-5 shrink-0" />
+                <span className="text-xs font-black tracking-wide leading-tight">
+                  {writeError}
+                </span>
+              </div>
+              <button 
+                onClick={() => setWriteError(null)}
+                className="p-1 hover:bg-white/10 active:scale-95 rounded-full transition-all text-white shrink-0 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }

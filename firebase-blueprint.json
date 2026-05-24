@@ -1,46 +1,55 @@
 {
   "entities": {
-    "UserProfile": {
-      "title": "User Profile",
-      "description": "Stores user identity and preferences.",
+    "Perfil": {
+      "title": "Perfil de Usuario",
+      "description": "Información de perfil del usuario y sus respuestas de onboarding.",
       "type": "object",
       "properties": {
-        "name": { "type": "string" },
-        "photo": { "type": "string", "format": "uri" },
-        "bio": { "type": "string" },
-        "language": { "type": "string", "enum": ["es", "en"] },
-        "theme": { "type": "string", "enum": ["light", "dark"] },
-        "discipline": { "type": "string" }
+        "nombre": { "type": "string" },
+        "disciplina": { "type": "string" },
+        "catalizador": { "type": "string" },
+        "saboteador": { "type": "string" },
+        "onboardingCompleto": { "type": "boolean" }
       },
-      "required": ["name"]
+      "required": ["nombre", "onboardingCompleto"]
     },
-    "ProgressNote": {
-      "title": "Progress Note",
-      "description": "A creative entry into the user's progress log.",
+    "Progreso": {
+      "title": "Progreso del Usuario",
+      "description": "Estadísticas y progreso acumulado del usuario.",
       "type": "object",
       "properties": {
-        "date": { "type": "string", "format": "date-time" },
-        "content": { "type": "string" },
-        "discipline": { "type": "string" },
-        "challenge": { 
-          "type": "object",
-          "properties": {
-            "title": { "type": "string" },
-            "type": { "type": "string" }
-          }
-        }
+        "ejerciciosCompletados": { "type": "number" },
+        "rachaActual": { "type": "number" },
+        "ultimoEjercicio": { "type": "string" },
+        "totalSesiones": { "type": "number" }
       },
-      "required": ["date", "content", "discipline"]
+      "required": ["ejerciciosCompletados", "rachaActual", "totalSesiones"]
+    },
+    "HistorialEntry": {
+      "title": "Entrada de Historial",
+      "description": "Detalles de un ejercicio creativo completado.",
+      "type": "object",
+      "properties": {
+        "fecha": { "type": "string" },
+        "tipo": { "type": "string" },
+        "duracion": { "type": "number" },
+        "estado": { "type": "string" }
+      },
+      "required": ["fecha", "tipo", "duracion", "estado"]
     }
   },
   "firestore": {
-    "/users/{userId}": {
-      "schema": "UserProfile",
-      "description": "User preferences and profile data."
+    "/usuarios/{userId}/perfil/perfil": {
+      "schema": "Perfil",
+      "description": "Documento de perfil del usuario."
     },
-    "/users/{userId}/progress": {
-      "schema": "ProgressNote",
-      "description": "Collection of progress entries for a specific user."
+    "/usuarios/{userId}/progreso/progreso": {
+      "schema": "Progreso",
+      "description": "Documento de estadísticas de progreso del usuario."
+    },
+    "/usuarios/{userId}/historial/{ejercicioId}": {
+      "schema": "HistorialEntry",
+      "description": "Ejercicios individuales completados."
     }
   }
 }
