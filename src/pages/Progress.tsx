@@ -211,44 +211,44 @@ export function Progress() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="max-w-xl mx-auto space-y-8 pb-24 px-4 pt-4 select-none"
+      className="max-w-xl mx-auto space-y-6 pb-24 px-4 pt-4 select-none"
     >
       
       {/* HEADER SECTION */}
-      <h1 className="text-xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100 uppercase text-center md:text-left">
+      <h1 className="text-lg font-black tracking-tight text-neutral-900 dark:text-neutral-100 uppercase text-center md:text-left">
         {language === 'es' ? 'Progreso' : 'Progress'}
       </h1>
 
       {/* BLOQUE 1: "Tu racha" */}
-      <div className="space-y-3">
-        <h2 className="text-[11px] font-black uppercase tracking-[0.25em] text-neutral-400/80 dark:text-neutral-500">
+      <div className="space-y-2">
+        <h2 className="text-[10px] font-black uppercase tracking-[0.25em] text-neutral-400/80 dark:text-neutral-500">
           {language === 'es' ? 'Tu racha' : 'Your streak'}
         </h2>
         
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 gap-2.5">
           {/* Card 1: Días seguidos */}
-          <div className="bg-white dark:bg-[#161616] border border-neutral-200/50 dark:border-neutral-800/60 rounded-2xl p-4 flex flex-col justify-between min-h-[92px] shadow-sm">
+          <div className="bg-white dark:bg-[#161616] border border-neutral-200/50 dark:border-neutral-800/60 rounded-xl p-3.5 flex flex-col justify-between min-h-[84px] shadow-sm">
             <div className="flex items-center gap-1.5 leading-none">
-              <span className="text-[28px] font-black text-[#E8834A]">{stats.rachaActual}</span>
-              <span className="text-xl">🔥</span>
+              <span className="text-xl md:text-2xl font-black text-[#E8834A]">{stats.rachaActual}</span>
+              <span className="text-base">🔥</span>
             </div>
-            <span className="text-[10px] text-neutral-500 dark:text-neutral-400 font-bold uppercase tracking-wider mt-1.5 leading-tight">
+            <span className="text-[9px] text-neutral-500 dark:text-neutral-400 font-bold uppercase tracking-wider mt-1 leading-tight">
               {language === 'es' ? 'Días seguidos' : 'Day streak'}
             </span>
           </div>
 
           {/* Card 2: Ejercicios */}
-          <div className="bg-white dark:bg-[#161616] border border-neutral-200/50 dark:border-neutral-800/60 rounded-2xl p-4 flex flex-col justify-between min-h-[92px] shadow-sm">
-            <span className="text-[28px] font-black text-[#E8834A] leading-none">{stats.ejerciciosCompletados}</span>
-            <span className="text-[10px] text-neutral-500 dark:text-neutral-400 font-bold uppercase tracking-wider mt-1.5 leading-tight">
+          <div className="bg-white dark:bg-[#161616] border border-neutral-200/50 dark:border-neutral-800/60 rounded-xl p-3.5 flex flex-col justify-between min-h-[84px] shadow-sm">
+            <span className="text-xl md:text-2xl font-black text-[#E8834A] leading-none">{stats.ejerciciosCompletados}</span>
+            <span className="text-[9px] text-neutral-500 dark:text-neutral-400 font-bold uppercase tracking-wider mt-1 leading-tight">
               {language === 'es' ? 'Ejercicios' : 'Exercises'}
             </span>
           </div>
 
           {/* Card 3: Esta semana */}
-          <div className="bg-white dark:bg-[#161616] border border-neutral-200/50 dark:border-neutral-800/60 rounded-2xl p-4 flex flex-col justify-between min-h-[92px] shadow-sm">
-            <span className="text-[28px] font-black text-[#E8834A] leading-none">{weeklyCount}</span>
-            <span className="text-[10px] text-neutral-500 dark:text-neutral-400 font-bold uppercase tracking-wider mt-1.5 leading-tight">
+          <div className="bg-white dark:bg-[#161616] border border-neutral-200/50 dark:border-neutral-800/60 rounded-xl p-3.5 flex flex-col justify-between min-h-[84px] shadow-sm">
+            <span className="text-xl md:text-2xl font-black text-[#E8834A] leading-none">{weeklyCount}</span>
+            <span className="text-[9px] text-neutral-500 dark:text-neutral-400 font-bold uppercase tracking-wider mt-1 leading-tight">
               {language === 'es' ? 'Esta semana' : 'This week'}
             </span>
           </div>
@@ -256,14 +256,14 @@ export function Progress() {
       </div>
 
       {/* BLOQUE 2: "Consistencia" */}
-      <div className="space-y-3">
-        <h3 className="text-[11px] font-black uppercase tracking-[0.25em] text-neutral-400/80 dark:text-neutral-500">
+      <div className="space-y-2">
+        <h3 className="text-[10px] font-black uppercase tracking-[0.25em] text-neutral-400/80 dark:text-neutral-500">
           {language === 'es' ? 'Consistencia' : 'Consistency'}
         </h3>
         
-        <div className="bg-white dark:bg-[#161616] border border-neutral-200/50 dark:border-neutral-800/60 rounded-3xl p-6 shadow-sm">
+        <div className="bg-white dark:bg-[#161616] border border-neutral-200/50 dark:border-neutral-800/60 rounded-xl p-4 shadow-sm">
           {/* Calendar Grid (7 columns, 4 rows) */}
-          <div className="grid grid-cols-7 gap-2.5 max-w-[340px] mx-auto">
+          <div className="grid grid-cols-7 gap-2 max-w-[320px] mx-auto">
             {calendarDays.map((day, i) => {
               let bgClass = "bg-neutral-100 dark:bg-[#1e1e1e]";
               if (day.intensity === 1) bgClass = "bg-[#E8834A]/30 dark:bg-[#E8834A]/25";
@@ -279,7 +279,7 @@ export function Progress() {
                 <div 
                   key={i} 
                   className={cn(
-                    "aspect-square rounded-lg transition-all duration-300 relative",
+                    "aspect-square rounded-md transition-all duration-300 relative",
                     bgClass,
                     day.isToday && "ring-2 ring-[#E8834A] ring-offset-2 ring-offset-white dark:ring-offset-[#161616]"
                   )}
@@ -290,17 +290,17 @@ export function Progress() {
           </div>
 
           {/* Visual Legend */}
-          <div className="flex items-center justify-center gap-4 text-[10px] text-neutral-500 dark:text-neutral-400 font-bold uppercase tracking-wide mt-5">
+          <div className="flex items-center justify-center gap-3 text-[9px] text-neutral-400 dark:text-neutral-500 font-bold uppercase tracking-wide mt-3.5">
             <div className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded bg-[#E8834A]" />
+              <span className="w-2 h-2 rounded bg-[#E8834A]" />
               <span>{language === 'es' ? 'Completado' : 'Completed'}</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded bg-[#E8834A]/30 dark:bg-[#E8834A]/25" />
+              <span className="w-2 h-2 rounded bg-[#E8834A]/30 dark:bg-[#E8834A]/25" />
               <span>{language === 'es' ? 'Parcial' : 'Partial'}</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded bg-neutral-100 dark:bg-[#1e1e1e]" />
+              <span className="w-2 h-2 rounded bg-neutral-100 dark:bg-[#1e1e1e]" />
               <span>{language === 'es' ? 'Sin actividad' : 'No activity'}</span>
             </div>
           </div>
@@ -308,45 +308,45 @@ export function Progress() {
       </div>
 
       {/* BLOQUE 3: "Lo que hiciste" */}
-      <div className="space-y-3">
-        <h3 className="text-[11px] font-black uppercase tracking-[0.25em] text-neutral-400/80 dark:text-neutral-500">
+      <div className="space-y-2">
+        <h3 className="text-[10px] font-black uppercase tracking-[0.25em] text-neutral-400/80 dark:text-neutral-500">
           {language === 'es' ? 'Lo que hiciste' : 'What you did'}
         </h3>
 
         {historyList.length === 0 ? (
           /* Empty state */
-          <div className="bg-white dark:bg-[#161616] border border-neutral-200/50 dark:border-neutral-800/60 rounded-3xl p-10 flex flex-col items-center justify-center text-center shadow-sm">
-            <div className="w-12 h-12 rounded-full bg-neutral-100 dark:bg-neutral-900 flex items-center justify-center text-neutral-400 mb-4">
-              <Zap className="w-6 h-6 text-neutral-400 dark:text-neutral-600" />
+          <div className="bg-white dark:bg-[#161616] border border-neutral-200/50 dark:border-neutral-800/60 rounded-xl p-6 flex flex-col items-center justify-center text-center shadow-sm">
+            <div className="w-7 h-7 rounded-lg bg-neutral-100 dark:bg-neutral-900 flex items-center justify-center text-neutral-400 mb-3">
+              <Zap className="w-4 h-4 text-neutral-400 dark:text-neutral-600" />
             </div>
-            <p className="text-sm font-medium text-neutral-600 dark:text-neutral-300 mb-6">
+            <p className="text-xs font-medium text-neutral-600 dark:text-neutral-300 mb-4">
               {language === 'es' ? 'Aún no hay ejercicios. ¿Empezamos hoy?' : 'No exercises yet. Shall we start today?'}
             </p>
             <button
-              onClick={() => navigate('/exercises')}
-              className="px-5 py-2.5 bg-[#E8834A] hover:bg-[#d9743c] active:scale-95 text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer flex items-center gap-2"
+              onClick={() => navigate('/')}
+              className="px-4 py-2 bg-[#E8834A] hover:bg-[#d9743c] active:scale-95 text-white text-[10px] font-medium uppercase tracking-wider rounded-lg transition-all cursor-pointer flex items-center gap-1.5"
             >
-              <span>{language === 'es' ? 'Ir a ejercicios' : 'Go to exercises'}</span>
-              <ArrowRight className="w-4 h-4" />
+              <span>{language === 'es' ? 'Ir a inicio' : 'Go to home'}</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
         ) : (
           /* List of recent items */
-          <div className="space-y-2.5">
+          <div className="space-y-2">
             {historyList.map((item) => {
-              const info = getBlockageMetadata(item);
-              const nameText = item.nombre || item.challengeTitle || (language === 'es' ? 'Ejercicio de Creatividad' : 'Creativity Exercise');
-              // Format nicely
-              const cleanTitle = nameText.replace(/^(Fluxo:|Clásico:)\s*/i, '');
+               const info = getBlockageMetadata(item);
+               const nameText = item.nombre || item.challengeTitle || (language === 'es' ? 'Ejercicio de Creatividad' : 'Creativity Exercise');
+               // Format nicely
+               const cleanTitle = nameText.replace(/^(Fluxo:|Clásico:)\s*/i, '');
 
-              return (
+               return (
                 <div 
                   key={item.id}
-                  className="bg-white dark:bg-[#161616] border border-neutral-200/50 dark:border-neutral-800/60 rounded-2xl p-4 flex items-center justify-between gap-4 transition-all hover:border-neutral-300 dark:hover:border-neutral-700 shadow-sm"
+                  className="bg-white dark:bg-[#161616] border border-neutral-200/50 dark:border-neutral-800/60 rounded-xl p-3.5 flex items-center justify-between gap-3 transition-all hover:border-neutral-300 dark:hover:border-neutral-700 shadow-sm"
                 >
-                  <div className="flex items-center gap-3.5 min-w-0">
+                  <div className="flex items-center gap-2.5 min-w-0">
                     {/* Blockage soft colored background icon */}
-                    <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0", info.bgColor)}>
+                    <div className={cn("w-7 h-7 rounded-lg flex items-center justify-center text-sm shrink-0", info.bgColor)}>
                       {info.icon}
                     </div>
                     
@@ -361,11 +361,11 @@ export function Progress() {
                   </div>
 
                   {/* Relative time indicator */}
-                  <div className="text-[11px] text-neutral-400 dark:text-[#444] font-bold shrink-0">
+                  <div className="text-[10px] text-neutral-400 dark:text-[#444] font-bold shrink-0">
                     {getRelativeTime(item.fecha)}
                   </div>
                 </div>
-              );
+               );
             })}
           </div>
         )}

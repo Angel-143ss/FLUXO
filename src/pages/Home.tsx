@@ -88,14 +88,14 @@ export function Home() {
   const labelButton = language === 'es' ? 'Empezar ejercicio →' : 'Start exercise →';
 
   return (
-    <div className="min-h-full flex flex-col justify-between max-w-md mx-auto pt-4 text-neutral-900 dark:text-white">
+    <div className="h-[calc(100vh-108px)] md:h-auto flex flex-col max-w-md mx-auto text-neutral-900 dark:text-white pb-2 overflow-hidden">
       {/* Title block */}
-      <div className="space-y-4 mb-8">
+      <div className="space-y-2 mb-6">
         <motion.h1
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="text-4xl md:text-5xl font-display font-black leading-tight tracking-tight select-none text-neutral-900 dark:text-white"
+          className="text-[22px] md:text-[24px] font-display font-black leading-tight tracking-tight select-none text-neutral-900 dark:text-white"
         >
           {language === 'es' ? 'Hola, ' : 'Hello, '}
           <span className="text-[#E8834A]">{firstName}</span>.
@@ -103,7 +103,7 @@ export function Home() {
           {language === 'es' ? '¿Cómo estás hoy?' : 'How are you today?'}
         </motion.h1>
         
-        <p className="text-[#555555] font-medium text-sm md:text-base leading-relaxed">
+        <p className="text-[#555555] font-medium text-[13px] leading-relaxed">
           {language === 'es' 
             ? 'Elige tu estado y te doy el ejercicio exacto.' 
             : 'Select your state and I will give you the exact exercise.'}
@@ -111,12 +111,12 @@ export function Home() {
       </div>
 
       {/* Selectable Options block */}
-      <div className="space-y-4 flex-1">
-        <p className="text-[11px] font-black uppercase tracking-[0.25em] text-[#555555] select-none">
+      <div className="flex-1 flex flex-col gap-2.5">
+        <p className="text-[10px] font-black uppercase tracking-[0.25em] text-[#555555] select-none">
           {labelEstoy}
         </p>
 
-        <div className="space-y-3">
+        <div className="flex-1 flex flex-col gap-[10px] space-y-0">
           {states.map((st, idx) => {
             const isActive = selectedState === st.id;
             return (
@@ -127,21 +127,21 @@ export function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.1, duration: 0.3 }}
                 className={cn(
-                  "w-full text-left p-5 rounded-3xl transition-all duration-300 flex items-center justify-between cursor-pointer border select-none",
+                  "flex-1 text-left p-3.5 rounded-xl transition-all duration-300 flex items-center justify-between cursor-pointer border select-none min-h-[72px]",
                   isActive
                     ? "bg-[#fdf8f5] dark:bg-[#1c1208] border-[#E8834A]"
-                    : "bg-white dark:bg-[#161616] border-neutral-200 dark:border-neutral-900 hover:border-neutral-300 dark:hover:border-neutral-800"
+                    : "bg-white dark:bg-[#161616] border-neutral-200 dark:border-neutral-900 hover:border-neutral-300 dark:hover:border-neutral-850"
                 )}
               >
-                <div className="flex items-center gap-4">
-                  <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center shrink-0", st.iconBg)}>
-                    <st.icon className={cn("w-6 h-6", st.iconColor)} strokeWidth={1.5} />
+                <div className="flex items-center gap-2.5">
+                  <div className={cn("w-7 h-7 rounded-lg flex items-center justify-center shrink-0", st.iconBg)}>
+                    <st.icon className={cn("w-3.5 h-3.5", st.iconColor)} strokeWidth={1.5} />
                   </div>
                   <div>
-                    <h3 className="font-display font-black text-lg text-neutral-900 dark:text-white leading-tight">
+                    <h3 className="font-display font-black text-[14px] text-neutral-900 dark:text-white leading-tight">
                       {st.title}
                     </h3>
-                    <p className="text-[#555555] text-xs font-semibold mt-0.5 leading-snug">
+                    <p className="text-[#555555] text-[12px] font-medium mt-0.5 leading-snug">
                       {st.desc}
                     </p>
                   </div>
@@ -149,7 +149,7 @@ export function Home() {
 
                 <ChevronRight 
                   className={cn(
-                    "w-5 h-5 transition-transform duration-200", 
+                    "w-4 h-4 transition-transform duration-200", 
                     isActive ? "text-[#E8834A] translate-x-0.5" : "text-neutral-400 dark:text-neutral-700"
                   )} 
                 />
@@ -160,15 +160,15 @@ export function Home() {
       </div>
 
       {/* Campaign Button CTA at the bottom */}
-      <div className="pt-8">
+      <div className="mt-auto pt-3 pb-4">
         <button
           onClick={handleStartExercise}
           disabled={!selectedState}
           className={cn(
-            "w-full py-4.5 rounded-3xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-2 transition-all cursor-pointer select-none border border-transparent",
+            "w-full py-3 rounded-xl font-medium text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all cursor-pointer select-none border border-transparent",
             selectedState 
-              ? "bg-[#E8834A] text-white hover:bg-orange-500 active:scale-[0.99]" 
-              : "bg-neutral-100 dark:bg-[#222222] text-neutral-400 dark:text-neutral-600 cursor-not-allowed border-neutral-200 dark:border-transparent"
+              ? "bg-[#E8834A] text-white hover:bg-orange-500 active:scale-[0.99] shadow-sm shadow-[#E8834A]/20" 
+              : "bg-neutral-105 dark:bg-[#161616] text-neutral-400 dark:text-neutral-600 cursor-not-allowed border-neutral-200 dark:transparent"
           )}
         >
           {labelButton}

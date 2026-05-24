@@ -23,7 +23,7 @@ import {
   X
 } from 'lucide-react';
 import { useAppContext, Discipline, Language } from '../context/AppContext';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { translations } from '../lib/i18n';
 import { GoogleGenAI, Type } from '@google/genai';
 import { Mascot } from '../components/Mascot';
@@ -269,14 +269,13 @@ const fluxoTranslations = {
 export function Exercises() {
   const { discipline, language, artistPreferences, addProgressNote } = useAppContext();
   const location = useLocation();
+  const navigate = useNavigate();
   const t = translations[language];
   const ft = fluxoTranslations[language] || fluxoTranslations.es;
   
   // Traditional exercises variables
   const exercisesByDiscipline = getExercisesByDiscipline(language);
   const exercises = exercisesByDiscipline[discipline];
-
-  const [activeTab, setActiveTab] = useState<'classical' | 'fluxo'>('classical');
   
   // Traditional states
   const [activeExercise, setActiveExercise] = useState<number | null>(null);
@@ -371,7 +370,6 @@ export function Exercises() {
     } else if (location.state && location.state.startCustomExercise) {
       const customEx = location.state.startCustomExercise;
       setCustomExercise(customEx);
-      setActiveTab('classical');
       setActiveExercise(-2); // Flag for custom
       setTimeLeft(customEx.duration * 60);
       setIsRunning(false);
@@ -380,6 +378,14 @@ export function Exercises() {
       window.history.replaceState({}, document.title);
     }
   }, [location.state]);
+
+  // Redirect directly to Home '/' if no exercise is active, generating, reflecting or being initiated
+  useEffect(() => {
+    const hasNavState = location.state && (location.state.startWithState || location.state.startCustomExercise);
+    if (!hasNavState && !isGenerating && !generatedExercise && activeExercise === null && !isReflecting) {
+      navigate('/', { replace: true });
+    }
+  }, [location.state, isGenerating, generatedExercise, activeExercise, isReflecting, navigate]);
 
   // Initialize AI Client
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
@@ -642,6 +648,7 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
       setFluxoTimerRunning(false);
     }
     setCurrentStepIndex(0);
+    navigate('/');
   };
 
   const handleFinishStepByStep = () => {
@@ -665,8 +672,7 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
         setCustomExercise(null);
       }
       stopExercise();
-      setShowClassicCompletedMsg(true);
-      setTimeout(() => setShowClassicCompletedMsg(false), 5000);
+      navigate('/progress');
     } else if (generatedExercise) {
       handleFluxoFinished();
     }
@@ -726,7 +732,7 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
               </span>
               <button
                 onClick={toggleTimerActive}
-                className="px-3.5 py-1.5 text-[10px] font-mono font-black text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-full flex items-center gap-1.5 cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+                className="px-3.5 py-1.5 text-[10px] font-mono font-black text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-full flex items-center gap-1.5 cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-850 transition-colors"
                 title={language === 'es' ? 'Clic para pausar/reanudar' : 'Click to pause/resume'}
               >
                 ⏱️ {formatTime(runningTimeLeft)} {!runningTimerActive ? (language === 'es' ? ' (pausado)' : ' (paused)') : ''}
@@ -737,7 +743,7 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
               <h2 className="text-3xl md:text-4xl font-display font-black text-neutral-950 dark:text-white leading-tight tracking-tight select-none">
                 {runningTitle}
               </h2>
-              <p className="text-xs md:text-sm text-neutral-500 dark:text-neutral-400 font-medium leading-relaxed max-w-lg">
+              <p className="text-xs md:text-sm text-neutral-550 dark:text-neutral-400 font-medium leading-relaxed max-w-lg">
                 {runningDescription}
               </p>
             </div>
@@ -786,7 +792,7 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
                   onClick={addTimeBonus}
                   className="px-4.5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest bg-white dark:bg-neutral-900 border border-neutral-250 dark:border-neutral-800 text-[#ea580c] hover:bg-neutral-50 dark:hover:bg-neutral-800 flex items-center gap-1.5 active:scale-95 transition-all shadow-sm cursor-pointer"
                 >
-                  <Plus className="w-3.5 h-3 text-[#ea580c]" />
+                  <Plus className="w-3 h-3 text-[#ea580c]" />
                   <span>{language === 'es' ? '+2 MIN' : '+2 MIN'}</span>
                 </button>
               </div>
@@ -795,7 +801,7 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
 
           <div className="mt-5 space-y-2.5">
             <div className="flex items-center justify-between gap-6">
-              <div className="h-1 bg-neutral-100 dark:bg-neutral-800 rounded-full flex-1 overflow-hidden">
+              <div className="h-1 bg-neutral-100 dark:bg-neutral-850 rounded-full flex-1 overflow-hidden">
                 <div 
                   className="h-full transition-all duration-500 rounded-full"
                   style={{ width: `${((currentStepIndex + 1) / 3) * 100}%`, backgroundColor: 'var(--discipline-accent, #ea580c)' }}
@@ -838,9 +844,9 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
             </div>
 
             <div className="flex items-center justify-center gap-1.5 mt-6 pt-2">
-              <div className={cn("h-1.5 rounded-full transition-all duration-300", currentStepIndex === 0 ? "w-5 bg-orange-500" : "w-1.5 bg-neutral-200 dark:bg-neutral-800")} style={currentStepIndex === 0 ? { backgroundColor: 'var(--discipline-accent, #ea580c)' } : {}} />
-              <div className={cn("h-1.5 rounded-full transition-all duration-300", currentStepIndex === 1 ? "w-5 bg-orange-500" : "w-1.5 bg-neutral-200 dark:bg-neutral-800")} style={currentStepIndex === 1 ? { backgroundColor: 'var(--discipline-accent, #ea580c)' } : {}} />
-              <div className={cn("h-1.5 rounded-full transition-all duration-300", currentStepIndex === 2 ? "w-5 bg-orange-500" : "w-1.5 bg-neutral-200 dark:bg-neutral-800")} style={currentStepIndex === 2 ? { backgroundColor: 'var(--discipline-accent, #ea580c)' } : {}} />
+              <div className={cn("h-1.5 rounded-full transition-all duration-300", currentStepIndex === 0 ? "w-5 bg-orange-500" : "w-1.5 bg-neutral-200 dark:bg-neutral-850")} style={currentStepIndex === 0 ? { backgroundColor: 'var(--discipline-accent, #ea580c)' } : {}} />
+              <div className={cn("h-1.5 rounded-full transition-all duration-300", currentStepIndex === 1 ? "w-5 bg-orange-500" : "w-1.5 bg-neutral-200 dark:bg-neutral-850")} style={currentStepIndex === 1 ? { backgroundColor: 'var(--discipline-accent, #ea580c)' } : {}} />
+              <div className={cn("h-1.5 rounded-full transition-all duration-300", currentStepIndex === 2 ? "w-5 bg-orange-500" : "w-1.5 bg-neutral-200 dark:bg-neutral-850")} style={currentStepIndex === 2 ? { backgroundColor: 'var(--discipline-accent, #ea580c)' } : {}} />
             </div>
           </div>
 
@@ -859,7 +865,7 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
                     "w-full py-3.5 rounded-2xl font-black text-sm uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all active:scale-[0.98] select-none cursor-pointer",
                     currentStepIndex === 0 
                       ? "text-white shadow-lg shadow-orange-500/10 hover:shadow-orange-500/20"
-                      : "border border-neutral-300 dark:border-neutral-700 hover:border-neutral-400 dark:hover:border-neutral-500 text-neutral-800 dark:text-white hover:bg-neutral-50 dark:hover:bg-neutral-800/30"
+                      : "border border-neutral-300 dark:border-neutral-700 hover:border-neutral-400 dark:hover:border-neutral-500 text-neutral-800 dark:text-white hover:bg-neutral-50 dark:hover:bg-neutral-850/30"
                   )}
                   style={currentStepIndex === 0 ? { backgroundColor: 'var(--discipline-accent, #ea580c)' } : {}}
                 >
@@ -936,47 +942,22 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
       animate={{ opacity: 1, y: 0 }}
       className="max-w-4xl mx-auto"
     >
-      <header className="mb-10 text-center md:text-left flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+      <header className="mb-6 text-center md:text-left flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-display font-black tracking-tight text-neutral-900 dark:text-white flex justify-center md:justify-start items-center gap-3">
-            <Sparkles className="w-8 h-8 text-brand-primary animate-pulse" style={{ color: 'var(--discipline-accent)' }} />
+          <h1 className="text-[22px] md:text-[24px] font-display font-black tracking-tight text-neutral-900 dark:text-white flex justify-center md:justify-start items-center gap-2">
+            <Sparkles className="w-5 h-5 text-brand-primary animate-pulse" style={{ color: 'var(--discipline-accent)' }} />
             {t.exercisesTitle}
           </h1>
-          <p className="text-neutral-500 dark:text-neutral-400 max-w-xl mt-1 font-medium">
+          <p className="text-xs text-neutral-500 dark:text-neutral-400 max-w-xl mt-0.5 font-medium">
             {t.exercisesSubtitle.replace('{discipline}', discipline.toLowerCase())}
           </p>
         </div>
+
+
       </header>
 
-      {/* Dynamic Tab Switcher */}
-      <div className="flex gap-2.5 mb-8">
-        {(['classical', 'fluxo'] as const).map((tab) => {
-          const isSelected = activeTab === tab;
-          const label = tab === 'classical' ? ft.tabClassical : ft.tabFluxo;
-          return (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={cn(
-                "px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-[0.2em] transition-all border shadow-sm active:scale-95 cursor-pointer",
-                isSelected
-                  ? "bg-white dark:bg-[#161616] border-transparent shadow-lg scale-102 font-bold"
-                  : "bg-white dark:bg-[#161616] border-neutral-150 dark:border-neutral-900 text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
-              )}
-              style={isSelected ? {
-                color: 'var(--discipline-accent)',
-                borderColor: 'var(--discipline-accent)',
-                boxShadow: '0 8px 16px -4px rgb(from var(--discipline-accent) r g b / 0.15)'
-              } : {}}
-            >
-              {label}
-            </button>
-          );
-        })}
-      </div>
-
       <AnimatePresence mode="wait">
-        {activeTab === 'classical' ? (
+        {false ? (
           <motion.div
             key="classical-view"
             initial={{ opacity: 0, x: -15 }}
@@ -987,47 +968,47 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="p-4 mb-4 rounded-3xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-bold flex items-center gap-2"
+                className="p-3 mb-3 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-[11px] font-bold flex items-center gap-2"
               >
-                <CheckCircle2 className="w-4 h-4" />
+                <CheckCircle2 className="w-3.5 h-3.5" />
                 <span>
                   {language === 'es' ? '¡Reto guiado completado con éxito! Se ha añadido una nota a tu bitácora.' : 'Guided challenge completed successfully! A note has been logged in your journey history.'}
                 </span>
               </motion.div>
             )}
 
-            <div className="space-y-4">
-              <div className="p-8 rounded-[2.5rem] bg-white dark:bg-[#161616] border border-neutral-200/60 dark:border-neutral-800/80 mb-2 shadow-sm transition-all">
-                <h3 className="font-display font-black text-2xl text-neutral-900 dark:text-white mb-1">
+            <div className="space-y-3">
+              <div className="p-4 rounded-xl bg-neutral-50 dark:bg-neutral-850/30 border border-neutral-100 dark:border-neutral-800/40 mb-1">
+                <h3 className="font-display font-black text-sm text-neutral-850 dark:text-white mb-0.5">
                   {ft.classicHeader}
                 </h3>
-                <p className="text-xs text-neutral-500 dark:text-neutral-400 font-semibold leading-relaxed">
-                  {ft.classicSub} <span className="font-bold underline" style={{ color: 'var(--discipline-accent)' }}>{discipline === 'Drawing' ? (language === 'es' ? 'Dibujo / Pintura' : 'Drawing / Painting') : discipline === 'Writing' ? (language === 'es' ? 'Escritura' : 'Writing') : (language === 'es' ? 'Fotografía' : 'Photography')}</span>.
+                <p className="text-[11px] text-neutral-500 leading-relaxed">
+                  {ft.classicSub} <span className="font-bold underline" style={{ color: 'var(--discipline-accent)' }}>{discipline}</span>.
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {exercises.map((ex, idx) => (
-                  <div key={idx} className="minimal-card p-6 md:p-8 flex flex-col justify-between group hover:border-neutral-400 dark:hover:border-neutral-700 rounded-[2rem] bg-white dark:bg-neutral-900 border border-neutral-150 dark:border-neutral-800/70 shadow-sm transition-all">
+                  <div key={idx} className="minimal-card p-3.5 flex flex-col justify-between group hover:border-neutral-300 dark:hover:border-neutral-700 rounded-xl bg-white dark:bg-neutral-900 border border-neutral-150 dark:border-neutral-800/70 shadow-sm transition-all">
                     <div>
-                      <div className="flex justify-between items-start mb-4">
-                        <h3 className="text-xl font-display font-black text-neutral-900 dark:text-neutral-100 leading-tight">
+                      <div className="flex justify-between items-start mb-2.5">
+                        <h3 className="text-[14px] font-display font-black text-neutral-900 dark:text-neutral-100 leading-tight">
                           {ex.title}
                         </h3>
-                        <span className="flex items-center gap-1.5 text-[10px] uppercase font-black tracking-widest text-[#f0854c] bg-[#ea580c]/10 border border-[#ea580c]/20 rounded-full py-1 px-3 ml-4 shrink-0">
-                          <Clock className="w-3 h-3" />
+                        <span className="flex items-center gap-1 text-[9px] uppercase font-black tracking-widest text-[#f0854c] bg-[#ea580c]/10 border border-[#ea580c]/20 rounded-full py-0.5 px-2 ml-3 shrink-0">
+                          <Clock className="w-2.5 h-2.5" />
                           {ex.duration} {t.min}
                         </span>
                       </div>
-                      <p className="text-neutral-500 dark:text-neutral-400 mb-8 text-xs leading-relaxed">
+                      <p className="text-neutral-500 dark:text-neutral-400 mb-4 text-xs leading-relaxed">
                         {ex.description}
                       </p>
                     </div>
                     <button
                       onClick={() => startExercise(idx)}
-                      className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl font-bold text-xs uppercase tracking-widest border border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-900 dark:hover:bg-white hover:text-white dark:hover:text-neutral-950 transition-all active:scale-98 cursor-pointer"
+                      className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl font-medium text-xs uppercase tracking-widest border border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-900 dark:hover:bg-white hover:text-white dark:hover:text-neutral-950 transition-all active:scale-98 cursor-pointer"
                     >
-                      <Play className="w-3.5 h-3.5 fill-current" />
+                      <Play className="w-3 h-3 fill-current" />
                       {t.startExercise}
                     </button>
                   </div>
@@ -1041,21 +1022,21 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
             initial={{ opacity: 0, x: 15 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -15 }}
-            className="space-y-6"
+            className="space-y-4"
           >
             {/* Fluxo Companion Banner */}
-            <div className="p-6 md:p-8 rounded-[2.5rem] bg-white dark:bg-neutral-900 border border-neutral-100 dark:border-neutral-800 flex flex-col md:flex-row items-center gap-6 shadow-xl shadow-neutral-100/50 dark:shadow-none">
+            <div className="p-3.5 rounded-xl bg-white dark:bg-neutral-900 border border-neutral-100 dark:border-neutral-800 flex flex-col md:flex-row items-center gap-4 shadow-sm">
               <Mascot 
                 shape="pentagon"
                 color="var(--discipline-accent)" 
                 eyes={mascotStyle} 
-                className="w-24 h-24 shrink-0 transition-transform hover:scale-105 duration-300"
+                className="w-14 h-14 shrink-0 transition-transform hover:scale-105 duration-300"
               />
-              <div className="text-center md:text-left space-y-1">
-                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-primary" style={{ color: 'var(--discipline-accent)' }}>
+              <div className="text-center md:text-left space-y-0.5">
+                <span className="text-[9px] font-black uppercase tracking-[0.3em] text-brand-primary" style={{ color: 'var(--discipline-accent)' }}>
                   Fluxo AI Co-Pilot
                 </span>
-                <h2 className="text-2xl font-display font-black text-neutral-950 dark:text-white tracking-tight">
+                <h2 className="text-base font-display font-black text-neutral-950 dark:text-white tracking-tight">
                   {ft.fluxoHelp}
                 </h2>
                 <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed max-w-xl">
@@ -1070,7 +1051,7 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white dark:bg-neutral-900 rounded-[2.5rem] border border-neutral-100 dark:border-neutral-800 p-6 md:p-10 shadow-lg space-y-6"
+                className="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-100 dark:border-neutral-800/40 p-4 shadow-md space-y-4"
               >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Artist Type Input */}
@@ -1096,7 +1077,7 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
                             "px-3 py-1 rounded-full text-[10px] font-bold transition-all border",
                             artistType.toLowerCase() === suggestion
                               ? "bg-neutral-900 border-neutral-900 text-white dark:bg-white dark:text-neutral-950"
-                              : "bg-neutral-50 dark:bg-neutral-800 hover:bg-neutral-100 text-neutral-500 border-neutral-200/50 dark:border-neutral-700"
+                              : "bg-neutral-50 dark:bg-neutral-850 hover:bg-neutral-100 text-neutral-500 border-neutral-200/50 dark:border-neutral-700"
                           )}
                         >
                           {suggestion}
@@ -1230,7 +1211,7 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
                 <div className="p-6 md:p-10 border-b border-neutral-50 dark:border-neutral-800 md:pb-8 flex flex-col md:flex-row md:items-start justify-between gap-6">
                   <div className="space-y-3 flex-1">
                     <div className="flex items-center gap-3 flex-wrap">
-                      <span className="px-3.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider text-black bg-neutral-100 dark:bg-neutral-800 dark:text-white border border-neutral-200/50 dark:border-neutral-700">
+                      <span className="px-3.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider text-black bg-neutral-100 dark:bg-neutral-850 dark:text-white border border-neutral-200/50 dark:border-neutral-700">
                         ⚡ {ft.blockType}: {blockType}
                       </span>
                       <span 
@@ -1245,14 +1226,14 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
                     </h2>
                     <div className="flex flex-col gap-1">
                       <p className="text-[10px] font-black tracking-widest text-neutral-400 dark:text-neutral-500 uppercase">{ft.descriptionLabel}</p>
-                      <p className="text-xs md:text-sm text-neutral-500 dark:text-neutral-400 font-medium italic select-none">
+                      <p className="text-xs md:text-sm text-neutral-550 dark:text-neutral-400 font-medium italic select-none">
                         "{generatedExercise.description}"
                       </p>
                     </div>
                   </div>
 
                   {/* Materials Card */}
-                  <div className="p-4 rounded-2xl bg-neutral-50 dark:bg-neutral-800 border border-neutral-150/60 dark:border-neutral-800/80 max-w-sm shrink-0 flex flex-col gap-1 md:w-64">
+                  <div className="p-4 rounded-2xl bg-neutral-50 dark:bg-neutral-850 border border-neutral-150/60 dark:border-neutral-800/80 max-w-sm shrink-0 flex flex-col gap-1 md:w-64">
                     <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400 dark:text-neutral-500 block">
                       🎒 {ft.needs}
                     </span>
@@ -1273,7 +1254,7 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
                       <div key={sIdx} className="relative">
                         {/* Number bullet */}
                         <div 
-                           className="absolute -left-11 top-0 w-8 h-8 rounded-full flex items-center justify-center font-black text-xs text-white border-2 border-white dark:border-neutral-900 shadow-sm"
+                          className="absolute -left-11 top-0 w-8 h-8 rounded-full flex items-center justify-center font-black text-xs text-white border-2 border-white dark:border-neutral-900 shadow-sm"
                           style={{ backgroundColor: 'var(--discipline-accent)' }}
                         >
                           {sIdx + 1}
@@ -1286,7 +1267,7 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
                   </div>
 
                   {/* Concrete Success Checkbox */}
-                  <div className="mt-10 p-5 rounded-[2rem] bg-neutral-50/50 dark:bg-neutral-800/30 border border-dashed border-neutral-200 dark:border-neutral-800/50 flex items-start gap-4">
+                  <div className="mt-10 p-5 rounded-[2rem] bg-neutral-50/50 dark:bg-neutral-850/30 border border-dashed border-neutral-200 dark:border-neutral-800/50 flex items-start gap-4">
                     <div className="w-10 h-10 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200/50 dark:border-neutral-800 flex items-center justify-center text-xl shadow-inner shrink-0 leading-none">
                       🎯
                     </div>
@@ -1302,7 +1283,7 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
                 </div>
 
                 {/* Sub-workspace timer area */}
-                <div className="bg-neutral-50/75 dark:bg-neutral-800/60 border-t border-neutral-100 dark:border-neutral-800 p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="bg-neutral-50/75 dark:bg-neutral-850/60 border-t border-neutral-100 dark:border-neutral-850 p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
                   {/* Circular Timer view */}
                   <div className="flex items-center gap-6">
                     <div className="text-3xl md:text-5xl font-mono font-black tracking-tight text-neutral-900 dark:text-white bg-white dark:bg-neutral-900 border border-neutral-200/40 dark:border-neutral-800 px-6 py-3 rounded-2xl min-w-[130px] text-center shadow-inner">
@@ -1330,7 +1311,7 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
                   <div className="flex items-center gap-3 w-full md:w-auto">
                     <button
                       onClick={() => { setGeneratedExercise(null); setStartedGenerated(false); }}
-                      className="flex-1 md:flex-none px-6 py-4 rounded-full border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 font-bold text-xs uppercase tracking-widest hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all active:scale-95"
+                      className="flex-1 md:flex-none px-6 py-4 rounded-full border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 font-bold text-xs uppercase tracking-widest hover:bg-neutral-100 dark:hover:bg-neutral-850 transition-all active:scale-95"
                     >
                       {language === 'es' ? 'Volver a configurar' : 'Re-configure'}
                     </button>
@@ -1370,8 +1351,8 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
                   {!fluxoEvaluation ? (
                     /* Step A: Ask and get user reply */
                     <div className="space-y-4">
-                      <div className="bg-neutral-50 dark:bg-neutral-800 p-6 rounded-3xl border border-neutral-150 dark:border-neutral-800 relative">
-                        <div className="absolute left-6 -top-3 w-4 h-4 bg-neutral-50 dark:bg-neutral-800 rotate-45 border-l border-t border-neutral-150 dark:border-neutral-800 md:-left-4 md:top-10 md:rotate-[-45deg] md:border-t-0 md:border-r-0 md:border-b-0 hidden md:block" />
+                      <div className="bg-neutral-50 dark:bg-neutral-850 p-6 rounded-3xl border border-neutral-150 dark:border-neutral-800 relative">
+                        <div className="absolute left-6 -top-3 w-4 h-4 bg-neutral-50 dark:bg-neutral-850 rotate-45 border-l border-t border-neutral-150 dark:border-neutral-800 md:-left-4 md:top-10 md:rotate-[-45deg] md:border-t-0 md:border-r-0 md:border-b-0 hidden md:block" />
                         <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400 dark:text-neutral-500 mb-2">
                           💬 {ft.fluxoQuestionHeader}
                         </p>
@@ -1429,7 +1410,7 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
                       animate={{ opacity: 1, y: 0 }}
                       className="space-y-6"
                     >
-                      <div className="bg-neutral-50 dark:bg-neutral-800 p-6 rounded-3xl border border-neutral-150 dark:border-neutral-800">
+                      <div className="bg-neutral-50 dark:bg-neutral-850 p-6 rounded-3xl border border-neutral-150 dark:border-neutral-800">
                         <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400 dark:text-neutral-500 mb-2">
                           🔮 {ft.evaluationHeader}
                         </p>
@@ -1439,9 +1420,9 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
                       </div>
 
                       {/* Journey Note Persistence Controls */}
-                      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-[2rem] bg-neutral-50/50 dark:bg-neutral-800/45 border border-neutral-150 dark:border-neutral-800">
+                      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-[2rem] bg-neutral-50/50 dark:bg-neutral-850/45 border border-neutral-150 dark:border-neutral-850">
                         <div className="text-center sm:text-left space-y-1">
-                          <p className="text-xs font-black text-[#111] dark:text-white">
+                          <p className="text-xs font-black text-neutral-850 dark:text-white">
                             {language === 'es' ? '¿Quieres rememorar esta lección?' : 'Want to recall this lesson?'}
                           </p>
                           <p className="text-[11px] text-neutral-400 leading-none">
@@ -1486,10 +1467,10 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
                       )}
 
                       {/* Nav paths / decisions buttons block (a, b, c) */}
-                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-4 border-t border-neutral-100 dark:border-neutral-800">
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-4 border-t border-neutral-100 dark:border-neutral-850">
                         <button
                           onClick={generateFluxoAntidote}
-                          className="px-5 py-4 rounded-full border border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-200 font-black text-xs uppercase tracking-widest hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-all active:scale-95"
+                          className="px-5 py-4 rounded-full border border-neutral-200 dark:border-neutral-850 text-neutral-700 dark:text-neutral-200 font-black text-xs uppercase tracking-widest hover:bg-neutral-50 dark:hover:bg-neutral-850 transition-all active:scale-95"
                         >
                           🔄 {ft.actionA}
                         </button>
@@ -1501,8 +1482,9 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
                             setFluxoEvaluation('');
                             setSaveNoteStatus(false);
                             setUserAnswer('');
+                            navigate('/');
                           }}
-                          className="px-5 py-4 rounded-full border border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-200 font-black text-xs uppercase tracking-widest hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-all active:scale-95"
+                          className="px-5 py-4 rounded-full border border-neutral-200 dark:border-neutral-850 text-neutral-700 dark:text-neutral-200 font-black text-xs uppercase tracking-widest hover:bg-neutral-50 dark:hover:bg-neutral-850 transition-all active:scale-95"
                         >
                           🎨 {ft.actionB}
                         </button>
@@ -1514,7 +1496,7 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
                             setFluxoEvaluation('');
                             setSaveNoteStatus(false);
                             setUserAnswer('');
-                            setActiveTab('classical');
+                            navigate('/');
                           }}
                           className="px-6 py-4 rounded-full text-white font-black text-xs uppercase tracking-widest shadow-xl transition-all active:scale-95"
                           style={{ backgroundColor: 'var(--discipline-accent)' }}

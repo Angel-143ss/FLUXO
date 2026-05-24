@@ -217,150 +217,150 @@ export function Profile() {
           >
             {/* Header */}
             <div className="flex items-center justify-between">
-              <h1 className="text-xl font-bold uppercase tracking-tight text-neutral-900 dark:text-neutral-100">
+              <h1 className="text-lg font-black uppercase tracking-tight text-neutral-900 dark:text-neutral-100">
                 {language === 'es' ? 'Tu perfil' : 'Your profile'}
               </h1>
             </div>
 
             {/* HERO — Identidad del usuario */}
-            <div className="flex flex-col items-center text-center space-y-4 pt-2">
+            <div className="flex flex-col items-center text-center space-y-3 pt-1">
               <div className="relative">
                 {showPhoto ? (
                   <img 
                     src={showPhoto} 
                     referrerPolicy="no-referrer"
                     alt={displayName} 
-                    className="w-24 h-24 md:w-28 md:h-28 rounded-full object-cover border-4 border-white dark:border-[#161616] shadow-md bg-neutral-100"
+                    className="w-20 h-20 rounded-full object-cover border-4 border-white dark:border-[#161616] shadow-md bg-neutral-100"
                   />
                 ) : (
-                  <div className="w-24 h-24 md:w-28 md:h-28 rounded-full bg-[#E8834A] text-white font-black text-3xl md:text-4xl flex items-center justify-center shadow-md">
+                  <div className="w-20 h-20 rounded-full bg-[#E8834A] text-white font-black text-2xl flex items-center justify-center shadow-md">
                     {initials}
                   </div>
                 )}
               </div>
 
-              <div className="space-y-1.5">
-                <h2 className="text-xl md:text-2xl font-black text-neutral-950 dark:text-white tracking-tight">
+              <div className="space-y-1">
+                <h2 className="text-lg font-black text-neutral-950 dark:text-white tracking-tight">
                   {displayName}
                 </h2>
                 
                 {/* Discipline interactive Pill */}
                 <button
                   onClick={() => setShowDisciplineModal(true)}
-                  className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#E8834A]/10 hover:bg-[#E8834A]/20 text-[#E8834A] rounded-full text-xs font-black uppercase tracking-wider border border-[#E8834A]/20 transition-all active:scale-95 cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#E8834A]/10 hover:bg-[#E8834A]/20 text-[#E8834A] rounded-full text-[10px] font-black uppercase tracking-wider border border-[#E8834A]/20 transition-all active:scale-95 cursor-pointer"
                 >
                   <span>{getDisciplineLabel(discipline)}</span>
-                  <Edit2 className="w-3.5 h-3.5 mt-[-2px]" />
+                  <Edit2 className="w-3 h-3 mt-[-1px]" />
                 </button>
               </div>
             </div>
 
             {/* ESTADÍSTICAS — 3 cajas en fila */}
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-3 gap-2.5">
               {/* Card 1: Ejercicios Completados */}
-              <div className="bg-white dark:bg-[#161616] border border-neutral-200/50 dark:border-neutral-800/60 rounded-2xl p-4 flex flex-col justify-between min-h-[96px] shadow-sm">
-                <span className="text-2xl md:text-3xl font-black text-[#E8834A] leading-none">
+              <div className="bg-white dark:bg-[#161616] border border-neutral-200/50 dark:border-neutral-800/60 rounded-xl p-3.5 flex flex-col justify-between min-h-[84px] shadow-sm">
+                <span className="text-xl md:text-2xl font-black text-[#E8834A] leading-none">
                   {stats.ejerciciosCompletados}
                 </span>
-                <span className="text-[10px] text-neutral-400 dark:text-neutral-500 font-bold uppercase tracking-wider mt-1.5 leading-tight">
+                <span className="text-[9px] text-neutral-400 dark:text-neutral-500 font-bold uppercase tracking-wider mt-1 leading-tight">
                   {language === 'es' ? 'ejercicios' : 'exercises'}
                 </span>
               </div>
 
               {/* Card 2: Racha actual con 🔥 */}
-              <div className="bg-white dark:bg-[#161616] border border-neutral-200/50 dark:border-neutral-800/60 rounded-2xl p-4 flex flex-col justify-between min-h-[96px] shadow-sm">
-                <div className="flex items-baseline gap-1 leading-none">
-                  <span className="text-lg">🔥</span>
-                  <span className="text-2xl md:text-3xl font-black text-[#E8834A]">
+              <div className="bg-white dark:bg-[#161616] border border-neutral-200/50 dark:border-neutral-800/60 rounded-xl p-3.5 flex flex-col justify-between min-h-[84px] shadow-sm">
+                <div className="flex items-baseline gap-0.5 leading-none">
+                  <span className="text-base">🔥</span>
+                  <span className="text-xl md:text-2xl font-black text-[#E8834A]">
                     {stats.rachaActual}
                   </span>
                 </div>
-                <span className="text-[10px] text-neutral-400 dark:text-neutral-500 font-bold uppercase tracking-wider mt-1.5 leading-tight">
+                <span className="text-[9px] text-neutral-400 dark:text-neutral-500 font-bold uppercase tracking-wider mt-1 leading-tight">
                   {language === 'es' ? 'días racha' : 'day streak'}
                 </span>
               </div>
 
               {/* Card 3: Esta semana (últimos 7 días) */}
-              <div className="bg-white dark:bg-[#161616] border border-neutral-200/50 dark:border-neutral-800/60 rounded-2xl p-4 flex flex-col justify-between min-h-[96px] shadow-sm">
-                <span className="text-2xl md:text-3xl font-black text-[#E8834A] leading-none">
+              <div className="bg-white dark:bg-[#161616] border border-neutral-200/50 dark:border-neutral-800/60 rounded-xl p-3.5 flex flex-col justify-between min-h-[84px] shadow-sm">
+                <span className="text-xl md:text-2xl font-black text-[#E8834A] leading-none">
                   {weeklyCount}
                 </span>
-                <span className="text-[10px] text-neutral-400 dark:text-neutral-500 font-bold uppercase tracking-wider mt-1.5 leading-tight">
+                <span className="text-[9px] text-neutral-400 dark:text-neutral-500 font-bold uppercase tracking-wider mt-1 leading-tight">
                   {language === 'es' ? 'esta semana' : 'this week'}
                 </span>
               </div>
             </div>
 
             {/* SOBRE TI — editable */}
-            <div className="space-y-3">
-              <h3 className="text-[11px] font-black uppercase tracking-[0.25em] text-neutral-500 dark:text-neutral-400">
+            <div className="space-y-2">
+              <h3 className="text-[10px] font-black uppercase tracking-[0.25em] text-neutral-500 dark:text-neutral-400">
                 {language === 'es' ? 'Sobre ti' : 'About you'}
               </h3>
 
-              <div className="bg-white dark:bg-[#161616] border border-neutral-200/50 dark:border-neutral-800/60 rounded-3xl divide-y divide-neutral-100 dark:divide-neutral-800/40 overflow-hidden shadow-sm">
+              <div className="bg-white dark:bg-[#161616] border border-neutral-200/50 dark:border-neutral-800/60 rounded-xl divide-y divide-neutral-100 dark:divide-neutral-800/40 overflow-hidden shadow-sm">
                 {/* Catalyst Item */}
-                <div className="flex items-center justify-between p-5">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-2xl bg-[#E8834A]/10 flex items-center justify-center text-[#E8834A] shrink-0 text-lg">
+                <div className="flex items-center justify-between p-3.5">
+                  <div className="flex items-center gap-3">
+                    <div className="w-7 h-7 rounded-lg bg-[#E8834A]/10 flex items-center justify-center text-[#E8834A] shrink-0 text-sm">
                       {activeSpark.icon}
                     </div>
                     <div>
-                      <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest leading-none mb-1">
+                      <p className="text-[9px] font-bold text-neutral-400 uppercase tracking-widest leading-none mb-0.5">
                         {language === 'es' ? 'Tu catalizador' : 'Your catalyst'}
                       </p>
-                      <p className="text-sm font-bold text-neutral-800 dark:text-neutral-200">
+                      <p className="text-xs font-bold text-neutral-800 dark:text-neutral-200">
                         {language === 'es' ? activeSpark.labelEs : activeSpark.labelEn}
                       </p>
                     </div>
                   </div>
                   <button 
                     onClick={() => setShowSparkModal(true)}
-                    className="p-2 text-neutral-400 hover:text-[#E8834A] dark:hover:text-[#E8834A] hover:bg-neutral-50 dark:hover:bg-neutral-800 rounded-xl transition-colors cursor-pointer"
+                    className="p-1 text-neutral-400 hover:text-[#E8834A] dark:hover:text-[#E8834A] hover:bg-neutral-50 dark:hover:bg-neutral-800 rounded-lg transition-colors cursor-pointer"
                   >
-                    <Edit2 className="w-4 h-4" />
+                    <Edit2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
 
                 {/* Saboteur Item */}
-                <div className="flex items-center justify-between p-5">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-2xl bg-neutral-100 dark:bg-neutral-800/60 flex items-center justify-center text-neutral-600 dark:text-neutral-300 shrink-0 text-lg">
+                <div className="flex items-center justify-between p-3.5">
+                  <div className="flex items-center gap-3">
+                    <div className="w-7 h-7 rounded-lg bg-neutral-100 dark:bg-neutral-800/60 flex items-center justify-center text-neutral-600 dark:text-neutral-300 shrink-0 text-sm">
                       {activeSaboteur.icon}
                     </div>
                     <div>
-                      <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest leading-none mb-1">
+                      <p className="text-[9px] font-bold text-neutral-400 uppercase tracking-widest leading-none mb-0.5">
                         {language === 'es' ? 'Tu saboteador' : 'Your saboteur'}
                       </p>
-                      <p className="text-sm font-bold text-neutral-800 dark:text-neutral-200">
+                      <p className="text-xs font-bold text-neutral-800 dark:text-neutral-200">
                         {language === 'es' ? activeSaboteur.labelEs : activeSaboteur.labelEn}
                       </p>
                     </div>
                   </div>
                   <button 
                     onClick={() => setShowSaboteurModal(true)}
-                    className="p-2 text-neutral-400 hover:text-[#E8834A] dark:hover:text-[#E8834A] hover:bg-neutral-50 dark:hover:bg-neutral-800 rounded-xl transition-colors cursor-pointer"
+                    className="p-1 text-neutral-400 hover:text-[#E8834A] dark:hover:text-[#E8834A] hover:bg-neutral-50 dark:hover:bg-neutral-800 rounded-lg transition-colors cursor-pointer"
                   >
-                    <Edit2 className="w-4 h-4" />
+                    <Edit2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
             </div>
 
             {/* PREFERENCIAS */}
-            <div className="space-y-3">
-              <h3 className="text-[11px] font-black uppercase tracking-[0.25em] text-neutral-500 dark:text-neutral-400">
+            <div className="space-y-2">
+              <h3 className="text-[10px] font-black uppercase tracking-[0.25em] text-neutral-500 dark:text-neutral-400">
                 {language === 'es' ? 'Preferencias' : 'Preferences'}
               </h3>
 
-              <div className="bg-white dark:bg-[#161616] border border-neutral-200/50 dark:border-neutral-800/60 rounded-3xl divide-y divide-neutral-100 dark:divide-neutral-800/40 overflow-hidden shadow-sm">
+              <div className="bg-white dark:bg-[#161616] border border-neutral-200/50 dark:border-neutral-800/60 rounded-xl divide-y divide-neutral-100 dark:divide-neutral-800/40 overflow-hidden shadow-sm">
                 {/* Dark Mode Toggle */}
-                <div className="flex items-center justify-between p-5">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-2xl bg-neutral-100 dark:bg-neutral-800/60 flex items-center justify-center text-neutral-500 dark:text-neutral-400 shrink-0">
-                      {theme === 'dark' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5 text-[#E8834A]" />}
+                <div className="flex items-center justify-between p-3.5">
+                  <div className="flex items-center gap-3">
+                    <div className="w-7 h-7 rounded-lg bg-neutral-100 dark:bg-neutral-800/60 flex items-center justify-center text-neutral-500 dark:text-neutral-400 shrink-0">
+                      {theme === 'dark' ? <Moon className="w-3.5 h-3.5" /> : <Sun className="w-3.5 h-3.5 text-[#E8834A]" />}
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-neutral-800 dark:text-neutral-200">
+                      <p className="text-xs font-bold text-neutral-800 dark:text-neutral-200">
                         {language === 'es' ? 'Modo oscuro' : 'Dark mode'}
                       </p>
                     </div>
@@ -372,48 +372,48 @@ export function Profile() {
                       checked={theme === 'dark'} 
                       onChange={toggleTheme} 
                     />
-                    <div className="w-11 h-6 bg-neutral-200 dark:bg-neutral-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-[#E8834A]"></div>
+                    <div className="w-9 h-5 bg-neutral-200 dark:bg-neutral-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-[#E8834A]"></div>
                   </label>
                 </div>
 
                 {/* Notifications Link */}
                 <button
                   onClick={() => setActiveSubView('notifications')}
-                  className="w-full flex items-center justify-between p-5 hover:bg-neutral-50 dark:hover:bg-neutral-800/40 transition-colors cursor-pointer text-left"
+                  className="w-full flex items-center justify-between p-3.5 hover:bg-neutral-50 dark:hover:bg-neutral-800/40 transition-colors cursor-pointer text-left"
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-2xl bg-neutral-100 dark:bg-neutral-800/60 flex items-center justify-center text-neutral-500 dark:text-neutral-400 shrink-0">
-                      <Bell className="w-5 h-5" />
+                  <div className="flex items-center gap-3">
+                    <div className="w-7 h-7 rounded-lg bg-neutral-100 dark:bg-neutral-800/60 flex items-center justify-center text-neutral-500 dark:text-neutral-400 shrink-0">
+                      <Bell className="w-3.5 h-3.5" />
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-neutral-800 dark:text-neutral-200 leading-normal">
+                      <p className="text-xs font-bold text-neutral-800 dark:text-neutral-200 leading-none mb-0.5">
                         {language === 'es' ? 'Notificaciones' : 'Notifications'}
                       </p>
-                      <p className="text-[11px] text-neutral-400 font-bold">
+                      <p className="text-[10px] text-neutral-400 font-bold leading-none">
                         {language === 'es' ? `Recordatorio diario: ${reminderTime}` : `Daily reminder: ${reminderTime}`}
                       </p>
                     </div>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-neutral-400" />
+                  <ChevronRight className="w-4 h-4 text-neutral-400" />
                 </button>
               </div>
             </div>
 
             {/* CUENTA */}
-            <div className="space-y-3">
-              <h3 className="text-[11px] font-black uppercase tracking-[0.25em] text-neutral-500 dark:text-neutral-400">
+            <div className="space-y-2">
+              <h3 className="text-[10px] font-black uppercase tracking-[0.25em] text-neutral-500 dark:text-neutral-400">
                 {language === 'es' ? 'Cuenta' : 'Account'}
               </h3>
 
-              <div className="bg-white dark:bg-[#161616] border border-neutral-200/50 dark:border-neutral-800/60 rounded-3xl overflow-hidden shadow-sm">
+              <div className="bg-white dark:bg-[#161616] border border-neutral-200/50 dark:border-neutral-800/60 rounded-xl overflow-hidden shadow-sm">
                 <button
                   onClick={() => setShowLogoutModal(true)}
-                  className="w-full flex items-center gap-4 p-5 hover:bg-[#D46B6B]/5 transition-colors text-left cursor-pointer"
+                  className="w-full flex items-center gap-3 p-3.5 hover:bg-[#D46B6B]/5 transition-colors text-left cursor-pointer"
                 >
-                  <div className="w-10 h-10 rounded-2xl bg-[#D46B6B]/10 flex items-center justify-center text-[#D46B6B] shrink-0">
-                    <LogOut className="w-5 h-5" />
+                  <div className="w-7 h-7 rounded-lg bg-[#D46B6B]/10 flex items-center justify-center text-[#D46B6B] shrink-0">
+                    <LogOut className="w-3.5 h-3.5" />
                   </div>
-                  <span className="text-sm font-bold text-[#D46B6B]">
+                  <span className="text-xs font-bold text-[#D46B6B]">
                     {language === 'es' ? 'Cerrar sesión' : 'Sign out'}
                   </span>
                 </button>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { Sparkles, Dumbbell, LineChart, Zap, Wrench, Wind, Settings, Home as HomeIcon, User, X, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
@@ -9,6 +9,8 @@ import { translations } from '../lib/i18n';
 
 export function Layout() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const isHome = location.pathname === '/';
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const { 
     language, 
@@ -24,7 +26,6 @@ export function Layout() {
   const navItems = [
     { to: '/', icon: HomeIcon, label: t.homeTitle?.split(' ')[0] || 'Home' },
     { to: '/ai-mirror', icon: Sparkles, label: t.aiMirrorTitle },
-    { to: '/exercises', icon: Dumbbell, label: t.exercises },
     { to: '/progress', icon: LineChart, label: t.progress },
     { to: '/community', icon: Zap, label: t.community },
   ];
@@ -82,8 +83,8 @@ export function Layout() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto pb-32 md:pb-0">
-        <div className="max-w-4xl mx-auto px-6 md:px-12 py-8 md:py-16">
+      <main className={cn("flex-1 overflow-y-auto md:pb-0", isHome ? "pb-20" : "pb-32")}>
+        <div className={cn("max-w-4xl mx-auto px-5 md:px-10 md:py-12", isHome ? "pt-4 pb-2" : "py-6")}>
           <Outlet />
         </div>
       </main>
@@ -94,7 +95,7 @@ export function Layout() {
         <div className="absolute inset-0 -top-6 pointer-events-none">
           <svg className="w-full h-full" preserveAspectRatio="none" viewBox="0 0 400 100">
             <path 
-              d="M0,40 Q0,0 40,0 L140,0 Q160,0 170,20 A30,30 0 0,0 230,20 Q240,0 260,0 L360,0 Q400,0 400,40 L400,100 L0,100 Z" 
+              d="M0,40 Q0,0 40,0 L145,0 Q162,0 172,18 A22,22 0 0,0 228,18 Q238,0 255,0 L360,0 Q400,0 400,40 L400,100 L0,100 Z" 
               fill="currentColor"
               className="text-white/95 dark:text-neutral-900/95 backdrop-blur-xl"
             />
@@ -102,7 +103,7 @@ export function Layout() {
         </div>
 
         {/* Navigation Content */}
-        <div className="relative flex items-center justify-between px-2 h-[72px] bg-white/95 dark:bg-neutral-900/95 backdrop-blur-xl rounded-[2.5rem] shadow-2xl shadow-neutral-200/50 dark:shadow-none border border-white/20 dark:border-neutral-800/50 overflow-hidden">
+        <div className="relative flex items-center justify-between px-2 h-[64px] bg-white/95 dark:bg-neutral-900/95 backdrop-blur-xl rounded-[2rem] shadow-2xl shadow-neutral-200/50 dark:shadow-none border border-white/20 dark:border-neutral-800/50 overflow-hidden">
           {/* Left Group (2) */}
           <div className="flex flex-1 justify-around items-center">
             <NavLink
@@ -111,7 +112,7 @@ export function Layout() {
               style={({ isActive }) => isActive ? { color: 'var(--discipline-accent)' } : {}}
             >
               <HomeIcon className="w-5 h-5" />
-              <span className="text-[9px] font-black uppercase tracking-tighter">{t.homeTitle?.split(' ')[0] || 'Home'}</span>
+              <span className="text-[10px] font-black uppercase tracking-tighter">{t.homeTitle?.split(' ')[0] || 'Home'}</span>
             </NavLink>
             <NavLink
               to="/progress"
@@ -119,12 +120,12 @@ export function Layout() {
               style={({ isActive }) => isActive ? { color: 'var(--discipline-accent)' } : {}}
             >
               <LineChart className="w-5 h-5" />
-              <span className="text-[9px] font-black uppercase tracking-tighter">{t.progress}</span>
+              <span className="text-[10px] font-black uppercase tracking-tighter">{t.progress}</span>
             </NavLink>
           </div>
 
           {/* Center Space for Floating Button */}
-          <div className="w-20" />
+          <div className="w-16" />
 
           {/* Right Group (2) */}
           <div className="flex flex-1 justify-around items-center">
@@ -134,7 +135,7 @@ export function Layout() {
               style={({ isActive }) => isActive ? { color: 'var(--discipline-accent)' } : {}}
             >
               <Zap className="w-5 h-5" />
-              <span className="text-[9px] font-black uppercase tracking-tighter">{t.community}</span>
+              <span className="text-[10px] font-black uppercase tracking-tighter">{t.community}</span>
             </NavLink>
             <NavLink
               to="/profile"
@@ -142,7 +143,7 @@ export function Layout() {
               style={({ isActive }) => isActive ? { color: 'var(--discipline-accent)' } : {}}
             >
               <User className="w-5 h-5" />
-              <span className="text-[9px] font-black uppercase tracking-tighter">{t.profileTitle}</span>
+              <span className="text-[10px] font-black uppercase tracking-tighter">{t.profileTitle}</span>
             </NavLink>
           </div>
         </div>
@@ -150,13 +151,13 @@ export function Layout() {
         {/* Central Floating Button */}
         <button
           onClick={() => navigate('/ai-mirror')}
-          className="absolute -top-10 left-1/2 -translate-x-1/2 w-16 h-16 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 flex items-center justify-center shadow-2xl shadow-neutral-400/50 dark:shadow-none hover:scale-110 active:scale-95 transition-all z-10 border-4 border-white dark:border-neutral-900"
+          className="absolute -top-5 left-1/2 -translate-x-1/2 w-11 h-11 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 flex items-center justify-center shadow-2xl shadow-neutral-400/50 dark:shadow-none hover:scale-110 active:scale-95 transition-all z-10 border-4 border-white dark:border-neutral-900"
           style={{ 
             backgroundColor: 'var(--discipline-accent)',
-            boxShadow: '0 15px 30px -5px rgb(from var(--discipline-accent) r g b / 0.4)'
+            boxShadow: '0 10px 20px -5px rgb(from var(--discipline-accent) r g b / 0.4)'
           }}
         >
-          <Sparkles className="w-8 h-8" />
+          <Sparkles className="w-5 h-5" />
         </button>
       </nav>
 

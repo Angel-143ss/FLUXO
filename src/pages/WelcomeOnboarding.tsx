@@ -488,7 +488,7 @@ export function WelcomeOnboarding() {
                     className={`flex items-start gap-4 p-5 rounded-[2rem] border text-left transition-all ${
                       selectedSpark === opt.value
                         ? 'bg-[#fdf8f5] dark:bg-[#1c1208] border-[#E8834A] shadow-lg shadow-[#E8834A]/5'
-                        : 'bg-white dark:bg-[#161616] border-neutral-200 dark:border-[#252525] hover:border-neutral-300 dark:hover:border-neutral-800'
+                        : 'bg-white dark:bg-[#161616] border-neutral-200 dark:border-[#252525] hover:border-neutral-300 dark:hover:border-neutral-850'
                     }`}
                   >
                     <span className="text-3xl mt-1 shrink-0">{opt.icon}</span>
@@ -509,11 +509,11 @@ export function WelcomeOnboarding() {
               </div>
 
               <div className="flex justify-center items-center gap-2 pt-4">
-                <div className="w-1.5 h-1.5 rounded-full bg-neutral-200 dark:bg-[#252525]" />
-                <div className="w-1.5 h-1.5 rounded-full bg-neutral-200 dark:bg-[#252525]" />
-                <div className="w-1.5 h-1.5 rounded-full bg-neutral-200 dark:bg-[#252525]" />
+                <div className="w-1.5 h-1.5 rounded-full bg-neutral-250 dark:bg-[#252525]" />
+                <div className="w-1.5 h-1.5 rounded-full bg-neutral-250 dark:bg-[#252525]" />
+                <div className="w-1.5 h-1.5 rounded-full bg-neutral-250 dark:bg-[#252525]" />
                 <div className="w-6 h-1.5 rounded-full bg-[#E8834A]" />
-                <div className="w-1.5 h-1.5 rounded-full bg-neutral-200 dark:bg-[#252525]" />
+                <div className="w-1.5 h-1.5 rounded-full bg-neutral-250 dark:bg-[#252525]" />
               </div>
             </div>
           </motion.div>
@@ -552,7 +552,7 @@ export function WelcomeOnboarding() {
                     className={`flex items-start gap-4 p-5 rounded-[2rem] border text-left transition-all ${
                       selectedSaboteur === opt.value
                         ? 'bg-[#fdf8f5] dark:bg-[#1c1208] border-[#E8834A] shadow-lg shadow-[#E8834A]/5'
-                        : 'bg-white dark:bg-[#161616] border-neutral-200 dark:border-[#252525] hover:border-neutral-300 dark:hover:border-neutral-800'
+                        : 'bg-white dark:bg-[#161616] border-neutral-200 dark:border-[#252525] hover:border-neutral-300 dark:hover:border-neutral-850'
                     }`}
                   >
                     <span className="text-3xl mt-1 shrink-0">{opt.icon}</span>
