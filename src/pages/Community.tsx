@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { motion } from 'motion/react';
 import { 
   Zap, 
@@ -137,6 +137,7 @@ const TECHNIQUES: Technique[] = [
 export function Community() {
   const { language } = useAppContext();
   const navigate = useNavigate();
+  const [activeTechIndex, setActiveTechIndex] = useState(0);
 
   // Rotate based on current date so everyone gets the exact same values per day
   const rotationIndex = useMemo(() => {
@@ -181,21 +182,16 @@ export function Community() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="max-w-xl mx-auto space-y-8 pb-24 px-4 pt-4 select-none"
+      className="h-[calc(100vh-108px)] md:h-auto flex flex-col max-w-xl mx-auto text-neutral-900 dark:text-white pb-2 px-4 pt-4 select-none overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
     >
       {/* HEADER */}
-      <header className="text-center md:text-left">
-        <h1 className="text-xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100 uppercase mb-1">
-          {language === 'es' ? 'Inspiración' : 'Inspiration'}
-        </h1>
-        <p className="text-xs text-neutral-500 font-medium">
-          {language === 'es' ? 'Para cuando necesitas recordar por qué creas.' : 'For when you need to remember why you create.'}
-        </p>
-      </header>
+      <h1 className="text-lg font-black uppercase tracking-tight text-neutral-900 dark:text-neutral-100 text-center md:text-left mb-6">
+        {language === 'es' ? 'Inspiración' : 'Inspiration'}
+      </h1>
 
       {/* BLOQUE 1: Frase del día */}
-      <div className="space-y-3">
-        <h2 className="text-[11px] font-black uppercase tracking-[0.25em] text-neutral-400/80 dark:text-neutral-500">
+      <div className="space-y-3 mb-6">
+        <h2 className="text-[10px] font-display font-black uppercase tracking-[0.25em] text-[#555555] dark:text-neutral-400">
           {language === 'es' ? 'Frase del día' : 'Quote of the day'}
         </h2>
         
@@ -210,15 +206,15 @@ export function Community() {
               <Quote className="w-6 h-6 rotate-180 text-[#E8834A] fill-[#E8834A]/10 shrink-0" />
             </div>
             
-            <p className="text-base md:text-lg font-bold text-neutral-800 dark:text-neutral-100 leading-relaxed italic tracking-wide">
+            <p className="text-base md:text-lg font-display font-bold text-neutral-900 dark:text-neutral-100 leading-relaxed italic tracking-wide">
               {selectedQuote.frase}
             </p>
 
             <div className="mt-4 pt-3 border-t border-neutral-100 dark:border-neutral-800/60">
-              <p className="text-xs font-black uppercase tracking-wider text-[#E8834A]">
+              <p className="text-xs font-sans font-semibold uppercase tracking-wider text-[#E8834A]">
                 {selectedQuote.autor}
               </p>
-              <p className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest mt-0.5">
+              <p className="text-[10px] font-sans text-neutral-400 font-semibold uppercase tracking-widest mt-0.5">
                 {selectedQuote.disciplina}
               </p>
             </div>
@@ -227,13 +223,20 @@ export function Community() {
       </div>
 
       {/* BLOQUE 2: Técnicas rápidas */}
-      <div className="space-y-3">
-        <h2 className="text-[11px] font-black uppercase tracking-[0.25em] text-neutral-400/80 dark:text-neutral-500">
+      <div className="space-y-3 mb-6">
+        <h2 className="text-[10px] font-display font-black uppercase tracking-[0.25em] text-[#555555] dark:text-neutral-400">
           {language === 'es' ? 'Técnicas rápidas' : 'Quick techniques'}
         </h2>
 
         {/* Horizontal Scroll Containers */}
-        <div className="flex gap-4 overflow-x-auto pb-4 scroll-smooth snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <div 
+          onScroll={(e) => {
+            const container = e.currentTarget;
+            const index = Math.round(container.scrollLeft / 256);
+            setActiveTechIndex(Math.max(0, Math.min(TECHNIQUES.length - 1, index)));
+          }}
+          className="flex gap-4 overflow-x-auto pb-4 scroll-smooth snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+        >
           {TECHNIQUES.map((tech, idx) => {
             const titleText = language === 'es' ? tech.titleEs : tech.titleEn;
             const discText = language === 'es' ? tech.disciplineEs : tech.disciplineEn;
@@ -244,21 +247,21 @@ export function Community() {
                 className="bg-white dark:bg-[#161616] border border-neutral-200/50 dark:border-neutral-800/60 rounded-[20px] p-5 w-[240px] shrink-0 snap-align-center flex flex-col justify-between min-h-[160px] shadow-sm relative overflow-hidden"
               >
                 <div>
-                  <span className="text-[9px] font-black uppercase tracking-widest text-neutral-400 dark:text-neutral-500">
+                  <span className="text-[9px] font-sans font-semibold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">
                     {discText}
                   </span>
-                  <h3 className="text-sm font-bold text-neutral-900 dark:text-neutral-100 tracking-tight leading-snug mt-1 max-w-[190px]">
+                  <h3 className="font-display font-black text-[14px] text-neutral-900 dark:text-white leading-tight tracking-tight mt-1 max-w-[190px]">
                     {titleText}
                   </h3>
                 </div>
 
                 <div className="pt-4 flex items-center justify-between border-t border-neutral-100 dark:border-neutral-800/40">
-                  <span className="text-[10px] text-neutral-500 font-bold uppercase tracking-widest">
+                  <span className="text-[10px] font-sans text-[#555555] font-semibold uppercase tracking-widest">
                     {tech.duration} Min
                   </span>
                   <button
                     onClick={() => handleStartTechnique(tech)}
-                    className="px-3.5 py-1.5 border border-[#E8834A] text-[#E8834A] bg-transparent hover:bg-[#E8834A]/5 active:scale-95 text-[10px] font-black uppercase tracking-widest rounded-full transition-all cursor-pointer flex items-center gap-1 shrink-0"
+                    className="px-3.5 py-1.5 border border-[#E8834A] text-[#E8834A] bg-transparent hover:bg-[#E8834A]/5 active:scale-95 text-[10px] font-sans font-semibold uppercase tracking-widest rounded-full transition-all cursor-pointer flex items-center gap-1 shrink-0"
                   >
                     <span>{language === 'es' ? 'Intentarlo' : 'Try it'}</span>
                     <ArrowRight className="w-3 h-3" />
@@ -268,17 +271,40 @@ export function Community() {
             );
           })}
         </div>
+
+        {/* Scroll indicator dots and swipe hint */}
+        <div className="flex justify-between items-center px-1 mt-1">
+          <span className="text-[10px] font-sans text-[#444] font-medium tracking-wider select-none">
+            {language === 'es' ? 'desliza →' : 'swipe →'}
+          </span>
+          <div className="flex gap-1.5 mx-auto">
+            {TECHNIQUES.map((_, dotIdx) => (
+              <div
+                key={dotIdx}
+                className="h-[5px] rounded-full transition-all duration-300"
+                style={{
+                  width: activeTechIndex === dotIdx ? '14px' : '5px',
+                  backgroundColor: activeTechIndex === dotIdx ? '#E8834A' : '#252525'
+                }}
+              />
+            ))}
+          </div>
+          {/* Invisible spacer to perfectly center the dots but align 'desliza →' underneath the first card */}
+          <span className="text-[10px] font-sans select-none opacity-0 shrink-0 pointer-events-none">
+            {language === 'es' ? 'desliza →' : 'swipe →'}
+          </span>
+        </div>
       </div>
 
       {/* BLOQUE 3: ¿Sabías que? */}
-      <div className="space-y-3">
-        <h2 className="text-[11px] font-black uppercase tracking-[0.25em] text-neutral-400/80 dark:text-neutral-500">
+      <div className="space-y-3 mb-4">
+        <h2 className="text-[10px] font-display font-black uppercase tracking-[0.25em] text-[#555555] dark:text-neutral-400">
           {language === 'es' ? '¿Sabías que?' : 'Did you know?'}
         </h2>
 
         <div className="bg-neutral-50 dark:bg-[#121215] border-l-[3px] border-[#E8834A] border-y border-r border-neutral-200/55 dark:border-neutral-800/60 rounded-r-2xl rounded-l-none p-5 shadow-sm min-h-[84px] flex items-center gap-3">
           <BookOpen className="w-5 h-5 text-[#E8834A]/80 shrink-0" />
-          <p className="text-xs text-neutral-700 dark:text-neutral-300 font-medium leading-relaxed">
+          <p className="text-xs font-sans text-neutral-700 dark:text-neutral-300 font-medium leading-relaxed">
             {selectedFact}
           </p>
         </div>

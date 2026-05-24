@@ -28,6 +28,8 @@ import { translations } from '../lib/i18n';
 import { GoogleGenAI, Type } from '@google/genai';
 import { Mascot } from '../components/Mascot';
 import { cn } from '../lib/utils';
+import { db, auth } from '../lib/firebase';
+import { doc, setDoc } from 'firebase/firestore';
 
 interface FluxoExercise {
   title: string;
@@ -313,6 +315,7 @@ export function Exercises() {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [showClassicCompletedMsg, setShowClassicCompletedMsg] = useState(false);
   const [timeAddedAlert, setTimeAddedAlert] = useState(false);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
   // Mascot visual states
   const [mascotStyle, setMascotStyle] = useState<'normal' | 'stars' | 'closed'>('stars');
@@ -332,6 +335,7 @@ export function Exercises() {
     if (isRunning && timeLeft > 0) {
       interval = window.setInterval(() => {
         setTimeLeft((prev) => prev - 1);
+        setElapsedSeconds((prev) => prev + 1);
       }, 1000);
     } else if (timeLeft === 0 && isRunning) {
       setIsRunning(false);
@@ -345,6 +349,7 @@ export function Exercises() {
     if (fluxoTimerRunning && fluxoTimeLeft > 0) {
       interval = window.setInterval(() => {
         setFluxoTimeLeft((prev) => prev - 1);
+        setElapsedSeconds((prev) => prev + 1);
       }, 1000);
     } else if (fluxoTimeLeft === 0 && fluxoTimerRunning) {
       setFluxoTimerRunning(false);
@@ -374,6 +379,7 @@ export function Exercises() {
       setTimeLeft(customEx.duration * 60);
       setIsRunning(false);
       setCurrentStepIndex(0);
+      setElapsedSeconds(0);
       // Clear the location state to prevent double triggers on reload/back
       window.history.replaceState({}, document.title);
     }
@@ -396,6 +402,7 @@ export function Exercises() {
     setTimeLeft(exercises[index].duration * 60);
     setIsRunning(false);
     setCurrentStepIndex(0);
+    setElapsedSeconds(0);
   };
 
   const stopExercise = () => {
@@ -422,6 +429,7 @@ export function Exercises() {
     setFluxoEvaluation('');
     setSaveNoteStatus(false);
     setCurrentStepIndex(0);
+    setElapsedSeconds(0);
 
     try {
       const apiKey = process.env.GEMINI_API_KEY;
@@ -444,7 +452,30 @@ export function Exercises() {
         Vacío: language === 'es' ? 'Vacío creativo absoluto (estancado frente a página vacía)' : 'Total creative blank void (loss of inspiration at start)'
       }[currentBlockType];
 
-      const prompt = `Actúa como Fluxo, un acompañante creativo para artistas que enfrentan bloqueo creativo. Tu tono es cálido, directo, humano y de artista a artista (como un amigo artista experimentado, no un coach de negocios o corporativo). No uses frases genéricas como "explora tu creatividad" o "deja fluir tu imaginación". Ve al grano y diseña un reto específico, tangible e incómodo en el buen sentido: que saque al artista de su cabeza y lo lleve a hacer algo concreto. Nada de journaling genérico ni "escribe lo que sientes".
+      const prompt = `Según el estado emocional del usuario, genera ejercicios con esta intención específica:
+
+PARALIZADO (Bloqueo de tipo "Parálisis" / "Parálisis por análisis"):
+- El objetivo es eliminar la parálisis por análisis
+- El paso 1 siempre debe ser una acción física e inmediata
+- Ejemplos: poner el lápiz en el papel sin pensar, hacer una marca cualquiera, timer de 30 segundos
+- NUNCA empieces con "piensa en..." o "imagina..."
+
+EN LOOP (Bloqueo de tipo "Loop" / "Bucle"):
+- El objetivo es romper el ciclo perfeccionista
+- El ejercicio debe incluir una restricción que haga imposible borrar o corregir
+- Ejemplos: dibujar sin levantar el lápiz, usar bolígrafo en vez de lápiz, hacer la peor versión posible intencionalmente
+- NUNCA sugieres revisar o mejorar lo hecho
+
+SIN IDEAS (Bloqueo de tipo "Vacío" / "Vacío creativo"):
+- El objetivo es generar input externo, no crear
+- El ejercicio debe involucrar observar, copiar o robar de algo que ya existe
+- Ejemplos: copiar la estructura de una obra ajena, salir y fotografiar 3 texturas, cambiar de medio
+- NUNCA pidas al usuario que "invente" o "imagine" algo
+
+REGLA ABSOLUTA:
+Nunca generes el mismo tipo de ejercicio para los 3 estados. Cada estado tiene una lógica completamente diferente.
+
+Actúa como Fluxo, un acompañante creativo para artistas que enfrentan bloqueo creativo. Tu tono es cálido, directo, humano y de artista a artista (como un amigo artista experimentado, no un coach de negocios o corporativo). No uses frases genéricas como "explora tu creatividad" o "deja fluir tu imaginación". Ve al grano y diseña un reto específico, tangible e incómodo en el buen sentido: que saque al artista de su cabeza y lo lleve a hacer algo concreto. Nada de journaling genérico ni "escribe lo que sientes".
 
 Genera un ejercicio incómodo en el buen sentido adaptado al siguiente perfil:
 - Tipo de artista: ${artistType}
@@ -627,13 +658,29 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
   };
 
   const addTimeBonus = () => {
-    if (activeExercise !== null) {
+    const isClassic = activeExercise !== null;
+    
+    // Pause the timer
+    if (isClassic) {
+      setIsRunning(false);
       setTimeLeft(prev => prev + 120);
     } else {
+      setFluxoTimerRunning(false);
       setFluxoTimeLeft(prev => prev + 120);
     }
+    
+    // Show "+ 2 min" animation
     setTimeAddedAlert(true);
-    setTimeout(() => setTimeAddedAlert(false), 2000);
+    
+    // Automatically resume after 1200ms
+    setTimeout(() => {
+      setTimeAddedAlert(false);
+      if (isClassic) {
+        setIsRunning(true);
+      } else {
+        setFluxoTimerRunning(true);
+      }
+    }, 1200);
   };
 
   const handleExitExercise = () => {
@@ -652,21 +699,86 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
   };
 
   const handleFinishStepByStep = () => {
+    // 1. Guardar en Firestore si es un ejercicio de Fluxo
+    if (generatedExercise) {
+      const saveToDb = async () => {
+        if (auth.currentUser && !auth.currentUser.isAnonymous) {
+          try {
+            const exerciseId = typeof crypto.randomUUID === 'function' 
+              ? crypto.randomUUID() 
+              : Math.random().toString(36).substring(2) + Date.now().toString(36);
+              
+            const histRef = doc(db, 'usuarios', auth.currentUser.uid, 'historial', exerciseId);
+            const estadoElegido = {
+              'Parálisis': 'paralizado',
+              'Loop': 'en loop',
+              'Vacío': 'sin ideas'
+            }[blockType] || 'paralizado';
+
+            await setDoc(histRef, {
+              fecha: new Date().toISOString(),
+              nombre: generatedExercise.title,
+              nombre_ejercicio: generatedExercise.title,
+              estado: estadoElegido,
+              estado_elegido: estadoElegido,
+              duracion: elapsedSeconds,
+              duracion_segundos: elapsedSeconds,
+              tipo: discipline
+            });
+            console.log("Saved completed Fluxo exercise to Firestore:", generatedExercise.title);
+          } catch (writeError) {
+            console.error("Error saving completed Fluxo exercise to Firestore:", writeError);
+          }
+        }
+      };
+      saveToDb();
+    } else if (activeExercise !== null) {
+      // It's traditional/classic exercise
+      const finalTitle = activeExercise === -2 ? (customExercise?.title || 'Ejercicio') : exercises[activeExercise].title;
+      const saveToDb = async () => {
+        if (auth.currentUser && !auth.currentUser.isAnonymous) {
+          try {
+            const exerciseId = typeof crypto.randomUUID === 'function' 
+              ? crypto.randomUUID() 
+              : Math.random().toString(36).substring(2) + Date.now().toString(36);
+              
+            const histRef = doc(db, 'usuarios', auth.currentUser.uid, 'historial', exerciseId);
+            
+            await setDoc(histRef, {
+              fecha: new Date().toISOString(),
+              nombre: finalTitle,
+              nombre_ejercicio: finalTitle,
+              estado: 'completado',
+              estado_elegido: 'completado',
+              duracion: elapsedSeconds,
+              duracion_segundos: elapsedSeconds,
+              tipo: discipline
+            });
+            console.log("Saved completed Classic exercise to Firestore:", finalTitle);
+          } catch (writeError) {
+            console.error("Error saving completed Classic exercise to Firestore:", writeError);
+          }
+        }
+      };
+      saveToDb();
+    }
+
+    // 2. Original state transition/saves
     if (activeExercise !== null) {
       const finalTitle = activeExercise === -2 ? (customExercise?.title || 'Ejercicio') : exercises[activeExercise].title;
       const finalDesc = activeExercise === -2 ? (customExercise?.description || '') : exercises[activeExercise].description;
-      const finalDuration = activeExercise === -2 ? (customExercise?.duration || 5) : exercises[activeExercise].duration;
       
       addProgressNote({
         discipline,
         challengeTitle: `Clásico: ${finalTitle}`,
-        content: `Sesión Clásica Completada exitosamente en ${finalDuration} minutos.`,
+        content: `Sesión Clásica Completada exitosamente en ${elapsedSeconds} segundos.`,
         moodLevel: 4,
         challenge: {
           type: 'text',
           title: finalTitle,
           description: finalDesc
-        }
+        },
+        duration: elapsedSeconds
       });
       if (activeExercise === -2) {
         setCustomExercise(null);
@@ -681,7 +793,7 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
   const labelDesbloqueo = language === 'es' ? 'Desbloqueo' : 'Unblocking';
   const labelSiguiente = language === 'es' ? 'Listo, siguiente \u2192' : 'Ready, next \u2192';
   const labelMasTiempo = language === 'es' ? 'Necesito más tiempo' : 'Need more time';
-  const labelTimeAdded = language === 'es' ? '¡+2 minutos añadidos!' : '+2 minutes added!';
+  const labelTimeAdded = '+ 2 min';
   const labelPasoDe = (curr: number, tot: number) => language === 'es' ? `Paso ${curr} de ${tot}` : `Step ${curr} of ${tot}`;
   const labelUltimo = language === 'es' ? 'Último paso' : 'Final step';
   const labelTerminar = language === 'es' ? 'Terminar ejercicio ✓' : 'Complete exercise ✓';
@@ -690,6 +802,24 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
   const isClassicalRunning = activeExercise !== null;
   const isFluxoRunning = generatedExercise !== null && !isReflecting;
   const hasRunningExercise = isClassicalRunning || isFluxoRunning;
+
+  if (isGenerating) {
+    return (
+      <div className="fixed inset-0 flex flex-col items-center justify-center bg-[#0e0e0e] z-50">
+        <div className="relative mb-6">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ repeat: Infinity, duration: 15, ease: 'linear' }}
+            className="absolute -inset-4 rounded-full border-2 border-dashed border-orange-500"
+          />
+          <Loader2 className="w-12 h-12 animate-spin text-orange-500 z-10 relative" />
+        </div>
+        <p className="font-semibold select-none text-[13px]" style={{ color: '#555' }}>
+          {language === 'es' ? 'Generando tu ejercicio...' : 'Generating your exercise...'}
+        </p>
+      </div>
+    );
+  }
 
   if (hasRunningExercise) {
     const currentStepText = runningSteps[currentStepIndex] || '';
@@ -730,13 +860,16 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
                   Photography: language === 'es' ? 'Reto fotográfico' : 'Photo challenge'
                 }[discipline] || discipline}
               </span>
-              <button
-                onClick={toggleTimerActive}
-                className="px-3.5 py-1.5 text-[10px] font-mono font-black text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-full flex items-center gap-1.5 cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-850 transition-colors"
-                title={language === 'es' ? 'Clic para pausar/reanudar' : 'Click to pause/resume'}
-              >
-                ⏱️ {formatTime(runningTimeLeft)} {!runningTimerActive ? (language === 'es' ? ' (pausado)' : ' (paused)') : ''}
-              </button>
+              {currentStepIndex > 0 && currentStepIndex < 2 && (
+                <button
+                  onClick={toggleTimerActive}
+                  className="px-3.5 py-1.5 text-[10px] font-mono font-black bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-full flex items-center gap-1.5 cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-850 transition-colors"
+                  style={{ color: runningTimerActive ? '#E8834A' : '#555' }}
+                  title={language === 'es' ? 'Clic para pausar/reanudar' : 'Click to pause/resume'}
+                >
+                  ⏱️ {formatTime(runningTimeLeft)}
+                </button>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -750,24 +883,25 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
           </div>
 
           {/* Prominent digital timer component */}
-          <div className="mt-5 p-5 rounded-3xl bg-neutral-50 dark:bg-[#121217] border border-neutral-200/60 dark:border-neutral-800 flex flex-col items-center justify-center gap-2 select-none relative overflow-hidden shadow-inner">
-            <span className="text-[10px] font-black uppercase tracking-widest text-[#f0854c] flex items-center gap-1.5 leading-none">
-              <Clock className="w-3.5 h-3.5 animate-pulse" />
-              {currentStepIndex === 0 
-                ? (language === 'es' ? 'EL TIEMPO EMPIEZA EN EL SIGUIENTE PASO' : 'CHALLENGE TIME STARTS ON NEXT STEP') 
-                : (runningTimerActive 
-                    ? (language === 'es' ? 'TIEMPO CORRIENDO' : 'COUNTDOWN ACTIVE') 
-                    : (language === 'es' ? 'TIEMPO EN PAUSA' : 'COUNTDOWN PAUSED'))}
-            </span>
-            <div className={cn(
-              "text-5xl md:text-6xl font-mono font-black tracking-wider transition-all duration-300 my-1",
-              runningTimerActive ? "text-orange-600 dark:text-orange-400 scale-100 animate-pulse" : "text-neutral-400 dark:text-neutral-600 scale-95"
-            )}>
-              {formatTime(runningTimeLeft)}
-            </div>
-            
-            {/* Direct controller inside the timer box */}
-            {currentStepIndex > 0 && (
+          {currentStepIndex > 0 && currentStepIndex < 2 && (
+            <div className="mt-5 p-5 rounded-3xl bg-neutral-50 dark:bg-[#121217] border border-neutral-200/60 dark:border-neutral-800 flex flex-col items-center justify-center gap-2 select-none relative overflow-hidden shadow-inner font-semibold">
+              <span className="text-[10px] font-black uppercase tracking-widest text-[#f0854c] flex items-center gap-1.5 leading-none">
+                <Clock className="w-3.5 h-3.5 animate-pulse" />
+                {runningTimerActive 
+                  ? (language === 'es' ? 'TIEMPO CORRIENDO' : 'COUNTDOWN ACTIVE') 
+                  : (language === 'es' ? 'TIEMPO EN PAUSA' : 'COUNTDOWN PAUSED')}
+              </span>
+              <div 
+                className={cn(
+                  "text-5xl md:text-6xl font-mono font-black tracking-wider transition-all duration-300 my-1",
+                  runningTimerActive ? "scale-100 animate-pulse" : "scale-95"
+                )}
+                style={{ color: runningTimerActive ? '#E8834A' : '#555' }}
+              >
+                {formatTime(runningTimeLeft)}
+              </div>
+              
+              {/* Direct controller inside the timer box */}
               <div className="flex items-center gap-2.5 mt-1">
                 <button
                   type="button"
@@ -796,10 +930,18 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
                   <span>{language === 'es' ? '+2 MIN' : '+2 MIN'}</span>
                 </button>
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
-          <div className="mt-5 space-y-2.5">
+          {currentStepIndex === 2 && (
+            <div className="mt-5 p-5 rounded-3xl bg-neutral-50 dark:bg-[#121217] border border-neutral-200/60 dark:border-neutral-800 flex flex-col items-center justify-center gap-2 select-none relative overflow-hidden shadow-inner min-h-[100px]">
+              <span className="text-[13px] font-semibold text-center" style={{ color: '#555' }}>
+                {language === 'es' ? 'Tómate el tiempo que necesites.' : 'Take all the time you need.'}
+              </span>
+            </div>
+          )}
+
+          <div className="mt-5 space-y-2.5 font-semibold">
             <div className="flex items-center justify-between gap-6">
               <div className="h-1 bg-neutral-100 dark:bg-neutral-850 rounded-full flex-1 overflow-hidden">
                 <div 
@@ -840,6 +982,11 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
                 )}>
                   {subtextHint}
                 </p>
+                {currentStepIndex === 0 && (
+                  <p className="text-xs text-neutral-400 dark:text-neutral-550 font-semibold italic mt-2">
+                    {language === 'es' ? 'El tiempo empieza cuando estés listo.' : 'Time starts when you are ready.'}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -857,7 +1004,11 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
                   type="button"
                   onClick={() => {
                     if (currentStepIndex === 0) {
-                      setIsRunning(true);
+                      if (activeExercise !== null) {
+                        setIsRunning(true);
+                      } else {
+                        setFluxoTimerRunning(true);
+                      }
                     }
                     setCurrentStepIndex(prev => prev + 1);
                   }}
@@ -869,30 +1020,37 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
                   )}
                   style={currentStepIndex === 0 ? { backgroundColor: 'var(--discipline-accent, #ea580c)' } : {}}
                 >
-                  {labelSiguiente}
+                  {currentStepIndex === 0 
+                    ? (language === 'es' ? 'Listo, empezar \u2192' : 'Ready, start \u2192') 
+                    : labelSiguiente}
                 </button>
-                {currentStepIndex === 0 ? (
-                  <button
-                    type="button"
-                    onClick={addTimeBonus}
-                    className="w-full text-center py-2 text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white font-bold text-xs uppercase tracking-widest transition-colors select-none cursor-pointer"
-                  >
-                    {labelMasTiempo}
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const prevIdx = currentStepIndex - 1;
-                      if (prevIdx === 0) {
-                        setIsRunning(false);
-                      }
-                      setCurrentStepIndex(prevIdx);
-                    }}
-                    className="w-full text-center py-2 text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white font-bold text-[11px] uppercase tracking-wider transition-colors select-none cursor-pointer"
-                  >
-                    {labelVolverStep}
-                  </button>
+                {currentStepIndex === 0 ? null : (
+                  <>
+                    <button
+                      type="button"
+                      onClick={addTimeBonus}
+                      className="w-full text-center py-2 text-[#ea580c] hover:text-orange-600 font-bold text-xs uppercase tracking-widest transition-colors select-none cursor-pointer"
+                    >
+                      {labelMasTiempo}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const prevIdx = currentStepIndex - 1;
+                        if (prevIdx === 0) {
+                          if (activeExercise !== null) {
+                            setIsRunning(false);
+                          } else {
+                            setFluxoTimerRunning(false);
+                          }
+                        }
+                        setCurrentStepIndex(prevIdx);
+                      }}
+                      className="w-full text-center py-2 text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white font-bold text-[11px] uppercase tracking-wider transition-colors select-none cursor-pointer"
+                    >
+                      {labelVolverStep}
+                    </button>
+                  </>
                 )}
               </>
             ) : (
@@ -909,7 +1067,11 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
                   onClick={() => {
                     const prevIdx = currentStepIndex - 1;
                     if (prevIdx === 0) {
-                      setIsRunning(false);
+                      if (activeExercise !== null) {
+                        setIsRunning(false);
+                      } else {
+                        setFluxoTimerRunning(false);
+                      }
                     }
                     setCurrentStepIndex(prevIdx);
                   }}
@@ -1046,7 +1208,7 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
             </div>
 
             {/* Main Interactive Workspace Area */}
-            {!generatedExercise && !isGenerating ? (
+            {!generatedExercise ? (
               /* State 1: Configuration Form */
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
@@ -1181,25 +1343,6 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
                   </button>
                 </div>
               </motion.div>
-            ) : isGenerating ? (
-              /* State 2: Spinning Loading Mode */
-              <div className="flex flex-col items-center justify-center py-20 text-center bg-white dark:bg-neutral-900 rounded-[2.5rem] border border-neutral-100 dark:border-neutral-800 min-h-[400px]">
-                <div className="relative mb-6">
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ repeat: Infinity, duration: 15, ease: 'linear' }}
-                    className="absolute -inset-4 rounded-full border-2 border-dashed border-neutral-200 dark:border-neutral-800"
-                    style={{ borderColor: 'var(--discipline-accent)' }}
-                  />
-                  <Loader2 className="w-12 h-12 animate-spin text-neutral-300 z-10 relative" style={{ color: 'var(--discipline-accent)' }} />
-                </div>
-                <h3 className="text-xl font-display font-black text-neutral-900 dark:text-white mb-2">
-                  {ft.generating}
-                </h3>
-                <p className="text-neutral-400 text-xs font-semibold max-w-xs leading-relaxed animate-pulse">
-                  Combinando neurociencia de combate con estímulos de incomodidad controlada...
-                </p>
-              </div>
             ) : generatedExercise && !isReflecting ? (
               /* State 3: Generated custom exercise execution list */
               <motion.div

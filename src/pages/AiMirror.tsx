@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Sparkles, Loader2, ChevronLeft, X, Camera, Trash2, Check, ArrowRight } from 'lucide-react';
+import { Sparkles, Loader2, ChevronLeft, X, Camera, Trash2, Check, ArrowRight, PenTool, Lightbulb } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import { translations } from '../lib/i18n';
@@ -98,13 +98,13 @@ export function AiMirror() {
   const navigate = useNavigate();
   const isEs = language === 'es';
 
-  // rediseño input/state states
-  const [inputText, setInputText] = useState('');
+  // rediseño input/state stat  const [inputText, setInputText] = useState('');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedImageName, setSelectedImageName] = useState<string | null>(null);
   const [etapa, setEtapa] = useState<'boceto' | 'mitad' | 'casi_listo' | null>(null);
   const [mirada, setMirada] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState(1);
+  const [mode, setMode] = useState<'analyze' | 'question'>('analyze');
   
   const [loading, setLoading] = useState(false);
   const [feedbackResponse, setFeedbackResponse] = useState<string | null>(null);
@@ -132,72 +132,87 @@ export function AiMirror() {
   };
 
   const handleSend = async () => {
-    if (!inputText.trim() || !etapa || !mirada || loading) return;
+    const isQuestionMode = mode === 'question';
+    if (!inputText.trim() || loading) return;
+    if (!isQuestionMode && (!etapa || !mirada)) return;
 
     setLoading(true);
     setFeedbackResponse(null);
     setSuggestedRefImage(null);
 
     try {
-      let personalizationContext = "";
-      if (artistPreferences && (artistPreferences.spark || artistPreferences.saboteur)) {
-        const sparkMap: Record<string, string> = {
-          silence: "El usuario prefiere un ambiente de silencio y reflexión profunda. Ofrécele perspectivas muy centradas, directas y zen.",
-          chaos: "El usuario se alimenta de caos dinámico y alta energía. Ofrécele respuestas audaces, ideas rápidas y vibrantes.",
-          pressure: "El usuario se motiva por límites de tiempo y urgencia. Proponle retos breves o cronometrados para salir de las dudas.",
-          chance: "El usuario se inspira con experimentos aleatorios libres. Invítalo a resolver dilemas integrando elementos o materiales imprevistos al azar."
+      let parts: any[] = [];
+      let systemPrompt = "";
+
+      if (isQuestionMode) {
+        systemPrompt = isEs 
+          ? "El artista tiene una pregunta técnica o conceptual. Responde de forma directa y concreta en máximo 3 párrafos cortos. No hagas preguntas de vuelta. No des listas largas. Ve al punto."
+          : "The artist has a technical or conceptual question. Respond directly and concretely in a maximum of 3 short paragraphs. Do not ask questions back. Do not give long lists. Get straight to the point.";
+
+        parts.push({ text: inputText });
+      } else {
+        let personalizationContext = "";
+        if (artistPreferences && (artistPreferences.spark || artistPreferences.saboteur)) {
+          const sparkMap: Record<string, string> = {
+            silence: "El usuario prefiere un ambiente de silencio y reflexión profunda. Ofrécele perspectivas muy centradas, directas y zen.",
+            chaos: "El usuario se alimenta de caos dinámico y alta energía. Ofrécele respuestas audaces, ideas rápidas y vibrantes.",
+            pressure: "El usuario se motiva por límites de tiempo y urgencia. Proponle retos breves o cronometrados para salir de las dudas.",
+            chance: "El usuario se inspira con experimentos aleatorios libres. Invítalo a resolver dilemas integrando elementos o materiales imprevistos al azar."
+          };
+          const saboteurMap: Record<string, string> = {
+            perfectionism: "Su saboteador principal es el perfeccionismo agudo. Recuérdale frecuentemente que la fealdad en las fases iniciales es vital, y evítalo sobre-complicar con detalles técnicos excesivos.",
+            scatter: "Su saboteador es la dispersión mental (exceso de ideas). No le des listas largas de ideas; ordénale amablemente elegir UN solo elemento simple hoy para ejecutar.",
+            criticism: "Padece autocrítica y miedo al juicio ajeno. Sé incondicionalmente alentador, consolida su confianza artística interna y ensalza el valor de experimentar en privado.",
+            fatigue: "Su saboteador es la fatiga de rutina. Atráelo con giros de pensamiento sumamente abstractos, metáforas locas y analogías divertidas."
+          };
+          const sparkText = artistPreferences.spark ? (sparkMap[artistPreferences.spark] || "") : "";
+          const saboteurText = artistPreferences.saboteur ? (saboteurMap[artistPreferences.saboteur] || "") : "";
+          personalizationContext = `\nPERFIL DEL ARTISTA RECEPTOR (Adáptate silenciosamente en tus explicaciones):\n- Estilo De Enfoque/Catalizador: ${sparkText}\n- Saboteador Creativo Principal: ${saboteurText}`;
+        }
+
+        const stageLabelsEs: Record<string, string> = {
+          boceto: 'Boceto',
+          mitad: 'A mitad de desarrollo',
+          casi_listo: 'Casi listo'
         };
-        const saboteurMap: Record<string, string> = {
-          perfectionism: "Su saboteador principal es el perfeccionismo agudo. Recuérdale frecuentemente que la fealdad en las fases iniciales es vital, y evítalo sobre-complicar con detalles técnicos excesivos.",
-          scatter: "Su saboteador es la dispersión mental (exceso de ideas). No le des listas largas de ideas; ordénale amablemente elegir UN solo elemento simple hoy para ejecutar.",
-          criticism: "Padece autocrítica y miedo al juicio ajeno. Sé incondicionalmente alentador, consolida su confianza artística interna y ensalza el valor de experimentar en privado.",
-          fatigue: "Su saboteador es la fatiga de rutina. Atráelo con giros de pensamiento sumamente abstractos, metáforas locas y analogías divertidas."
+        const stageLabelsEn: Record<string, string> = {
+          boceto: 'Sketch',
+          mitad: 'In-progress',
+          casi_listo: 'Almost ready'
         };
-        const sparkText = artistPreferences.spark ? (sparkMap[artistPreferences.spark] || "") : "";
-        const saboteurText = artistPreferences.saboteur ? (saboteurMap[artistPreferences.saboteur] || "") : "";
-        personalizationContext = `\nPERFIL DEL ARTISTA RECEPTOR (Adáptate silenciosamente en tus explicaciones):\n- Estilo De Enfoque/Catalizador: ${sparkText}\n- Saboteador Creativo Principal: ${saboteurText}`;
-      }
 
-      const stageLabelsEs: Record<string, string> = {
-        boceto: 'Boceto',
-        mitad: 'A mitad de desarrollo',
-        casi_listo: 'Casi listo'
-      };
-      const stageLabelsEn: Record<string, string> = {
-        boceto: 'Sketch',
-        mitad: 'In-progress',
-        casi_listo: 'Almost ready'
-      };
+        const selectedStageLabel = isEs ? stageLabelsEs[etapa] : stageLabelsEn[etapa];
 
-      const selectedStageLabel = isEs ? stageLabelsEs[etapa] : stageLabelsEn[etapa];
-
-      let userPrompt = `Hola Espejo IA. Te presento mi trabajo en la disciplina de: ${discipline}.
+        let userPrompt = `Hola Espejo IA. Te presento mi trabajo en la disciplina de: ${discipline}.
 Etapa actual de la obra: ${selectedStageLabel}.
 Mirada de análisis solicitada: "${mirada}".
 
 Contexto de lo que estoy trabajando:
 "${inputText}"`;
 
-      const parts: any[] = [{ text: userPrompt }];
+        parts.push({ text: userPrompt });
 
-      if (selectedImage) {
-        const mimeMatch = selectedImage.match(/^data:(image\/[a-zA-Z0-9\-\+.#]+);base64,/);
-        const mimeType = mimeMatch ? mimeMatch[1] : "image/jpeg";
-        const base64Data = selectedImage.replace(/^data:image\/[a-zA-Z]+;base64,/, "");
+        if (selectedImage) {
+          const mimeMatch = selectedImage.match(/^data:(image\/[a-zA-Z0-9\-\+.#]+);base64,/);
+          const mimeType = mimeMatch ? mimeMatch[1] : "image/jpeg";
+          const base64Data = selectedImage.replace(/^data:image\/[a-zA-Z]+;base64,/, "");
 
-        parts.push({
-          inlineData: {
-            data: base64Data,
-            mimeType: mimeType
-          }
-        });
+          parts.push({
+            inlineData: {
+              data: base64Data,
+              mimeType: mimeType
+            }
+          });
+        }
+
+        systemPrompt = `${t.aiMirrorSystemPrompt} La disciplina actual es ${discipline}.${personalizationContext} Si necesitas mostrar un ejemplo visual o el usuario pide una referencia de imagen, usa exactamente este formato: [GENERATE_IMAGE: descripción detallada del prompt en inglés] y luego continúa con tu explicación.`;
       }
 
       const response = await ai.models.generateContent({
         model: "gemini-3.5-flash",
         contents: parts,
         config: {
-          systemInstruction: `${t.aiMirrorSystemPrompt} La disciplina actual es ${discipline}.${personalizationContext} Si necesitas mostrar un ejemplo visual o el usuario pide una referencia de imagen, usa exactamente este formato: [GENERATE_IMAGE: descripción detallada del prompt en inglés] y luego continúa con tu explicación.`,
+          systemInstruction: systemPrompt,
         },
       });
 
