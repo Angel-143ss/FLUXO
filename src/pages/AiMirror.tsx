@@ -235,12 +235,22 @@ Contexto de lo que estoy trabajando:
       if (generatedImageUrl) {
         setSuggestedRefImage(generatedImageUrl);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("AI Error:", error);
+      const errorMessage = error?.message || '';
+      const isApiKeyError = errorMessage.includes('API_KEY_INVALID') || 
+                           errorMessage.includes('API key not found') ||
+                           errorMessage.includes('Falta la clave de Gemini API') ||
+                           errorMessage.includes('Gemini API key is missing');
+      
       setFeedbackResponse(
-        isEs 
-          ? "Hubo un error al conectar con el Espejo IA. Por favor, intenta de nuevo." 
-          : "There was an error connecting to the AI Mirror. Please try again."
+        isApiKeyError
+          ? (isEs 
+              ? "Error de Configuración: No se ha detectado o configurado la clave API de Gemini correctamente." 
+              : "Configuration Error: Gemini API key is missing or invalid.")
+          : (isEs 
+              ? `Hubo un error al conectar con el Espejo IA: ${errorMessage || 'Intente de nuevo.'}` 
+              : `Connection error with AI Mirror: ${errorMessage || 'Please try again.'}`)
       );
     } finally {
       setLoading(false);

@@ -1,5 +1,6 @@
 {
   "name": "FLUXO",
   "description": "A minimalist and clean creative companion to help you find your flow and overcome creative blocks.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
