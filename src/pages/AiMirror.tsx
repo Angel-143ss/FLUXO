@@ -279,7 +279,7 @@ Contexto de lo que estoy trabajando:
         <header className="flex items-center gap-3.5 mb-6">
           <button 
             onClick={() => navigate(-1)}
-            className="p-2.5 rounded-full bg-white dark:bg-[#161616] border border-neutral-200/50 dark:border-neutral-850 text-neutral-500 hover:text-neutral-950 dark:hover:text-white transition-all shadow-sm cursor-pointer"
+            className="p-2.5 rounded-full bg-white dark:bg-[#161616] border border-neutral-200/50 dark:border-neutral-800 text-neutral-500 hover:text-neutral-950 dark:hover:text-white transition-all shadow-sm cursor-pointer"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
@@ -386,7 +386,7 @@ Contexto de lo que estoy trabajando:
                     <span className="text-[9px] font-black uppercase tracking-widest text-[#E8834A] block">
                       {isEs ? 'Referencia Visual Sugerida' : 'Suggested Visual Reference'}
                     </span>
-                    <div className="rounded-xl overflow-hidden border border-neutral-200/50 dark:border-neutral-800/60 shadow-sm bg-neutral-50 dark:bg-neutral-850 group relative">
+                    <div className="rounded-xl overflow-hidden border border-neutral-200/50 dark:border-neutral-800/60 shadow-sm bg-neutral-50 dark:bg-neutral-800 group relative">
                       <div className="absolute inset-0 flex items-center justify-center opacity-25 group-hover:opacity-0 transition-opacity">
                         <Loader2 className="w-5 h-5 animate-spin" />
                       </div>
@@ -431,24 +431,19 @@ Contexto de lo que estoy trabajando:
               {/* INDICADOR DE PROGRESO */}
               {mode === 'analyze' && (
                 <div className="flex gap-1.5 w-full mb-5" id="step-progress-bar">
-                  {[1, 2, 3].map((step) => {
-                    let bgColor = '#252525';
-                    let opacity = 1;
-                    if (step < currentStep) {
-                      bgColor = '#E8834A';
-                      opacity = 1;
-                    } else if (step === currentStep) {
-                      bgColor = '#E8834A';
-                      opacity = 0.5;
-                    }
-                    return (
-                      <div
-                        key={step}
-                        className="h-[3px] rounded-[2px] flex-1 transition-all duration-300"
-                        style={{ backgroundColor: bgColor, opacity }}
-                      />
-                    );
-                  })}
+                  {[1, 2, 3].map((step) => (
+                    <div
+                      key={step}
+                      className={cn(
+                        "h-[3px] rounded-[2px] flex-1 transition-all duration-300",
+                        step < currentStep
+                          ? "bg-[#E8834A]"
+                          : step === currentStep
+                            ? "bg-[#E8834A]/50"
+                            : "bg-neutral-200 dark:bg-neutral-800"
+                      )}
+                    />
+                  ))}
                 </div>
               )}
 
@@ -470,8 +465,8 @@ Contexto de lo que estoy trabajando:
                         className={cn(
                           "flex-1 py-3 px-3 border text-[11px] font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all rounded-[10px] cursor-pointer select-none",
                           mode === 'analyze'
-                            ? "bg-[#2a1a0e] border-[#E8834A] text-[#E8834A]"
-                            : "bg-[#161616] border-[#252525] text-[#555555]"
+                            ? "bg-[#E8834A]/10 dark:bg-[#E8834A]/15 border-[#E8834A] text-[#E8834A]"
+                            : "bg-neutral-50 hover:bg-neutral-100 dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 text-neutral-500 dark:text-neutral-450 hover:text-neutral-700 dark:hover:text-neutral-200"
                         )}
                       >
                         <PenTool className="w-3.5 h-3.5" />
@@ -483,8 +478,8 @@ Contexto de lo que estoy trabajando:
                         className={cn(
                           "flex-1 py-3 px-3 border text-[11px] font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all rounded-[10px] cursor-pointer select-none",
                           mode === 'question'
-                            ? "bg-[#2a1a0e] border-[#E8834A] text-[#E8834A]"
-                            : "bg-[#161616] border-[#252525] text-[#555555]"
+                            ? "bg-[#E8834A]/10 dark:bg-[#E8834A]/15 border-[#E8834A] text-[#E8834A]"
+                            : "bg-neutral-50 hover:bg-neutral-100 dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 text-neutral-500 dark:text-neutral-450 hover:text-neutral-700 dark:hover:text-neutral-200"
                         )}
                       >
                         <Lightbulb className="w-3.5 h-3.5" />
@@ -514,13 +509,13 @@ Contexto de lo que estoy trabajando:
                                 <button
                                   type="button"
                                   onClick={() => fileInputRef.current?.click()}
-                                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-neutral-200 dark:border-neutral-800 text-neutral-500 dark:text-neutral-400 hover:text-[#E8834A] dark:hover:text-[#E8834A] hover:bg-neutral-50 dark:hover:bg-neutral-850 text-[10px] font-black uppercase tracking-wide transition-all cursor-pointer select-none"
+                                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-neutral-200 dark:border-neutral-800 text-neutral-500 dark:text-neutral-400 hover:text-[#E8834A] dark:hover:text-[#E8834A] hover:bg-neutral-50 dark:hover:bg-neutral-800 text-[10px] font-black uppercase tracking-wide transition-all cursor-pointer select-none"
                                 >
                                   <Camera className="w-3.5 h-3.5 mt-[-1px]" />
                                   <span>{isEs ? 'Subir imagen (opcional)' : 'Upload image (optional)'}</span>
                                 </button>
                               ) : (
-                                <div className="flex items-center justify-between gap-3 p-2 rounded-lg bg-neutral-50 dark:bg-neutral-850 border border-neutral-200/50 dark:border-neutral-800/50 w-full">
+                                <div className="flex items-center justify-between gap-3 p-2 rounded-lg bg-neutral-50 dark:bg-neutral-800 border border-neutral-200/50 dark:border-neutral-800/50 w-full">
                                   <div className="flex items-center gap-2 min-w-0">
                                     <img 
                                       src={selectedImage} 
@@ -644,7 +639,7 @@ Contexto de lo que estoy trabajando:
                                   "py-2 px-1 rounded-xl border text-center text-xs transition-all active:scale-95 cursor-pointer select-none",
                                   isSelected 
                                     ? "border-[#E8834A] bg-[#E8834A]/5 text-[#E8834A] font-black" 
-                                    : "border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 font-bold hover:bg-neutral-50 dark:hover:bg-neutral-850 bg-white dark:bg-[#161616]"
+                                    : "border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 font-bold hover:bg-neutral-50 dark:hover:bg-neutral-800 bg-white dark:bg-[#161616]"
                                 )}
                               >
                                 {label}
@@ -715,7 +710,7 @@ Contexto de lo que estoy trabajando:
                                   "py-3 px-4 rounded-xl border text-left text-xs transition-all active:scale-99 flex items-center justify-between cursor-pointer select-none",
                                   isSelected 
                                     ? "border-[#E8834A] bg-[#E8834A]/5 text-neutral-900 dark:text-white font-black" 
-                                    : "border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 font-bold hover:bg-neutral-50 dark:hover:bg-neutral-850 bg-white dark:bg-[#161616]"
+                                    : "border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 font-bold hover:bg-neutral-50 dark:hover:bg-neutral-800 bg-white dark:bg-[#161616]"
                                 )}
                               >
                                 <span>{label}</span>

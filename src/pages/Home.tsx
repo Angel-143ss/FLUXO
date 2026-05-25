@@ -130,7 +130,7 @@ export function Home() {
                   "flex-1 text-left p-3.5 rounded-xl transition-all duration-300 flex items-center justify-between cursor-pointer border select-none min-h-[72px]",
                   isActive
                     ? "bg-[#fdf8f5] dark:bg-[#1c1208] border-[#E8834A]"
-                    : "bg-white dark:bg-[#161616] border-neutral-200 dark:border-neutral-900 hover:border-neutral-300 dark:hover:border-neutral-850"
+                    : "bg-white dark:bg-[#161616] border-neutral-200 dark:border-neutral-900 hover:border-neutral-300 dark:hover:border-neutral-800"
                 )}
               >
                 <div className="flex items-center gap-2.5">

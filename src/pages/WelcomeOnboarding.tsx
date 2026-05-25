@@ -500,7 +500,7 @@ export function WelcomeOnboarding() {
                     className={`flex items-start gap-4 p-5 rounded-[2rem] border text-left transition-all ${
                       selectedSpark === opt.value
                         ? 'bg-[#fdf8f5] dark:bg-[#1c1208] border-[#E8834A] shadow-lg shadow-[#E8834A]/5'
-                        : 'bg-white dark:bg-[#161616] border-neutral-200 dark:border-[#252525] hover:border-neutral-300 dark:hover:border-neutral-850'
+                        : 'bg-white dark:bg-[#161616] border-neutral-200 dark:border-[#252525] hover:border-neutral-300 dark:hover:border-neutral-800'
                     }`}
                   >
                     <span className="text-3xl mt-1 shrink-0">{opt.icon}</span>
@@ -564,7 +564,7 @@ export function WelcomeOnboarding() {
                     className={`flex items-start gap-4 p-5 rounded-[2rem] border text-left transition-all ${
                       selectedSaboteur === opt.value
                         ? 'bg-[#fdf8f5] dark:bg-[#1c1208] border-[#E8834A] shadow-lg shadow-[#E8834A]/5'
-                        : 'bg-white dark:bg-[#161616] border-neutral-200 dark:border-[#252525] hover:border-neutral-300 dark:hover:border-neutral-850'
+                        : 'bg-white dark:bg-[#161616] border-neutral-200 dark:border-[#252525] hover:border-neutral-300 dark:hover:border-neutral-800'
                     }`}
                   >
                     <span className="text-3xl mt-1 shrink-0">{opt.icon}</span>

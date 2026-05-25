@@ -15,7 +15,7 @@
   --radius-3xl: 2rem;
 }
 
-@custom-variant dark (&:where(.dark, .dark *));
+@variant dark (&:where(.dark, .dark *));
 
 @layer base {
   body {

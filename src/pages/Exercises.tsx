@@ -39,6 +39,71 @@ interface FluxoExercise {
   howToKnowItWorked: string;
 }
 
+const getFallbackExercise = (blockType: 'Parálisis' | 'Loop' | 'Vacío', lang: Language): FluxoExercise => {
+  const isEs = lang === 'es';
+  if (blockType === 'Parálisis') {
+    return {
+      title: isEs ? 'Garabato de 2 Minutos' : '2-Minute Doodle',
+      description: isEs 
+        ? 'Rompe la parálisis inicial haciendo marcas rápidas y sin sentido en tu lienzo.' 
+        : 'Break initial paralysis by making quick, senseless marks on your canvas.',
+      materials: isEs ? 'Cualquier lápiz, bolígrafo o papel.' : 'Any pen, pencil, or paper.',
+      steps: isEs ? [
+        "Coloca la punta del lápiz en el centro de la hoja.",
+        "Dibuja líneas onduladas continuas sin levantar la mano durante 60 segundos.",
+        "Rellena tres de los espacios cerrados creados con líneas cruzadas rápidas."
+      ] : [
+        "Place the pen tip in the center of the sheet.",
+        "Draw continuous wavy lines without lifting your hand for 60 seconds.",
+        "Fill three of the closed spaces created with quick crosshatching."
+      ],
+      howToKnowItWorked: isEs 
+        ? 'Tienes un garabato caótico y tu mano ya se calentó.' 
+        : 'You have a chaotic doodle and your hand is now warmed up.'
+    };
+  } else if (blockType === 'Loop') {
+    return {
+      title: isEs ? 'La Peor Versión Intencional' : 'The Terrible Version',
+      description: isEs 
+        ? 'Haz un boceto deliberadamente horrible para quitarte el peso del juicio estético.' 
+        : 'Make a deliberately awful sketch to shed the weight of aesthetic judgment.',
+      materials: isEs ? 'Papel limpio y un bolígrafo de tinta no borrable.' : 'Clean paper and a non-erasable pen.',
+      steps: isEs ? [
+        "Elige un objeto cotidiano a tu alrededor.",
+        "Dibuja el objeto usando tu mano no dominante sin mirar el papel.",
+        "Agrega exageraciones grotescas a las proporciones del dibujo."
+      ] : [
+        "Pick any everyday object around you.",
+        "Draw the object using your non-dominant hand without looking at the paper.",
+        "Add grotesque exaggerations to the proportions of the drawing."
+      ],
+      howToKnowItWorked: isEs 
+        ? 'Te ríes o te da gracia el resultado, perdiendo el miedo a fallar.' 
+        : 'You laugh or find the result amusing, losing the fear of failing.'
+    };
+  } else {
+    return {
+      title: isEs ? 'El Objeto de 3 Formas' : 'The Three-Shape Object',
+      description: isEs 
+        ? 'Observa y deconstruye un objeto de tu entorno usando formas básicas.' 
+        : 'Observe and deconstruct an object from your environment using basic shapes.',
+      materials: isEs ? 'Lápiz y papel.' : 'Pencil and paper.',
+      steps: isEs ? [
+        "Elige un objeto frente a ti (taza, lámpara, silla).",
+        "Dibuja solo su silueta básica usando únicamente círculos o rectángulos.",
+        "Sombra los espacios vacíos alrededor del objeto, ignorando los detalles internos."
+      ] : [
+        "Choose an object in front of you (mug, lamp, chair).",
+        "Draw only its basic silhouette using only circles or rectangles.",
+        "Shade the negative spaces around the object, ignoring internal details."
+      ],
+      howToKnowItWorked: isEs 
+        ? 'Lograste ver el objeto como formas puras en lugar de su etiqueta mental.' 
+        : 'You managed to see the object as pure shapes instead of its mental label.'
+    };
+  }
+};
+
 const getExercisesByDiscipline = (lang: Language): Record<Discipline, { title: string; description: string; duration: number }[]> => ({
   Writing: [
     { 
@@ -305,7 +370,9 @@ export function Exercises() {
   const [additionalContext, setAdditionalContext] = useState('');
   
   // States of exercise execution
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [isGenerating, setIsGenerating] = useState<boolean>(
+    !!(location.state && location.state.startWithState && location.state.autoStart)
+  );
   const [generatedExercise, setGeneratedExercise] = useState<FluxoExercise | null>(null);
   const [startedGenerated, setStartedGenerated] = useState(false);
   const [fluxoTimeLeft, setFluxoTimeLeft] = useState(15 * 60);
@@ -532,7 +599,12 @@ Devuelve obligatoriamente un formato JSON con la siguiente estructura y datos re
       setFluxoTimeLeft(parseInt(timeAvailable) * 60);
       setMascotStyle('normal');
     } catch (error) {
-      console.error("Error generating exercise:", error);
+      console.error("Error generating exercise, loading local fallback:", error);
+      const currentBlockType = overrideBlockType || blockType;
+      const fallback = getFallbackExercise(currentBlockType, language);
+      setGeneratedExercise(fallback);
+      setFluxoTimeLeft(parseInt(timeAvailable) * 60);
+      setMascotStyle('normal');
     } finally {
       setIsGenerating(false);
     }
@@ -815,7 +887,7 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
 
   if (isGenerating) {
     return (
-      <div className="fixed inset-0 flex flex-col items-center justify-center bg-[#0e0e0e] z-50">
+      <div className="fixed inset-0 flex flex-col items-center justify-center bg-[#fcfcfd] dark:bg-[#0a0a0a] z-50">
         <div className="relative mb-6">
           <motion.div
             animate={{ rotate: 360 }}
@@ -824,7 +896,7 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
           />
           <Loader2 className="w-12 h-12 animate-spin text-orange-500 z-10 relative" />
         </div>
-        <p className="font-semibold select-none text-[13px]" style={{ color: '#555' }}>
+        <p className="font-semibold select-none text-[13px] text-neutral-600 dark:text-neutral-400">
           {language === 'es' ? 'Generando tu ejercicio...' : 'Generating your exercise...'}
         </p>
       </div>
@@ -873,7 +945,7 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
               {currentStepIndex > 0 && currentStepIndex < 2 && (
                 <button
                   onClick={toggleTimerActive}
-                  className="px-3.5 py-1.5 text-[10px] font-mono font-black bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-full flex items-center gap-1.5 cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-850 transition-colors"
+                  className="px-3.5 py-1.5 text-[10px] font-mono font-black bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-full flex items-center gap-1.5 cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
                   style={{ color: runningTimerActive ? '#E8834A' : '#555' }}
                   title={language === 'es' ? 'Clic para pausar/reanudar' : 'Click to pause/resume'}
                 >
@@ -953,7 +1025,7 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
 
           <div className="mt-5 space-y-2.5 font-semibold">
             <div className="flex items-center justify-between gap-6">
-              <div className="h-1 bg-neutral-100 dark:bg-neutral-850 rounded-full flex-1 overflow-hidden">
+              <div className="h-1 bg-neutral-100 dark:bg-neutral-800 rounded-full flex-1 overflow-hidden">
                 <div 
                   className="h-full transition-all duration-500 rounded-full"
                   style={{ width: `${((currentStepIndex + 1) / 3) * 100}%`, backgroundColor: 'var(--discipline-accent, #ea580c)' }}
@@ -1001,9 +1073,9 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
             </div>
 
             <div className="flex items-center justify-center gap-1.5 mt-6 pt-2">
-              <div className={cn("h-1.5 rounded-full transition-all duration-300", currentStepIndex === 0 ? "w-5 bg-orange-500" : "w-1.5 bg-neutral-200 dark:bg-neutral-850")} style={currentStepIndex === 0 ? { backgroundColor: 'var(--discipline-accent, #ea580c)' } : {}} />
-              <div className={cn("h-1.5 rounded-full transition-all duration-300", currentStepIndex === 1 ? "w-5 bg-orange-500" : "w-1.5 bg-neutral-200 dark:bg-neutral-850")} style={currentStepIndex === 1 ? { backgroundColor: 'var(--discipline-accent, #ea580c)' } : {}} />
-              <div className={cn("h-1.5 rounded-full transition-all duration-300", currentStepIndex === 2 ? "w-5 bg-orange-500" : "w-1.5 bg-neutral-200 dark:bg-neutral-850")} style={currentStepIndex === 2 ? { backgroundColor: 'var(--discipline-accent, #ea580c)' } : {}} />
+              <div className={cn("h-1.5 rounded-full transition-all duration-300", currentStepIndex === 0 ? "w-5 bg-orange-500" : "w-1.5 bg-neutral-200 dark:bg-neutral-800")} style={currentStepIndex === 0 ? { backgroundColor: 'var(--discipline-accent, #ea580c)' } : {}} />
+              <div className={cn("h-1.5 rounded-full transition-all duration-300", currentStepIndex === 1 ? "w-5 bg-orange-500" : "w-1.5 bg-neutral-200 dark:bg-neutral-800")} style={currentStepIndex === 1 ? { backgroundColor: 'var(--discipline-accent, #ea580c)' } : {}} />
+              <div className={cn("h-1.5 rounded-full transition-all duration-300", currentStepIndex === 2 ? "w-5 bg-orange-500" : "w-1.5 bg-neutral-200 dark:bg-neutral-800")} style={currentStepIndex === 2 ? { backgroundColor: 'var(--discipline-accent, #ea580c)' } : {}} />
             </div>
           </div>
 
@@ -1026,7 +1098,7 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
                     "w-full py-3.5 rounded-2xl font-black text-sm uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all active:scale-[0.98] select-none cursor-pointer",
                     currentStepIndex === 0 
                       ? "text-white shadow-lg shadow-orange-500/10 hover:shadow-orange-500/20"
-                      : "border border-neutral-300 dark:border-neutral-700 hover:border-neutral-400 dark:hover:border-neutral-500 text-neutral-800 dark:text-white hover:bg-neutral-50 dark:hover:bg-neutral-850/30"
+                      : "border border-neutral-300 dark:border-neutral-700 hover:border-neutral-400 dark:hover:border-neutral-500 text-neutral-800 dark:text-white hover:bg-neutral-50 dark:hover:bg-neutral-800/30"
                   )}
                   style={currentStepIndex === 0 ? { backgroundColor: 'var(--discipline-accent, #ea580c)' } : {}}
                 >
@@ -1150,8 +1222,8 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
             )}
 
             <div className="space-y-3">
-              <div className="p-4 rounded-xl bg-neutral-50 dark:bg-neutral-850/30 border border-neutral-100 dark:border-neutral-800/40 mb-1">
-                <h3 className="font-display font-black text-sm text-neutral-850 dark:text-white mb-0.5">
+              <div className="p-4 rounded-xl bg-neutral-50 dark:bg-neutral-800/30 border border-neutral-100 dark:border-neutral-800/40 mb-1">
+                <h3 className="font-display font-black text-sm text-neutral-800 dark:text-white mb-0.5">
                   {ft.classicHeader}
                 </h3>
                 <p className="text-[11px] text-neutral-500 leading-relaxed">
@@ -1196,163 +1268,38 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
             exit={{ opacity: 0, x: -15 }}
             className="space-y-4"
           >
-            {/* Fluxo Companion Banner */}
-            <div className="p-3.5 rounded-xl bg-white dark:bg-neutral-900 border border-neutral-100 dark:border-neutral-800 flex flex-col md:flex-row items-center gap-4 shadow-sm">
-              <Mascot 
-                shape="pentagon"
-                color="var(--discipline-accent)" 
-                eyes={mascotStyle} 
-                className="w-14 h-14 shrink-0 transition-transform hover:scale-105 duration-300"
-              />
-              <div className="text-center md:text-left space-y-0.5">
-                <span className="text-[9px] font-black uppercase tracking-[0.3em] text-brand-primary" style={{ color: 'var(--discipline-accent)' }}>
-                  Fluxo AI Co-Pilot
-                </span>
-                <h2 className="text-base font-display font-black text-neutral-950 dark:text-white tracking-tight">
-                  {ft.fluxoHelp}
-                </h2>
-                <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed max-w-xl">
-                  {ft.fluxoDesc}
-                </p>
+            {/* Fluxo Companion Banner (Only shown when not playing/reflecting an exercise) */}
+            {!generatedExercise && (
+              <div className="p-3.5 rounded-xl bg-white dark:bg-neutral-900 border border-neutral-100 dark:border-neutral-800 flex flex-col md:flex-row items-center gap-4 shadow-sm">
+                <Mascot 
+                  shape="pentagon"
+                  color="var(--discipline-accent)" 
+                  eyes={mascotStyle} 
+                  className="w-14 h-14 shrink-0 transition-transform hover:scale-105 duration-300"
+                />
+                <div className="text-center md:text-left space-y-0.5">
+                  <span className="text-[9px] font-black uppercase tracking-[0.3em] text-brand-primary" style={{ color: 'var(--discipline-accent)' }}>
+                    Fluxo AI Co-Pilot
+                  </span>
+                  <h2 className="text-base font-display font-black text-neutral-950 dark:text-white tracking-tight">
+                    {ft.fluxoHelp}
+                  </h2>
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed max-w-xl">
+                    {ft.fluxoDesc}
+                  </p>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Main Interactive Workspace Area */}
             {!generatedExercise ? (
-              /* State 1: Configuration Form */
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-100 dark:border-neutral-800/40 p-4 shadow-md space-y-4"
-              >
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Artist Type Input */}
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 dark:text-neutral-500 block">
-                      {ft.artistType}
-                    </label>
-                    <input
-                      type="text"
-                      value={artistType}
-                      onChange={(e) => setArtistType(e.target.value)}
-                      placeholder={ft.artistPlaceholder}
-                      className="w-full px-5 py-4 bg-neutral-50 dark:bg-neutral-800 border border-neutral-100 dark:border-neutral-700/50 rounded-2xl text-sm focus:ring-2 focus:ring-neutral-400/20 outline-none transition-all dark:text-white font-semibold"
-                    />
-                    {/* Suggestions Chips */}
-                    <div className="flex flex-wrap gap-2 pt-1">
-                      {['ilustrador', 'músico', 'escritor', 'fotógrafo', 'pintor'].map((suggestion) => (
-                        <button
-                          key={suggestion}
-                          type="button"
-                          onClick={() => setArtistType(suggestion)}
-                          className={cn(
-                            "px-3 py-1 rounded-full text-[10px] font-bold transition-all border",
-                            artistType.toLowerCase() === suggestion
-                              ? "bg-neutral-900 border-neutral-900 text-white dark:bg-white dark:text-neutral-950"
-                              : "bg-neutral-50 dark:bg-neutral-850 hover:bg-neutral-100 text-neutral-500 border-neutral-200/50 dark:border-neutral-700"
-                          )}
-                        >
-                          {suggestion}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Available Time Selection */}
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 dark:text-neutral-500 block">
-                      {ft.timeAvailable}
-                    </label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {(['5', '15', '30'] as const).map((tVal) => (
-                        <button
-                          key={tVal}
-                          type="button"
-                          onClick={() => setTimeAvailable(tVal)}
-                          className={cn(
-                            "py-3.5 rounded-2xl font-black text-xs uppercase tracking-wider transition-all border flex flex-col items-center justify-center gap-1",
-                            timeAvailable === tVal
-                              ? "bg-neutral-950 border-neutral-950 text-white dark:bg-white dark:border-white dark:text-neutral-950 shadow-md"
-                              : "bg-white dark:bg-neutral-900 border-neutral-200/70 dark:border-neutral-800 text-neutral-500 hover:border-neutral-300 dark:hover:border-neutral-700"
-                          )}
-                        >
-                          <span className="text-sm font-black">{tVal}</span>
-                          <span className="text-[9px] font-bold opacity-60 uppercase">{t.min}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Block Type Selector */}
-                <div className="space-y-3">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 dark:text-neutral-500 block">
-                    {ft.blockType}
-                  </label>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {[
-                      { id: 'Parálisis' as const, title: ft.blockParalisis, desc: ft.blockParalisisDesc, icon: Brain },
-                      { id: 'Loop' as const, title: ft.blockLoop, desc: ft.blockLoopDesc, icon: Flame },
-                      { id: 'Vacío' as const, title: ft.blockVacio, desc: ft.blockVacioDesc, icon: Ban }
-                    ].map((item) => {
-                      const isSelected = blockType === item.id;
-                      return (
-                        <button
-                          key={item.id}
-                          type="button"
-                          onClick={() => setBlockType(item.id)}
-                          className={cn(
-                            "p-5 rounded-[2rem] border text-left flex flex-col gap-3 transition-all",
-                            isSelected
-                              ? "bg-white dark:bg-neutral-900 border-2 text-neutral-950 dark:text-white shadow-xl"
-                              : "bg-white dark:bg-neutral-900/40 border-neutral-200/60 dark:border-neutral-800 text-neutral-500 hover:border-neutral-300 dark:hover:border-neutral-700"
-                          )}
-                          style={isSelected ? { borderColor: 'var(--discipline-accent)', borderWidth: '2px' } : {}}
-                        >
-                          <div 
-                            className="w-10 h-10 rounded-xl flex items-center justify-center"
-                            style={{ 
-                              backgroundColor: isSelected ? 'var(--discipline-accent)' : undefined, 
-                              color: isSelected ? '#fff' : 'currentColor' 
-                            }}
-                          >
-                            <item.icon className="w-5 h-5" />
-                          </div>
-                          <div>
-                            <p className="font-black text-sm text-neutral-900 dark:text-white mb-1">{item.title}</p>
-                            <p className="text-[11px] leading-relaxed opacity-80">{item.desc}</p>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Additional context optional input */}
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 dark:text-neutral-500 block">
-                    {ft.additionalContext}
-                  </label>
-                  <textarea
-                    value={additionalContext}
-                    onChange={(e) => setAdditionalContext(e.target.value)}
-                    placeholder={ft.contextPlaceholder}
-                    rows={3}
-                    className="w-full px-5 py-4 bg-neutral-50 dark:bg-neutral-800/40 border border-neutral-100 dark:border-neutral-700/50 rounded-2xl text-xs focus:ring-2 focus:ring-neutral-400/25 outline-none transition-all dark:text-white leading-relaxed font-medium"
-                  />
-                </div>
-
-                <div className="pt-4">
-                  <button
-                    onClick={generateFluxoAntidote}
-                    className="w-full py-4 rounded-full font-black text-sm uppercase tracking-widest text-white shadow-xl flex items-center justify-center gap-3 transition-transform hover:scale-[1.01] active:scale-98 cursor-pointer"
-                    style={{ backgroundColor: 'var(--discipline-accent)' }}
-                  >
-                    <Sparkles className="w-4 h-4 fill-white animate-pulse" />
-                    {ft.generateBtn}
-                  </button>
-                </div>
-              </motion.div>
+              /* State 1: Automatic Loading Card (Bypassed Configuration) */
+              <div className="flex flex-col items-center justify-center py-24 bg-white dark:bg-neutral-900 border border-neutral-100 dark:border-neutral-800/60 rounded-[2.5rem] text-center space-y-4 shadow-sm select-none">
+                <Loader2 className="w-8 h-8 animate-spin text-[#E8834A]" style={{ color: 'var(--discipline-accent)' }} />
+                <p className="text-sm font-black text-neutral-600 dark:text-neutral-300">
+                  {language === 'es' ? 'Preparando tu ejercicio neuro-creativo...' : 'Preparing your neuro-creative exercise...'}
+                </p>
+              </div>
             ) : generatedExercise && !isReflecting ? (
               /* State 3: Generated custom exercise execution list */
               <motion.div
@@ -1364,7 +1311,7 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
                 <div className="p-6 md:p-10 border-b border-neutral-50 dark:border-neutral-800 md:pb-8 flex flex-col md:flex-row md:items-start justify-between gap-6">
                   <div className="space-y-3 flex-1">
                     <div className="flex items-center gap-3 flex-wrap">
-                      <span className="px-3.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider text-black bg-neutral-100 dark:bg-neutral-850 dark:text-white border border-neutral-200/50 dark:border-neutral-700">
+                      <span className="px-3.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider text-black bg-neutral-100 dark:bg-neutral-800 dark:text-white border border-neutral-200/50 dark:border-neutral-700">
                         ⚡ {ft.blockType}: {blockType}
                       </span>
                       <span 
@@ -1386,7 +1333,7 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
                   </div>
 
                   {/* Materials Card */}
-                  <div className="p-4 rounded-2xl bg-neutral-50 dark:bg-neutral-850 border border-neutral-150/60 dark:border-neutral-800/80 max-w-sm shrink-0 flex flex-col gap-1 md:w-64">
+                  <div className="p-4 rounded-2xl bg-neutral-50 dark:bg-neutral-800 border border-neutral-150/60 dark:border-neutral-800/80 max-w-sm shrink-0 flex flex-col gap-1 md:w-64">
                     <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400 dark:text-neutral-500 block">
                       🎒 {ft.needs}
                     </span>
@@ -1420,7 +1367,7 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
                   </div>
 
                   {/* Concrete Success Checkbox */}
-                  <div className="mt-10 p-5 rounded-[2rem] bg-neutral-50/50 dark:bg-neutral-850/30 border border-dashed border-neutral-200 dark:border-neutral-800/50 flex items-start gap-4">
+                  <div className="mt-10 p-5 rounded-[2rem] bg-neutral-50/50 dark:bg-neutral-800/30 border border-dashed border-neutral-200 dark:border-neutral-800/50 flex items-start gap-4">
                     <div className="w-10 h-10 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200/50 dark:border-neutral-800 flex items-center justify-center text-xl shadow-inner shrink-0 leading-none">
                       🎯
                     </div>
@@ -1436,7 +1383,7 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
                 </div>
 
                 {/* Sub-workspace timer area */}
-                <div className="bg-neutral-50/75 dark:bg-neutral-850/60 border-t border-neutral-100 dark:border-neutral-850 p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="bg-neutral-50/75 dark:bg-neutral-800/60 border-t border-neutral-100 dark:border-neutral-800 p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
                   {/* Circular Timer view */}
                   <div className="flex items-center gap-6">
                     <div className="text-3xl md:text-5xl font-mono font-black tracking-tight text-neutral-900 dark:text-white bg-white dark:bg-neutral-900 border border-neutral-200/40 dark:border-neutral-800 px-6 py-3 rounded-2xl min-w-[130px] text-center shadow-inner">
@@ -1463,10 +1410,10 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
                   {/* Completion buttons */}
                   <div className="flex items-center gap-3 w-full md:w-auto">
                     <button
-                      onClick={() => { setGeneratedExercise(null); setStartedGenerated(false); }}
-                      className="flex-1 md:flex-none px-6 py-4 rounded-full border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 font-bold text-xs uppercase tracking-widest hover:bg-neutral-100 dark:hover:bg-neutral-850 transition-all active:scale-95"
+                      onClick={() => generateFluxoAntidote(blockType)}
+                      className="flex-1 md:flex-none px-6 py-4 rounded-full border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 font-bold text-xs uppercase tracking-widest hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all active:scale-95 cursor-pointer"
                     >
-                      {language === 'es' ? 'Volver a configurar' : 'Re-configure'}
+                      {language === 'es' ? 'Generar otro' : 'Generate another'}
                     </button>
                     <button
                       onClick={handleFluxoFinished}
@@ -1504,8 +1451,8 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
                   {!fluxoEvaluation ? (
                     /* Step A: Ask and get user reply */
                     <div className="space-y-4">
-                      <div className="bg-neutral-50 dark:bg-neutral-850 p-6 rounded-3xl border border-neutral-150 dark:border-neutral-800 relative">
-                        <div className="absolute left-6 -top-3 w-4 h-4 bg-neutral-50 dark:bg-neutral-850 rotate-45 border-l border-t border-neutral-150 dark:border-neutral-800 md:-left-4 md:top-10 md:rotate-[-45deg] md:border-t-0 md:border-r-0 md:border-b-0 hidden md:block" />
+                      <div className="bg-neutral-50 dark:bg-neutral-800 p-6 rounded-3xl border border-neutral-150 dark:border-neutral-800 relative">
+                        <div className="absolute left-6 -top-3 w-4 h-4 bg-neutral-50 dark:bg-neutral-800 rotate-45 border-l border-t border-neutral-150 dark:border-neutral-800 md:-left-4 md:top-10 md:rotate-[-45deg] md:border-t-0 md:border-r-0 md:border-b-0 hidden md:block" />
                         <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400 dark:text-neutral-500 mb-2">
                           💬 {ft.fluxoQuestionHeader}
                         </p>
@@ -1563,7 +1510,7 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
                       animate={{ opacity: 1, y: 0 }}
                       className="space-y-6"
                     >
-                      <div className="bg-neutral-50 dark:bg-neutral-850 p-6 rounded-3xl border border-neutral-150 dark:border-neutral-800">
+                      <div className="bg-neutral-50 dark:bg-neutral-800 p-6 rounded-3xl border border-neutral-150 dark:border-neutral-800">
                         <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400 dark:text-neutral-500 mb-2">
                           🔮 {ft.evaluationHeader}
                         </p>
@@ -1573,9 +1520,9 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
                       </div>
 
                       {/* Journey Note Persistence Controls */}
-                      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-[2rem] bg-neutral-50/50 dark:bg-neutral-850/45 border border-neutral-150 dark:border-neutral-850">
+                      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-[2rem] bg-neutral-50/50 dark:bg-neutral-800/45 border border-neutral-150 dark:border-neutral-800">
                         <div className="text-center sm:text-left space-y-1">
-                          <p className="text-xs font-black text-neutral-850 dark:text-white">
+                          <p className="text-xs font-black text-neutral-800 dark:text-white">
                             {language === 'es' ? '¿Quieres rememorar esta lección?' : 'Want to recall this lesson?'}
                           </p>
                           <p className="text-[11px] text-neutral-400 leading-none">
@@ -1620,10 +1567,10 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
                       )}
 
                       {/* Nav paths / decisions buttons block (a, b, c) */}
-                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-4 border-t border-neutral-100 dark:border-neutral-850">
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-4 border-t border-neutral-100 dark:border-neutral-800">
                         <button
                           onClick={generateFluxoAntidote}
-                          className="px-5 py-4 rounded-full border border-neutral-200 dark:border-neutral-850 text-neutral-700 dark:text-neutral-200 font-black text-xs uppercase tracking-widest hover:bg-neutral-50 dark:hover:bg-neutral-850 transition-all active:scale-95"
+                          className="px-5 py-4 rounded-full border border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-200 font-black text-xs uppercase tracking-widest hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-all active:scale-95"
                         >
                           🔄 {ft.actionA}
                         </button>
@@ -1637,7 +1584,7 @@ Escribe tu respuesta final en el idioma ${language === 'es' ? 'español' : 'ingl
                             setUserAnswer('');
                             navigate('/');
                           }}
-                          className="px-5 py-4 rounded-full border border-neutral-200 dark:border-neutral-850 text-neutral-700 dark:text-neutral-200 font-black text-xs uppercase tracking-widest hover:bg-neutral-50 dark:hover:bg-neutral-850 transition-all active:scale-95"
+                          className="px-5 py-4 rounded-full border border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-200 font-black text-xs uppercase tracking-widest hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-all active:scale-95"
                         >
                           🎨 {ft.actionB}
                         </button>
