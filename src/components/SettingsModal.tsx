@@ -1,13 +1,13 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Moon, Sun, Globe, Info, LogOut } from 'lucide-react';
+import { X, Moon, Sun, Globe, Info, LogOut, Download } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
 import { translations } from '../lib/i18n';
 import { auth } from '../lib/firebase';
 import { signOut } from 'firebase/auth';
 
 export function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
-  const { theme, toggleTheme, language, setLanguage } = useAppContext();
+  const { theme, toggleTheme, language, setLanguage, isInstallable, installApp } = useAppContext();
   const t = translations[language];
 
   const handleLogout = async () => {
@@ -81,6 +81,28 @@ export function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: (
                   <span className={`inline-block h-3 w-3 transform rounded-full transition-transform ${theme === 'dark' ? 'translate-x-6 bg-white' : 'translate-x-1 bg-neutral-900'}`} />
                 </button>
               </div>
+
+              {/* PWA Install */}
+              {isInstallable ? (
+                <div className="pt-6 border-t border-neutral-50 dark:border-neutral-800 space-y-3">
+                  <div className="flex flex-col gap-1 text-left">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#E8834A]">{t.installApp}</span>
+                    <p className="text-[10px] text-neutral-400 dark:text-neutral-500 leading-normal">{t.installAppDesc}</p>
+                  </div>
+                  <button
+                    onClick={installApp}
+                    className="w-full flex items-center justify-center gap-3 px-6 py-2.5 bg-[#E8834A]/10 hover:bg-[#E8834A]/15 text-[#E8834A] border border-[#E8834A]/20 rounded-2xl font-bold tracking-widest text-[10px] uppercase transition-all active:scale-98 cursor-pointer"
+                  >
+                    <Download className="w-4 h-4" />
+                    {t.installApp}
+                  </button>
+                </div>
+              ) : (
+                <div className="pt-6 border-t border-neutral-50 dark:border-neutral-800 flex justify-between items-center text-[10px] text-neutral-400 dark:text-neutral-500 font-semibold select-none">
+                  <span className="uppercase tracking-widest">PWA STATUS</span>
+                  <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-500 px-2 py-0.5 rounded-full font-black uppercase tracking-wider text-[8px]">Ready / Active</span>
+                </div>
+              )}
 
               {/* Logout */}
               <div className="pt-6 border-t border-neutral-50 dark:border-neutral-800">

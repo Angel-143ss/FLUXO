@@ -131,6 +131,8 @@ interface AppContextType {
   loadProgressFromDb: () => Promise<void>;
   showGuestWarning: boolean;
   setShowGuestWarning: (show: boolean) => void;
+  isInstallable: boolean;
+  installApp: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -428,6 +430,40 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, [theme]);
 
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isInstallable, setIsInstallable] = useState(false);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setIsInstallable(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      setIsInstallable(false);
+    }
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const installApp = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    try {
+      const { outcome } = await deferredPrompt.userChoice;
+      console.log(`Install prompt outcome: ${outcome}`);
+    } catch (err) {
+      console.error('Error with installation prompt:', err);
+    }
+    setDeferredPrompt(null);
+    setIsInstallable(false);
+  };
+
   const setDiscipline = (d: Discipline) => {
     setDisciplineState(d);
     if (!user?.isAnonymous) {
@@ -648,7 +684,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       loadProfileFromDb,
       loadProgressFromDb,
       showGuestWarning,
-      setShowGuestWarning
+      setShowGuestWarning,
+      isInstallable,
+      installApp
     }}>
       {children}
     </AppContext.Provider>
