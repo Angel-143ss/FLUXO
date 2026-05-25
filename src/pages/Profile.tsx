@@ -57,69 +57,6 @@ export function Profile() {
     localStorage.setItem('creative_daily_reminder_time', time);
   };
 
-  const [testNotifStatus, setTestNotifStatus] = useState<string | null>(null);
-
-  const testDailyNotification = async () => {
-    if (!('Notification' in window)) {
-      setTestNotifStatus(language === 'es' ? 'Navegador no soporta notificaciones nativas.' : 'Browser does not support native notifications.');
-      return;
-    }
-
-    if (Notification.permission === 'default') {
-      setTestNotifStatus(language === 'es' ? 'Solicitando permiso...' : 'Requesting permission...');
-      try {
-        const permission = await Notification.requestPermission();
-        if (permission === 'granted') {
-          triggerNotification();
-        } else {
-          setTestNotifStatus(language === 'es' ? 'Permiso denegado por el usuario.' : 'Permission denied by user.');
-        }
-      } catch (err) {
-        setTestNotifStatus(language === 'es' ? 'Error al solicitar permiso.' : 'Error requesting permission.');
-      }
-    } else if (Notification.permission === 'granted') {
-      triggerNotification();
-    } else {
-      setTestNotifStatus(language === 'es' ? 'Permiso denegado. Por favor actívalo en los ajustes de tu navegador o celular.' : 'Permission denied. Please enable in your browser settings.');
-    }
-  };
-
-  const triggerNotification = async () => {
-    setTestNotifStatus(language === 'es' ? '¡Enviando notificación!' : 'Sending notification!');
-    const title = 'FLUXO';
-    const options = {
-      body: language === 'es' 
-        ? '¡Es hora de crear! Abre FLUXO para romper tu bloqueo diario.' 
-        : 'Time to create! Open FLUXO to break your daily writer\'s block.',
-      icon: '/icon-192.png',
-      badge: '/assets/Fluxo.svg',
-      vibrate: [100, 50, 100],
-      tag: 'fluxo-daily-reminder'
-    };
-
-    try {
-      if ('serviceWorker' in navigator) {
-        const reg = await navigator.serviceWorker.ready;
-        reg.showNotification(title, options);
-        setTestNotifStatus(language === 'es' ? '✓ Notificación enviada con éxito.' : '✓ Notification sent successfully.');
-      } else {
-        new Notification(title, options);
-        setTestNotifStatus(language === 'es' ? '✓ Notificación enviada con éxito.' : '✓ Notification sent successfully.');
-      }
-    } catch (e) {
-      try {
-        new Notification(title, options);
-        setTestNotifStatus(language === 'es' ? '✓ Notificación enviada con éxito.' : '✓ Notification sent successfully.');
-      } catch (err) {
-        setTestNotifStatus(language === 'es' ? 'Error al disparar notificación.' : 'Error triggering notification.');
-      }
-    }
-
-    setTimeout(() => {
-      setTestNotifStatus(null);
-    }, 4500);
-  };
-
   // Real-time Database stats sync matching Progress page
   const [dbUserStats, setDbUserStats] = useState<any>(null);
   const [historyList, setHistoryList] = useState<any[]>([]);
@@ -538,37 +475,6 @@ export function Profile() {
                   </button>
                 );
               })}
-            </div>
-
-            {/* Test Notification Card */}
-            <div className={`mt-6 p-4 rounded-2xl border ${theme === 'dark' ? 'bg-[#161616] border-neutral-800' : 'bg-neutral-50 border-neutral-200'} space-y-3`}>
-              <div className="flex flex-col gap-0.5 text-left">
-                <span className="text-[10px] font-black uppercase tracking-widest text-[#E8834A]">
-                  {language === 'es' ? 'Prueba del Sistema' : 'System Test'}
-                </span>
-                <p className="text-[10px] text-neutral-400 dark:text-neutral-500 font-bold leading-normal">
-                  {language === 'es' 
-                    ? '¿Quieres verificar si tu dispositivo recibe las notificaciones de FLUXO?' 
-                    : 'Do you want to verify if your device receives FLUXO notifications?'}
-                </p>
-              </div>
-              
-              <button
-                type="button"
-                onClick={testDailyNotification}
-                className="w-full py-2.5 bg-neutral-900 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-950 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer select-none active:scale-98 flex items-center justify-center gap-2"
-              >
-                <Bell className="w-3.5 h-3.5" />
-                <span>{language === 'es' ? 'Enviar Notificación de Prueba' : 'Send Test Notification'}</span>
-              </button>
-
-              {testNotifStatus && (
-                <div className="text-center pt-1.5 border-t border-neutral-200/50 dark:border-neutral-800/50">
-                  <span className="text-[9px] font-black tracking-widest uppercase text-[#E8834A] animate-pulse">
-                    {testNotifStatus}
-                  </span>
-                </div>
-              )}
             </div>
 
             <div className="pt-6">
