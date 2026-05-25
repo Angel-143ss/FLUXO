@@ -115,9 +115,6 @@ export function AiMirror() {
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Initialize AI safely
-  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -141,6 +138,12 @@ export function AiMirror() {
     setSuggestedRefImage(null);
 
     try {
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        throw new Error(isEs ? "Falta la clave de Gemini API. Por favor configúrala." : "Gemini API key is missing. Please configure it.");
+      }
+      const ai = new GoogleGenAI({ apiKey });
+
       let parts: any[] = [];
       let systemPrompt = "";
 

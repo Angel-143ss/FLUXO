@@ -393,9 +393,6 @@ export function Exercises() {
     }
   }, [location.state, isGenerating, generatedExercise, activeExercise, isReflecting, navigate]);
 
-  // Initialize AI Client
-  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
   // Start classic exercise
   const startExercise = (index: number) => {
     setActiveExercise(index);
@@ -436,6 +433,7 @@ export function Exercises() {
       if (!apiKey) {
         throw new Error(language === 'es' ? 'Falta la clave API de Gemini' : 'Gemini API Key is missing');
       }
+      const ai = new GoogleGenAI({ apiKey });
 
       // Fetch user profile stats if defined
       let sparkText = "";
@@ -550,6 +548,12 @@ Devuelve obligatoriamente un formato JSON con la siguiente estructura y datos re
     setMascotStyle('closed');
 
     try {
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        throw new Error(language === 'es' ? 'Falta la clave API de Gemini' : 'Gemini API Key is missing');
+      }
+      const ai = new GoogleGenAI({ apiKey });
+
       const prompt = `Eres Fluxo, el acompañante creativo de artistas. El artista de tipo "${artistType}" acaba de terminar tu ejercicio titulado "${generatedExercise.title}".
 Pregúntale exactamente UNA sola cosa — la más útil para entender cómo le fue en el proceso de romper su bloqueo de tipo "${blockType}". No hagas múltiples preguntas ni uses fórmulas corporativas. Sé extremadamente breve, cálido, sincero y directo (de amigo a amigo). Responde en el idioma ${language === 'es' ? 'español' : 'inglés'}.`;
 
@@ -576,6 +580,12 @@ Pregúntale exactamente UNA sola cosa — la más útil para entender cómo le f
     setMascotStyle('closed');
 
     try {
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        throw new Error(language === 'es' ? 'Falta la clave API de Gemini' : 'Gemini API Key is missing');
+      }
+      const ai = new GoogleGenAI({ apiKey });
+
       const prompt = `Eres Fluxo, el compañero artístico y neuro-creativo. El artista de tipo "${artistType}" completó el ejercicio "${generatedExercise.title}" para combatir su bloqueo de tipo "${blockType}". Te ha respondido exactamente esto sobre su experiencia: "${userAnswer}".
 Basándose en su respuesta, debes evaluar de forma breve, empática y muy humana (como un amigo sensato) qué necesita a continuación. Tienes que emitir tu juicio de manera natural y elegir explícitamente una recomendación/acción de entre estas tres:
 a) Otro ejercicio del mismo tipo (si ves que apenas empezó a soltarse o necesita más tracción).
