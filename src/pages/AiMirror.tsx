@@ -272,7 +272,7 @@ Contexto de lo que estoy trabajando:
   const headerSubtitle = isEs ? 'Una mirada honesta a tu trabajo.' : 'An honest look at your work.';
 
   return (
-    <div className="-mx-5 md:-mx-10 -my-6 md:-my-12 p-5 md:p-10 min-h-screen bg-[#f5f5f5] dark:bg-[#0e0e0e] transition-colors duration-200">
+    <div className="-mx-5 md:-mx-10 -my-6 md:-my-12 p-5 md:p-10 min-h-screen bg-[#fcfcfd] dark:bg-[#0a0a0a] transition-colors duration-200">
       <div className="max-w-xl mx-auto space-y-5 select-none pb-24 pt-2">
         
         {/* Header Block with Back button and text size matching standard pages */}
@@ -466,7 +466,7 @@ Contexto de lo que estoy trabajando:
                           "flex-1 py-3 px-3 border text-[11px] font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all rounded-[10px] cursor-pointer select-none",
                           mode === 'analyze'
                             ? "bg-[#E8834A]/10 dark:bg-[#E8834A]/15 border-[#E8834A] text-[#E8834A]"
-                            : "bg-neutral-50 hover:bg-neutral-100 dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 text-neutral-500 dark:text-neutral-450 hover:text-neutral-700 dark:hover:text-neutral-200"
+                            : "bg-neutral-50 hover:bg-neutral-100 dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200"
                         )}
                       >
                         <PenTool className="w-3.5 h-3.5" />
@@ -479,7 +479,7 @@ Contexto de lo que estoy trabajando:
                           "flex-1 py-3 px-3 border text-[11px] font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all rounded-[10px] cursor-pointer select-none",
                           mode === 'question'
                             ? "bg-[#E8834A]/10 dark:bg-[#E8834A]/15 border-[#E8834A] text-[#E8834A]"
-                            : "bg-neutral-50 hover:bg-neutral-100 dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 text-neutral-500 dark:text-neutral-450 hover:text-neutral-700 dark:hover:text-neutral-200"
+                            : "bg-neutral-50 hover:bg-neutral-100 dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200"
                         )}
                       >
                         <Lightbulb className="w-3.5 h-3.5" />
