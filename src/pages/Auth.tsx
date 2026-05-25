@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Chrome, User, Loader2, Wind } from 'lucide-react';
+import { Chrome, User, Loader2 } from 'lucide-react';
 import { 
   signInWithPopup, 
   signInAnonymously
@@ -68,8 +68,8 @@ export function Auth() {
         className="w-full max-w-sm rounded-[2.5rem] bg-white dark:bg-[#161616] border border-neutral-200 dark:border-[#252525] p-8 md:p-10 shadow-xl space-y-8"
       >
         <div className="flex flex-col items-center gap-6">
-          <div className="w-16 h-16 bg-[#E8834A] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-[#E8834A]/20">
-            <Wind className="w-8 h-8" />
+          <div className="w-20 h-20 flex items-center justify-center">
+            <img src="/assets/Fluxo.svg" alt="Fluxo Logo" className="w-20 h-20 object-contain" />
           </div>
           <div className="text-center space-y-2">
             <h1 className="text-2xl font-display font-bold text-[#111] dark:text-white tracking-tight leading-tight">

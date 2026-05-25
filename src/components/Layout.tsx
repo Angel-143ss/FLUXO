@@ -34,9 +34,14 @@ export function Layout() {
     <div className="flex flex-col md:flex-row h-screen bg-[#fcfcfd] dark:bg-[#0a0a0a] text-[#2d2d2d] dark:text-neutral-100 font-sans transition-colors duration-200">
       {/* Sidebar - Desktop Only */}
       <aside className="hidden md:flex w-64 bg-white dark:bg-neutral-900 border-r border-neutral-100 dark:border-neutral-800 flex-col transition-colors duration-200 px-4">
+        <div className="pt-8 pb-2 px-4 flex items-center gap-2.5">
+          <img src="/assets/Fluxo.svg" alt="Fluxo Logo" className="w-8 h-8 object-contain" />
+          <span className="font-display font-black text-lg tracking-wider text-neutral-900 dark:text-white">FLUXO</span>
+        </div>
+
         <button 
           onClick={() => navigate('/profile')}
-          className="py-10 px-4 flex items-center gap-4 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 rounded-3xl transition-all text-left"
+          className="py-6 px-4 mb-4 flex items-center gap-4 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 rounded-3xl transition-all text-left"
         >
           <div className="w-12 h-12 rounded-[1.25rem] overflow-hidden border-2 border-brand-primary/10 shadow-xl shadow-brand-primary/10">
             <img src={userPhoto} alt={userName} className="w-full h-full object-cover" />

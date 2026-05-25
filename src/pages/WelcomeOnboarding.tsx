@@ -202,6 +202,10 @@ export function WelcomeOnboarding() {
               </div>
 
               <div className="space-y-4">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <img src="/assets/Fluxo.svg" alt="Fluxo Logo" className="w-5 h-5 object-contain" />
+                  <span className="font-display font-black text-xs tracking-wider text-neutral-900 dark:text-white">FLUXO</span>
+                </div>
                 <motion.h2 
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
@@ -279,6 +283,10 @@ export function WelcomeOnboarding() {
               </div>
 
               <div className="space-y-4">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <img src="/assets/Fluxo.svg" alt="Fluxo Logo" className="w-5 h-5 object-contain" />
+                  <span className="font-display font-black text-xs tracking-wider text-neutral-900 dark:text-white">FLUXO</span>
+                </div>
                 <motion.h2 
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
@@ -355,6 +363,10 @@ export function WelcomeOnboarding() {
               </div>
 
               <div className="space-y-4">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <img src="/assets/Fluxo.svg" alt="Fluxo Logo" className="w-5 h-5 object-contain" />
+                  <span className="font-display font-black text-xs tracking-wider text-neutral-900 dark:text-white">FLUXO</span>
+                </div>
                 <motion.h2 
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}

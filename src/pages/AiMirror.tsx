@@ -98,7 +98,7 @@ export function AiMirror() {
   const navigate = useNavigate();
   const isEs = language === 'es';
 
-  // rediseño input/state stat  const [inputText, setInputText] = useState('');
+  const [inputText, setInputText] = useState('');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedImageName, setSelectedImageName] = useState<string | null>(null);
   const [etapa, setEtapa] = useState<'boceto' | 'mitad' | 'casi_listo' | null>(null);
@@ -320,12 +320,20 @@ Contexto de lo que estoy trabajando:
               <div className="bg-white dark:bg-[#161616] border border-neutral-200/50 dark:border-neutral-800/60 rounded-xl p-4 shadow-sm flex flex-col md:flex-row gap-4 items-start justify-between">
                 <div className="space-y-2 flex-1">
                   <div className="flex flex-wrap gap-1.5 items-center">
-                    <span className="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-[#E8834A]/10 text-[#E8834A] border border-[#E8834A]/15">
-                      {isEs ? 'Etapa: ' : 'Stage: '}{etapa === 'boceto' ? (isEs ? 'Boceto' : 'Sketch') : etapa === 'mitad' ? (isEs ? 'A mitad' : 'In-progress') : (isEs ? 'Casi listo' : 'Almost ready')}
-                    </span>
-                    <span className="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 border border-neutral-200/40 dark:border-neutral-700/50">
-                      {mirada}
-                    </span>
+                    {mode === 'analyze' ? (
+                      <>
+                        <span className="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-[#E8834A]/10 text-[#E8834A] border border-[#E8834A]/15">
+                          {isEs ? 'Etapa: ' : 'Stage: '}{etapa === 'boceto' ? (isEs ? 'Boceto' : 'Sketch') : etapa === 'mitad' ? (isEs ? 'A mitad' : 'In-progress') : (isEs ? 'Casi listo' : 'Almost ready')}
+                        </span>
+                        <span className="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 border border-neutral-200/40 dark:border-neutral-700/50">
+                          {mirada}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-[#E8834A]/10 text-[#E8834A] border border-[#E8834A]/15">
+                        {isEs ? 'Pregunta' : 'Question'}
+                      </span>
+                    )}
                   </div>
                   <p className="text-[11px] font-medium text-neutral-500 dark:text-neutral-400 italic line-clamp-2 leading-relaxed">
                     "{inputText}"
@@ -333,7 +341,7 @@ Contexto de lo que estoy trabajando:
                 </div>
 
                 {/* Micro Thumbnail of uploaded image */}
-                {selectedImage && (
+                {mode === 'analyze' && selectedImage && (
                   <img 
                     src={selectedImage} 
                     alt="Uploaded work"
@@ -408,26 +416,28 @@ Contexto de lo que estoy trabajando:
               className="bg-white dark:bg-[#161616] border border-neutral-200/50 dark:border-neutral-800/60 rounded-xl p-5.5 shadow-sm space-y-4 overflow-hidden"
             >
               {/* INDICADOR DE PROGRESO */}
-              <div className="flex gap-1.5 w-full mb-5" id="step-progress-bar">
-                {[1, 2, 3].map((step) => {
-                  let bgColor = '#252525';
-                  let opacity = 1;
-                  if (step < currentStep) {
-                    bgColor = '#E8834A';
-                    opacity = 1;
-                  } else if (step === currentStep) {
-                    bgColor = '#E8834A';
-                    opacity = 0.5;
-                  }
-                  return (
-                    <div
-                      key={step}
-                      className="h-[3px] rounded-[2px] flex-1 transition-all duration-300"
-                      style={{ backgroundColor: bgColor, opacity }}
-                    />
-                  );
-                })}
-              </div>
+              {mode === 'analyze' && (
+                <div className="flex gap-1.5 w-full mb-5" id="step-progress-bar">
+                  {[1, 2, 3].map((step) => {
+                    let bgColor = '#252525';
+                    let opacity = 1;
+                    if (step < currentStep) {
+                      bgColor = '#E8834A';
+                      opacity = 1;
+                    } else if (step === currentStep) {
+                      bgColor = '#E8834A';
+                      opacity = 0.5;
+                    }
+                    return (
+                      <div
+                        key={step}
+                        className="h-[3px] rounded-[2px] flex-1 transition-all duration-300"
+                        style={{ backgroundColor: bgColor, opacity }}
+                      />
+                    );
+                  })}
+                </div>
+              )}
 
               <AnimatePresence mode="wait">
                 {currentStep === 1 && (
@@ -439,90 +449,154 @@ Contexto de lo que estoy trabajando:
                     transition={{ duration: 0.25 }}
                     className="space-y-4"
                   >
-                    {/* PASO 1 — Entrada del trabajo */}
-                    <div className="space-y-2">
-                      <label className="text-[#444] dark:text-neutral-400 font-black uppercase text-[10px] tracking-wider block select-none">
-                        {isEs ? 'PASO 1 — Entrada del trabajo' : 'STEP 1 — Work context'}
-                      </label>
-                      
-                      <div className="space-y-2.5">
-                        {/* Small upload button layout with actual upload utilities */}
-                        <div className="flex items-center gap-2">
-                          <input 
-                            type="file" 
-                            ref={fileInputRef} 
-                            onChange={handleImageChange} 
-                            accept="image/*" 
-                            className="hidden" 
-                          />
-                          {!selectedImage ? (
-                            <button
-                              type="button"
-                              onClick={() => fileInputRef.current?.click()}
-                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-neutral-200 dark:border-neutral-800 text-neutral-500 dark:text-neutral-400 hover:text-[#E8834A] dark:hover:text-[#E8834A] hover:bg-neutral-50 dark:hover:bg-neutral-850 text-[10px] font-black uppercase tracking-wide transition-all cursor-pointer select-none"
-                            >
-                              <Camera className="w-3.5 h-3.5 mt-[-1px]" />
-                              <span>{isEs ? 'Subir imagen (opcional)' : 'Upload image (optional)'}</span>
-                            </button>
-                          ) : (
-                            <div className="flex items-center justify-between gap-3 p-2 rounded-lg bg-neutral-50 dark:bg-neutral-850 border border-neutral-200/50 dark:border-neutral-800/50 w-full">
-                              <div className="flex items-center gap-2 min-w-0">
-                                <img 
-                                  src={selectedImage} 
-                                  alt="Upload thumb" 
-                                  className="w-10 h-10 object-cover rounded-md border border-neutral-150 dark:border-neutral-800 shrink-0" 
-                                />
-                                <span className="text-[10px] font-bold text-neutral-500 dark:text-neutral-400 truncate max-w-[150px]">
-                                  {selectedImageName || 'image.jpg'}
-                                </span>
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setSelectedImage(null);
-                                  setSelectedImageName(null);
-                                  if (fileInputRef.current) fileInputRef.current.value = "";
-                                }}
-                                className="p-1 px-2 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 text-red-500 font-bold text-[9px] uppercase tracking-wider flex items-center gap-1 cursor-pointer select-none"
-                              >
-                                <Trash2 className="w-3 h-3" />
-                                <span>{isEs ? 'Eliminar' : 'Remove'}</span>
-                              </button>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Context input textarea */}
-                        <textarea
-                          value={inputText}
-                          onChange={(e) => setInputText(e.target.value)}
-                          placeholder={isEs ? '¿Qué estás trabajando?' : 'What are you working on?'}
-                          rows={3}
-                          className="w-full rounded-xl border border-neutral-200 dark:border-neutral-800 p-3 bg-white dark:bg-[#161616] text-[12px] font-medium outline-none focus:border-[#E8834A] dark:focus:border-[#E8834A] focus:ring-1 focus:ring-[#E8834A]/25 transition-all text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 resize-none leading-relaxed"
-                        />
-                      </div>
-                      
-                      <span className="text-[10px] text-neutral-400 dark:text-neutral-500 font-bold tracking-tight block">
-                        {isEs ? 'Sé específico — entre más contexto, mejor el feedback.' : 'Be specific — the more context, the better the feedback.'}
-                      </span>
-                    </div>
-
-                    {/* CONTINUE BUTTON */}
-                    <div className="pt-2">
+                    {/* TWO MODES TABS */}
+                    <div className="flex flex-row gap-3 w-full">
                       <button
                         type="button"
-                        onClick={() => setCurrentStep(2)}
-                        disabled={!inputText.trim()}
+                        onClick={() => setMode('analyze')}
                         className={cn(
-                          "w-full py-3 rounded-xl font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all cursor-pointer select-none border border-transparent",
-                          inputText.trim()
-                            ? "bg-[#E8834A] text-white hover:bg-orange-500 active:scale-[0.99] shadow-sm shadow-[#E8834A]/20" 
-                            : "bg-neutral-100 dark:bg-neutral-800 text-neutral-400 dark:text-neutral-600 cursor-not-allowed border-neutral-200 dark:border-transparent"
+                          "flex-1 py-3 px-3 border text-[11px] font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all rounded-[10px] cursor-pointer select-none",
+                          mode === 'analyze'
+                            ? "bg-[#2a1a0e] border-[#E8834A] text-[#E8834A]"
+                            : "bg-[#161616] border-[#252525] text-[#555555]"
                         )}
                       >
-                        {isEs ? 'Continuar →' : 'Continue →'}
+                        <PenTool className="w-3.5 h-3.5" />
+                        <span>{isEs ? 'Analizar mi trabajo' : 'Analyze my work'}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setMode('question')}
+                        className={cn(
+                          "flex-1 py-3 px-3 border text-[11px] font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all rounded-[10px] cursor-pointer select-none",
+                          mode === 'question'
+                            ? "bg-[#2a1a0e] border-[#E8834A] text-[#E8834A]"
+                            : "bg-[#161616] border-[#252525] text-[#555555]"
+                        )}
+                      >
+                        <Lightbulb className="w-3.5 h-3.5" />
+                        <span>{isEs ? 'Tengo una pregunta' : 'I have a question'}</span>
                       </button>
                     </div>
+
+                    {mode === 'analyze' ? (
+                      <>
+                        {/* PASO 1 — Entrada del trabajo */}
+                        <div className="space-y-2">
+                          <label className="text-[#444] dark:text-neutral-400 font-black uppercase text-[10px] tracking-wider block select-none">
+                            {isEs ? 'PASO 1 — Entrada del trabajo' : 'STEP 1 — Work context'}
+                          </label>
+                          
+                          <div className="space-y-2.5">
+                            {/* Small upload button layout with actual upload utilities */}
+                            <div className="flex items-center gap-2">
+                              <input 
+                                type="file" 
+                                ref={fileInputRef} 
+                                onChange={handleImageChange} 
+                                accept="image/*" 
+                                className="hidden" 
+                              />
+                              {!selectedImage ? (
+                                <button
+                                  type="button"
+                                  onClick={() => fileInputRef.current?.click()}
+                                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-neutral-200 dark:border-neutral-800 text-neutral-500 dark:text-neutral-400 hover:text-[#E8834A] dark:hover:text-[#E8834A] hover:bg-neutral-50 dark:hover:bg-neutral-850 text-[10px] font-black uppercase tracking-wide transition-all cursor-pointer select-none"
+                                >
+                                  <Camera className="w-3.5 h-3.5 mt-[-1px]" />
+                                  <span>{isEs ? 'Subir imagen (opcional)' : 'Upload image (optional)'}</span>
+                                </button>
+                              ) : (
+                                <div className="flex items-center justify-between gap-3 p-2 rounded-lg bg-neutral-50 dark:bg-neutral-850 border border-neutral-200/50 dark:border-neutral-800/50 w-full">
+                                  <div className="flex items-center gap-2 min-w-0">
+                                    <img 
+                                      src={selectedImage} 
+                                      alt="Upload thumb" 
+                                      className="w-10 h-10 object-cover rounded-md border border-neutral-150 dark:border-neutral-800 shrink-0" 
+                                    />
+                                    <span className="text-[10px] font-bold text-neutral-500 dark:text-neutral-400 truncate max-w-[150px]">
+                                      {selectedImageName || 'image.jpg'}
+                                    </span>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setSelectedImage(null);
+                                      setSelectedImageName(null);
+                                      if (fileInputRef.current) fileInputRef.current.value = "";
+                                    }}
+                                    className="p-1 px-2 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 text-red-500 font-bold text-[9px] uppercase tracking-wider flex items-center gap-1 cursor-pointer select-none"
+                                  >
+                                    <Trash2 className="w-3 h-3" />
+                                    <span>{isEs ? 'Eliminar' : 'Remove'}</span>
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Context input textarea */}
+                            <textarea
+                              value={inputText}
+                              onChange={(e) => setInputText(e.target.value)}
+                              placeholder={isEs ? '¿Qué estás trabajando?' : 'What are you working on?'}
+                              rows={3}
+                              className="w-full rounded-xl border border-neutral-200 dark:border-neutral-800 p-3 bg-white dark:bg-[#161616] text-[12px] font-medium outline-none focus:border-[#E8834A] dark:focus:border-[#E8834A] focus:ring-1 focus:ring-[#E8834A]/25 transition-all text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 resize-none leading-relaxed"
+                            />
+                          </div>
+                          
+                          <span className="text-[10px] text-neutral-400 dark:text-neutral-500 font-bold tracking-tight block">
+                            {isEs ? 'Sé específico — entre más contexto, mejor el feedback.' : 'Be specific — the more context, the better the feedback.'}
+                          </span>
+                        </div>
+
+                        {/* CONTINUE BUTTON */}
+                        <div className="pt-2">
+                          <button
+                            type="button"
+                            onClick={() => setCurrentStep(2)}
+                            disabled={!inputText.trim()}
+                            className={cn(
+                              "w-full py-3 rounded-xl font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all cursor-pointer select-none border border-transparent",
+                              inputText.trim()
+                                ? "bg-[#E8834A] text-white hover:bg-orange-500 active:scale-[0.99] shadow-sm shadow-[#E8834A]/20" 
+                                : "bg-neutral-100 dark:bg-neutral-800 text-neutral-400 dark:text-neutral-600 cursor-not-allowed border-neutral-200 dark:border-transparent"
+                            )}
+                          >
+                            {isEs ? 'Continuar →' : 'Continue →'}
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        {/* MODO 2: Tengo una pregunta */}
+                        <div className="space-y-2">
+                          <textarea
+                            value={inputText}
+                            onChange={(e) => setInputText(e.target.value)}
+                            placeholder={isEs ? '¿Qué quieres saber? Ej: ¿Cómo dibujo un brazo con perspectiva?' : 'What do you want to know? E.g., How do I draw an arm in perspective?'}
+                            rows={5}
+                            className="w-full rounded-xl border border-neutral-200 dark:border-neutral-800 p-3.5 bg-white dark:bg-[#161616] text-[12px] font-medium outline-none focus:border-[#E8834A] dark:focus:border-[#E8834A] focus:ring-1 focus:ring-[#E8834A]/25 transition-all text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 resize-none leading-relaxed"
+                          />
+                        </div>
+
+                        {/* DIRECT ASK BUTTON */}
+                        <div className="pt-2">
+                          <button
+                            type="button"
+                            onClick={handleSend}
+                            disabled={!inputText.trim() || loading}
+                            className={cn(
+                              "w-full py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all cursor-pointer select-none border border-transparent",
+                              inputText.trim() && !loading
+                                ? "bg-[#E8834A] text-white hover:bg-orange-500 active:scale-[0.99] shadow-sm shadow-[#E8834A]/20"
+                                : "bg-neutral-100 dark:bg-neutral-800 text-neutral-400 dark:text-neutral-600 cursor-not-allowed border-neutral-200 dark:border-transparent"
+                            )}
+                          >
+                            {isEs ? 'Preguntar →' : 'Ask →'}
+                          </button>
+                        </div>
+                      </>
+                    )}
                   </motion.div>
                 )}
 
