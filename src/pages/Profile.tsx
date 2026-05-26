@@ -419,6 +419,16 @@ export function Profile() {
                 </button>
               </div>
             </div>
+
+            {/* Author Signature */}
+            <div className="flex flex-col items-center justify-center pt-8 pb-2 text-center select-none">
+              <p className="text-[11px] font-semibold text-neutral-400 dark:text-neutral-500 tracking-wide">
+                Creado por Angel Guerrero
+              </p>
+              <p className="text-[10px] font-mono text-neutral-400 dark:text-neutral-600 mt-0.5">
+                @repressio_143
+              </p>
+            </div>
           </motion.div>
         ) : (
           /* NOTIFICATIONS SUBVIEW WITH HOUR PICKER */
